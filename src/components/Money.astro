@@ -1,0 +1,11 @@
+---
+interface Props { value: number | null; approx?: boolean; class?: string }
+const { value, approx = false, class: cls = '' } = Astro.props;
+const fmt = (v: number) => v.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: Number.isInteger(v) ? 0 : 2 });
+---
+{value === null
+  ? <span class={`money money--todo ${cls}`} aria-label="amount to be confirmed">— TODO</span>
+  : <span class={`money ${cls}`}>{approx ? '≈ ' : ''}{fmt(value)}</span>}
+<style>
+  .money--todo { color: var(--warn); font-weight: 600; }
+</style>

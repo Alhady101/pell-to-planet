@@ -1,0 +1,100 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path relative to site base, e.g. "/my-numbers/" */
+  path?: string;
+}
+const { title, description } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const current = Astro.url.pathname.replace(base, '') || '/';
+
+const nav = [
+  { href: '/', label: 'Start' },
+  { href: '/my-numbers/', label: 'My numbers' },
+  { href: '/funding/', label: 'Funding' },
+  { href: '/gilman/', label: 'Gilman' },
+  { href: '/what-i-gained/', label: 'What I gained' },
+  { href: '/tools/', label: 'Tools' },
+];
+const siteTitle = 'Pell to Planet';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title === siteTitle ? title : `${title} · ${siteTitle}`}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17161a" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap site-header__inner">
+        <a class="brand" href={`${base}/`} aria-label="Pell to Planet, home">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span>Pell <em>to</em> Planet</span>
+        </a>
+        <nav aria-label="Main">
+          <ul>
+            {nav.map((n) => (
+              <li>
+                <a href={`${base}${n.href}`} aria-current={current === n.href ? 'page' : undefined}>{n.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap site-footer__inner">
+        <div>
+          <p class="site-footer__brand">Pell to Planet</p>
+          <p>A Gilman Follow-on Service Project by Gotibeh Alhady, Wayne State University.</p>
+          <p><a href="mailto:alhadygotibeh@gmail.com">alhadygotibeh@gmail.com</a> · <a href="https://www.linkedin.com/in/gotibeh/" rel="me noopener">LinkedIn</a></p>
+        </div>
+        <div>
+          <p>Independent student resource. Not an official publication of Wayne State University or the Gilman Program.</p>
+          <p>Figures are a snapshot with a verified-on date. Check the official sources linked before you apply or pay.</p>
+        </div>
+      </div>
+    </footer>
+
+    <style>
+      .site-header { position: sticky; top: 0; z-index: 50; background: color-mix(in oklab, var(--paper) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+      .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; }
+      .brand { display: inline-flex; align-items: center; gap: 0.55rem; text-decoration: none; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+      .brand em { font-size: 1.1em; }
+      .brand__mark { width: 0.9rem; height: 0.9rem; border-radius: 50%; background: var(--vermilion); box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3.5px var(--vermilion); }
+      nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.15rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+      nav ul::-webkit-scrollbar { display: none; }
+      nav a { display: block; padding: 0.55rem 0.6rem; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius); white-space: nowrap; color: var(--ink-2); }
+      nav a:hover { color: var(--ink); background: var(--paper-2); }
+      nav a[aria-current='page'] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--vermilion); border-radius: 0; }
+      @media (max-width: 40rem) {
+        .site-header__inner { flex-wrap: wrap; padding-block: 0.4rem; }
+        nav { width: calc(100% + 2 * var(--gutter)); margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+      }
+      .site-footer { border-top: 1px solid var(--rule); padding-block: 2.5rem 3rem; font-size: 0.875rem; color: var(--ink-2); margin-top: 4rem; }
+      .site-footer__inner { display: grid; gap: 1.5rem; }
+      @media (min-width: 48rem) { .site-footer__inner { grid-template-columns: 1fr 1fr; } }
+      .site-footer__brand { font-family: var(--serif); font-size: 1.4rem; color: var(--ink); margin-bottom: 0.25rem; }
+      .site-footer p { margin-bottom: 0.4rem; }
+    </style>
+  </body>
+</html>

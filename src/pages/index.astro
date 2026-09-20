@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Money from '../components/Money.astro';
+import { Image } from 'astro:assets';
+import { totals, program } from '../data/facts';
+import hero from '../assets/photos/kyoto-fushimi-inari-selfie.jpg';
+const base = import.meta.env.BASE_URL;
+---
+<Base title="Pell to Planet" description="A Wayne State student's guide to funding short-term study abroad, written by a Pell Grant recipient and Gilman Scholar who did it.">
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div>
+        <p class="eyebrow">A Wayne State student's guide</p>
+        <h1>Study abroad on a Pell budget.<br /><em>Here is how I paid for mine.</em></h1>
+        <p class="lede">I am a mechanical engineering student from Detroit. In June 2026 a Gilman Scholarship helped send me to Japan for two weeks of factory floors, supplier visits, and a lot of trains. This site shows the real numbers and the steps, so you can do it too.</p>
+        <p class="cta-row">
+          <a class="button" href={`${base}my-numbers/`}>See every dollar of my trip</a>
+          <a class="button button--ghost" href={`${base}gilman/`}>The Gilman guide</a>
+        </p>
+      </div>
+      <figure class="hero__fig">
+        <Image src={hero} alt="Gotibeh in a blue polo at the entrance of Fushimi Inari shrine in Kyoto, the large vermilion torii gate and shrine building behind him on a rainy day." widths={[480, 800, 1200]} sizes="(min-width: 60rem) 34rem, 100vw" loading="eager" />
+        <figcaption>Fushimi Inari, Kyoto. June 20, 2026.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap stats">
+      <div class="stat"><span class="stat__label">The trip cost about</span><span class="stat__value"><Money value={Math.round(totals.costsKnown / 100) * 100} approx /></span></div>
+      <div class="stat"><span class="stat__label">Trip-specific awards</span><span class="stat__value"><Money value={totals.tripSpecificFunding} /></span></div>
+      <div class="stat"><span class="stat__label">Days in Japan</span><span class="stat__value">14</span></div>
+      <div class="stat"><span class="stat__label">Credits earned</span><span class="stat__value">{program.credits}</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap wrap--narrow">
+      <p class="eyebrow">Under construction</p>
+      <h2>More pages are on the way.</h2>
+      <p>Funding directory, the Gilman guide, what two weeks bought me, and a gap calculator you can bring to Financial Aid. The <a href={`${base}my-numbers/`}>case study</a> is live now.</p>
+    </div>
+  </section>
+
+  <style>
+    .hero { padding-block: clamp(2.5rem, 7vw, 5rem) clamp(2rem, 5vw, 4rem); }
+    .hero__grid { display: grid; gap: 2rem; align-items: center; }
+    @media (min-width: 60rem) { .hero__grid { grid-template-columns: 1.15fr 1fr; gap: 3rem; } }
+    .hero h1 { max-width: 16ch; }
+    .hero__fig { margin: 0; }
+    .hero__fig img { border-radius: var(--radius); aspect-ratio: 4 / 3; object-fit: cover; }
+    figcaption { font-size: 0.8rem; color: var(--ink-3); margin-top: 0.5rem; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem 2rem; }
+    @media (min-width: 48rem) { .stats { grid-template-columns: repeat(4, 1fr); } }
+    .stat { display: flex; flex-direction: column; gap: 0.25rem; border-top: 2px solid var(--rule-strong); padding-top: 0.75rem; }
+    .stat__label { font-size: 0.85rem; color: var(--ink-2); }
+    .stat__value { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+  </style>
+</Base>

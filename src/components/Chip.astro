@@ -1,0 +1,12 @@
+---
+import type { Status } from '../data/schema';
+interface Props { status: Status; title?: string }
+const { status, title } = Astro.props;
+const text: Record<Status, string> = {
+  verified: 'Verified',
+  stated: 'My record',
+  estimate: 'Estimate',
+  todo: 'To confirm',
+};
+---
+<span class={`chip chip--${status}`} title={title}>{text[status]}</span>
