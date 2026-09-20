@@ -500,10 +500,15 @@ const afterWin = [
       background: linear-gradient(180deg, var(--void), color-mix(in oklab, var(--torii) 5%, var(--void)) 50%, var(--void));
       border-block: 1px solid var(--hairline);
     }
+    .g-break::after {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse 46% 30% at 50% 50%, color-mix(in oklab, var(--void) 72%, transparent) 0%, color-mix(in oklab, var(--void) 34%, transparent) 60%, transparent 85%);
+    }
     .g-break__inner { position: relative; z-index: 2; text-align: center; }
     .g-break__quote {
       font-family: var(--serif); font-size: clamp(1.8rem, 4.5vw, 3.2rem); line-height: 1.18;
       max-width: 22ch; margin-inline: auto; color: var(--ink);
+      text-shadow: 0 2px 24px var(--void), 0 1px 4px var(--void);
     }
     .g-break__quote em { color: var(--torii); }
 

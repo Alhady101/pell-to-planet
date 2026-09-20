@@ -5,10 +5,16 @@
  * Natural Earth 1:110m public-domain polygons. Rendering is orthographic:
  * lat/lon -> unit vector -> yaw/pitch rotation -> drop the z axis.
  *
- * Honours prefers-reduced-motion (renders one static frame), pauses when
- * scrolled out of view or the tab is hidden, and supports drag-to-spin.
+ * Two layers of markers: the Detroit->Tokyo flight actually taken, and the
+ * destinations the author is working toward, which label themselves as they
+ * pass the centre of the visible face.
+ *
+ * Drag paints directly rather than waiting on the animation loop. Relying on
+ * the loop meant that any time it was stopped — a background tab, an
+ * off-screen pause, browser throttling — dragging silently did nothing.
  */
 import { LAND } from '../data/land';
+import { DESTINATIONS } from '../data/destinations';
 
 const DEG = Math.PI / 180;
 type Vec3 = readonly [number, number, number];
@@ -35,10 +41,14 @@ function slerp(a: Vec3, b: Vec3, t: number): Vec3 {
 
 interface Marker { lat: number; lon: number; label: string; kind: 'origin' | 'destination' }
 
+/** The flight actually taken. */
 const MARKERS: Marker[] = [
   { lat: 42.331, lon: -83.046, label: 'Detroit', kind: 'origin' },
   { lat: 35.676, lon: 139.65, label: 'Tokyo', kind: 'destination' },
 ];
+
+// The destination list lives in src/data/destinations.ts so the page can
+// name them while the globe plots them.
 
 export function initGlobe(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d', { alpha: true });
@@ -46,24 +56,29 @@ export function initGlobe(canvas: HTMLCanvasElement) {
 
   const css = getComputedStyle(document.documentElement);
   const read = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
-  let COL = {
-    land: read('--ink-2', '#b6b2a8'),
-    grid: read('--hairline-2', '#39404f'),
-    accent: read('--torii', '#ff6a4d'),
-    gold: read('--gold', '#e8c07a'),
-    surface: read('--surface-1', '#0f1117'),
-  };
+  let COL = readColours();
+  function readColours() {
+    return {
+      land: read('--ink-2', '#b6b2a8'),
+      grid: read('--hairline-2', '#39404f'),
+      accent: read('--torii', '#ff6a4d'),
+      gold: read('--gold', '#e8c07a'),
+      sky: read('--sky', '#6bb0f7'),
+      surface: read('--surface-1', '#0f1117'),
+      dim: read('--ink-3', '#827e76'),
+    };
+  }
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let w = 0, h = 0, R = 0, cx = 0, cy = 0, dpr = 1;
   // Centre the disc on ~152°W so the whole Detroit->Tokyo great circle, which
-  // crosses the north Pacific, sits on the near face. Positive pitch tips the
-  // north pole toward the viewer.
+  // crosses the north Pacific, sits on the near face.
   let yaw = 2.06;
   const pitch = 0.42;
-  let spin = 0.00042;       // radians per ms
+  const spin = 0.00042; // radians per ms
   let dragging = false;
+  let activePointer: number | null = null;
   let lastX = 0;
   let velocity = 0;
   let running = false;
@@ -81,6 +96,7 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     const lift = 1 + 0.17 * Math.sin(Math.PI * t);
     arcPts.push([p[0] * lift, p[1] * lift, p[2] * lift]);
   }
+  const destVecs = DESTINATIONS.map((d) => ({ ...d, v: toVec(d.lat, d.lon) }));
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
@@ -126,7 +142,6 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       const y2 = vy * cp - z1 * sp;
       const z2 = vy * sp + z1 * cp;
 
-      // z2 > 0 faces the viewer. Back-face dots are kept but heavily dimmed.
       const front = z2 > 0;
       const depth = front ? z2 : -z2 * 0.34;
       const b = Math.min(BUCKETS - 1, Math.max(0, Math.floor(depth * BUCKETS)));
@@ -140,9 +155,8 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     for (let b = 0; b < BUCKETS; b++) {
       const n = bucketN[b];
       if (!n) continue;
-      const alpha = 0.055 + (b / (BUCKETS - 1)) * 0.62;
+      c.globalAlpha = 0.055 + (b / (BUCKETS - 1)) * 0.62;
       const size = b >= BUCKETS - 2 ? 1.7 : 1.3;
-      c.globalAlpha = alpha;
       const xs = bucketX[b], ys = bucketY[b];
       for (let i = 0; i < n; i++) c.fillRect(xs[i] - size / 2, ys[i] - size / 2, size, size);
     }
@@ -154,8 +168,6 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     c.strokeStyle = COL.grid;
     c.lineWidth = 1;
     c.globalAlpha = 0.5;
-
-    // latitude rings
     for (let lat = -60; lat <= 60; lat += 30) {
       c.beginPath();
       let started = false;
@@ -167,7 +179,6 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       }
       c.stroke();
     }
-    // meridians
     for (let lon = -180; lon < 180; lon += 30) {
       c.beginPath();
       let started = false;
@@ -205,24 +216,65 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     c.globalAlpha = 1;
 
     const g = c.createRadialGradient(cx, cy, R * 0.93, cx, cy, R * 1.16);
-    g.addColorStop(0, `rgba(255,106,77,0)`);
-    g.addColorStop(0.45, `rgba(255,106,77,0.10)`);
-    g.addColorStop(1, `rgba(255,106,77,0)`);
+    g.addColorStop(0, 'rgba(255,106,77,0)');
+    g.addColorStop(0.45, 'rgba(255,106,77,0.10)');
+    g.addColorStop(1, 'rgba(255,106,77,0)');
     c.beginPath();
     c.arc(cx, cy, R * 1.16, 0, Math.PI * 2);
     c.fillStyle = g;
     c.fill();
   }
 
+  /** The destinations still ahead: small rings, with the nearest to centre named. */
+  function drawDestinations() {
+    const c = ctx!;
+    let bestIdx = -1;
+    let bestZ = 0.45; // only label something well onto the near face
+
+    for (let i = 0; i < destVecs.length; i++) {
+      const p = rotate(destVecs[i].v);
+      if (p[2] <= 0.02) continue;
+      const sx = cx + p[0] * R;
+      const sy = cy - p[1] * R;
+
+      c.beginPath();
+      c.arc(sx, sy, 2.6, 0, Math.PI * 2);
+      c.strokeStyle = COL.sky;
+      c.globalAlpha = 0.35 + p[2] * 0.45;
+      c.lineWidth = 1.2;
+      c.stroke();
+
+      if (p[2] > bestZ) { bestZ = p[2]; bestIdx = i; }
+    }
+    c.globalAlpha = 1;
+
+    if (bestIdx >= 0) {
+      const p = rotate(destVecs[bestIdx].v);
+      const sx = cx + p[0] * R;
+      const sy = cy - p[1] * R;
+      // fade the label in as the point approaches dead centre
+      const a = Math.min(1, (bestZ - 0.45) / 0.25);
+      c.globalAlpha = a * 0.95;
+      c.beginPath();
+      c.arc(sx, sy, 4.5, 0, Math.PI * 2);
+      c.fillStyle = COL.sky;
+      c.fill();
+      c.font = '500 10.5px ui-monospace, "JetBrains Mono Variable", Menlo, monospace';
+      c.fillStyle = COL.sky;
+      c.textAlign = p[0] > 0 ? 'right' : 'left';
+      c.fillText(DESTINATIONS[bestIdx].name.toUpperCase(), sx + (p[0] > 0 ? -9 : 9), sy + 3.5);
+      c.textAlign = 'left';
+      c.globalAlpha = 1;
+    }
+  }
+
   function drawArc() {
     const c = ctx!;
-    // The arc is drawn in segments so it can fade where it passes behind the globe.
     for (let i = 0; i < arcPts.length - 1; i++) {
       const p = rotate(arcPts[i]);
       const q = rotate(arcPts[i + 1]);
       const behind = p[2] < 0 && q[2] < 0;
       const t = i / (arcPts.length - 1);
-
       c.beginPath();
       c.moveTo(cx + p[0] * R, cy - p[1] * R);
       c.lineTo(cx + q[0] * R, cy - q[1] * R);
@@ -232,7 +284,6 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       c.stroke();
     }
 
-    // A pulse travelling Detroit -> Tokyo.
     const idx = Math.floor(arcPhase * (arcPts.length - 1));
     for (let k = 0; k < 10; k++) {
       const j = idx - k;
@@ -257,7 +308,7 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       const sy = cy - p[1] * R;
       const col = m.kind === 'destination' ? COL.gold : COL.accent;
 
-      if (m.kind === 'destination') {
+      if (m.kind === 'destination' && !reduced.matches) {
         const pulse = (now % 2200) / 2200;
         c.beginPath();
         c.arc(sx, sy, 4 + pulse * 16, 0, Math.PI * 2);
@@ -288,6 +339,18 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     }
   }
 
+  function render(now: number) {
+    const c = ctx!;
+    c.clearRect(0, 0, w, h);
+    drawSphereBody();
+    drawLand();
+    drawGraticule();
+    drawRim();
+    drawDestinations();
+    drawArc();
+    drawMarkers(now);
+  }
+
   function frame(now: number) {
     if (!t0) t0 = now;
     const dt = Math.min(48, now - t0);
@@ -304,19 +367,8 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     if (running) raf = requestAnimationFrame(frame);
   }
 
-  function render(now: number) {
-    const c = ctx!;
-    c.clearRect(0, 0, w, h);
-    drawSphereBody();
-    drawLand();
-    drawGraticule();
-    drawRim();
-    drawArc();
-    drawMarkers(now);
-  }
-
   function start() {
-    if (running || reduced.matches) return;
+    if (running || reduced.matches || document.hidden) return;
     running = true;
     t0 = 0;
     raf = requestAnimationFrame(frame);
@@ -327,65 +379,88 @@ export function initGlobe(canvas: HTMLCanvasElement) {
   }
 
   // --- interaction -------------------------------------------------------
+  // Every handler repaints directly. The animation loop is an enhancement for
+  // idle spin and momentum, never a prerequisite for the globe responding.
+  const endDrag = (id?: number) => {
+    if (!dragging) return;
+    dragging = false;
+    canvas.style.cursor = 'grab';
+    if (id != null) { try { canvas.releasePointerCapture(id); } catch {} }
+    activePointer = null;
+    start();
+  };
+
   const onDown = (e: PointerEvent) => {
     dragging = true;
+    activePointer = e.pointerId;
     lastX = e.clientX;
     velocity = 0;
-    canvas.setPointerCapture(e.pointerId);
+    try { canvas.setPointerCapture(e.pointerId); } catch {}
     canvas.style.cursor = 'grabbing';
+    start();
+    render(performance.now());
   };
+
   const onMove = (e: PointerEvent) => {
-    if (!dragging) return;
+    if (!dragging || (activePointer != null && e.pointerId !== activePointer)) return;
+    // A mouse with no buttons held means we missed the pointerup somewhere.
+    if (e.pointerType === 'mouse' && e.buttons === 0) { endDrag(e.pointerId); return; }
     const dx = e.clientX - lastX;
     lastX = e.clientX;
     yaw += dx * 0.006;
     velocity = dx * 0.00035;
-    if (reduced.matches) render(performance.now());
+    render(performance.now());
   };
-  const onUp = (e: PointerEvent) => {
-    dragging = false;
-    canvas.style.cursor = 'grab';
-    try { canvas.releasePointerCapture(e.pointerId); } catch {}
-  };
+
+  const onUp = (e: PointerEvent) => endDrag(e.pointerId);
 
   canvas.addEventListener('pointerdown', onDown);
   canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('pointerup', onUp);
   canvas.addEventListener('pointercancel', onUp);
+  canvas.addEventListener('lostpointercapture', onUp);
   canvas.style.cursor = 'grab';
   canvas.style.touchAction = 'pan-y';
+
+  // Deliberately NOT focusable. The canvas is aria-hidden because it is
+  // decorative and fully described in adjacent text; making an aria-hidden
+  // element focusable would strand keyboard users on a node screen readers
+  // cannot announce.
 
   // --- lifecycle ---------------------------------------------------------
   const ro = new ResizeObserver(() => { resize(); render(performance.now()); });
   ro.observe(canvas);
 
+  let onScreen = true;
   const io = new IntersectionObserver(
-    ([entry]) => (entry.isIntersecting ? start() : stop()),
+    ([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (onScreen) start(); else stop();
+    },
     { threshold: 0.01 },
   );
   io.observe(canvas);
 
-  const onVisibility = () => (document.hidden ? stop() : io.takeRecords(), !document.hidden && start());
+  const onVisibility = () => {
+    if (document.hidden) stop();
+    else if (onScreen) start();
+  };
   document.addEventListener('visibilitychange', onVisibility);
 
-  const onTheme = () => {
-    COL = {
-      land: read('--ink-2', '#b6b2a8'),
-      grid: read('--hairline-2', '#39404f'),
-      accent: read('--torii', '#ff6a4d'),
-      gold: read('--gold', '#e8c07a'),
-      surface: read('--surface-1', '#0f1117'),
-    };
-    render(performance.now());
-  };
+  const onTheme = () => { COL = readColours(); render(performance.now()); };
   window.addEventListener('themechange', onTheme);
 
-  const onMotionPref = () => { stop(); resize(); render(performance.now()); if (!reduced.matches) start(); };
+  const onMotionPref = () => {
+    stop();
+    resize();
+    render(performance.now());
+    if (!reduced.matches && onScreen) start();
+  };
   reduced.addEventListener('change', onMotionPref);
 
   resize();
   render(performance.now());
-  if (!reduced.matches) start();
+  start();
 
   return () => {
     stop();
@@ -398,5 +473,6 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     canvas.removeEventListener('pointermove', onMove);
     canvas.removeEventListener('pointerup', onUp);
     canvas.removeEventListener('pointercancel', onUp);
+    canvas.removeEventListener('lostpointercapture', onUp);
   };
 }

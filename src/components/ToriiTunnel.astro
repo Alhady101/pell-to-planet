@@ -1,33 +1,98 @@
 ---
 /**
- * A receding tunnel of torii gates — the senbon torii of Fushimi Inari, which
- * the group walked through on June 20. Real CSS 3D: each gate sits at its own
- * translateZ inside a perspective container, and the container's Z is driven
- * by scroll so the viewer moves through the gates.
+ * The senbon torii of Fushimi Inari, which the group walked up on June 20.
+ *
+ * Each gate is a proper Myojin-style torii rather than a stick figure: the
+ * kasagi curves upward toward its tips, a shimaki sits beneath it, the nuki
+ * passes through and protrudes past the pillars with kusabi wedges locking it,
+ * and the hashira lean inward and taper as they rise. Every member is shaded
+ * with its own gradient so the round posts read as round and the beams have a
+ * lit top face and a shadowed underside.
+ *
+ * Depth is real CSS 3D: gates sit at their own translateZ inside a perspective
+ * container whose Z is driven by scroll, so the viewer moves through them.
+ * Aerial perspective (far gates paler and hazier, near gates richer and
+ * slightly out of focus) does the rest.
  *
  * Decorative: aria-hidden, and it flattens to a single still gate under
  * prefers-reduced-motion.
  */
 interface Props { gates?: number; class?: string }
-const { gates = 7, class: cls = '' } = Astro.props;
+const { gates = 9, class: cls = '' } = Astro.props;
 const list = Array.from({ length: gates }, (_, i) => i);
+const SPACING = 168;
 ---
 <div class={`torii-tunnel ${cls}`} aria-hidden="true" data-torii>
+  {/* One shared symbol + gradient set; each gate is a <use>, so nine gates
+      cost one copy of the geometry rather than nine. */}
+  <svg class="torii-defs" width="0" height="0" focusable="false">
+    <defs>
+      {/* round post: dark edge, hot highlight off-centre, falling away right */}
+      <linearGradient id="t-post" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#6d2413" />
+        <stop offset="16%" stop-color="#c9421f" />
+        <stop offset="34%" stop-color="#ff7d5c" />
+        <stop offset="52%" stop-color="#e44a26" />
+        <stop offset="78%" stop-color="#a8331a" />
+        <stop offset="100%" stop-color="#5e1f10" />
+      </linearGradient>
+      {/* beam seen side-on: lit top, mid face, shadowed underside */}
+      <linearGradient id="t-beam" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#ff8a66" />
+        <stop offset="28%" stop-color="#ef5c34" />
+        <stop offset="72%" stop-color="#c03d1d" />
+        <stop offset="100%" stop-color="#6d2413" />
+      </linearGradient>
+      {/* the kasagi's underside, always in shadow */}
+      <linearGradient id="t-under" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8a2e16" />
+        <stop offset="100%" stop-color="#4d1a0d" />
+      </linearGradient>
+      <linearGradient id="t-inner" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#5e1f10" />
+        <stop offset="100%" stop-color="#8f2c15" />
+      </linearGradient>
+
+      <symbol id="torii-gate" viewBox="0 0 300 264">
+        {/* --- hashira: the two posts, leaning in and tapering upward --- */}
+        <path class="t-post" d="M84 66 L100 66 L95 252 L73 252 Z" fill="url(#t-post)" />
+        <path class="t-post" d="M200 66 L216 66 L227 252 L205 252 Z" fill="url(#t-post)" />
+        {/* inner side-faces: the sliver of post turned away from the light */}
+        <path d="M100 66 L103 66 L99 252 L95 252 Z" fill="url(#t-inner)" opacity=".85" />
+        <path d="M197 66 L200 66 L205 252 L201 252 Z" fill="url(#t-inner)" opacity=".85" />
+        {/* base collars */}
+        <path d="M70 244 L98 244 L99 252 L69 252 Z" fill="#7a2914" opacity=".9" />
+        <path d="M202 244 L230 244 L231 252 L201 252 Z" fill="#7a2914" opacity=".9" />
+
+        {/* --- nuki: the lower beam, passing through and protruding --- */}
+        <path d="M52 104 L248 104 L248 121 L52 121 Z" fill="url(#t-beam)" />
+        <path d="M52 119 L248 119 L248 122.5 L52 122.5 Z" fill="#591d0f" opacity=".75" />
+        {/* kusabi: the wedges that lock the nuki against each post */}
+        <path d="M95 99 L108 101 L108 124 L95 126 Z" fill="#b8381b" />
+        <path d="M205 101 L192 99 L192 126 L205 124 Z" fill="#b8381b" />
+
+        {/* --- gakuzuka: the central strut --- */}
+        <path d="M142 80 L158 80 L158 104 L142 104 Z" fill="url(#t-post)" />
+
+        {/* --- shimaki: the block beneath the kasagi --- */}
+        <path d="M34 52 Q150 74 266 52 L262 68 Q150 88 38 68 Z" fill="url(#t-beam)" />
+
+        {/* --- kasagi: the top lintel, sweeping up at both tips --- */}
+        <path d="M20 36 Q150 60 280 36 L280 40 Q150 64 20 40 Z" fill="#ff8a66" opacity=".95" />
+        <path d="M20 39 Q150 63 280 39 L274 53 Q150 76 26 53 Z" fill="url(#t-beam)" />
+        <path d="M26 51 Q150 74 274 51 L272 56 Q150 79 28 56 Z" fill="url(#t-under)" />
+      </symbol>
+    </defs>
+  </svg>
+
   <div class="torii-tunnel__scene">
     {list.map((i) => (
-      <div class="torii-gate" style={`--i:${i}; --depth:${i * -220}px; --o:${(1 - i / gates) * 0.85 + 0.08}`}>
-        <svg viewBox="0 0 200 170" width="100%" height="100%" focusable="false">
-          {/* kasagi — the curved top lintel */}
-          <path d="M14 34 Q100 12 186 34 L182 46 Q100 26 18 46 Z" />
-          {/* shimaki — the block beneath it */}
-          <path d="M26 47 Q100 29 174 47 L174 58 Q100 41 26 58 Z" />
-          {/* gakuzuka — the central tablet */}
-          <rect x="94" y="58" width="12" height="20" />
-          {/* nuki — the lower crossbeam */}
-          <path d="M32 78 L168 78 L168 90 L32 90 Z" />
-          {/* hashira — the two pillars, tapering outward as they fall */}
-          <path d="M46 58 L60 58 L64 170 L44 170 Z" />
-          <path d="M140 58 L154 58 L156 170 L136 170 Z" />
+      <div
+        class="torii-gate"
+        style={`--i:${i}; --depth:${(i + 1) * -SPACING}px; --o:${Math.max(0.1, 1 - i / (gates + 1))}; --haze:${Math.min(0.62, i / gates)}`}
+      >
+        <svg viewBox="0 0 300 264" width="100%" height="100%" focusable="false">
+          <use href="#torii-gate" />
         </svg>
       </div>
     ))}
@@ -40,11 +105,13 @@ const list = Array.from({ length: gates }, (_, i) => i);
     inset: 0;
     overflow: hidden;
     pointer-events: none;
-    perspective: 700px;
-    perspective-origin: 50% 58%;
-    mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);
+    perspective: 640px;
+    perspective-origin: 50% 56%;
+    mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 82%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 82%, transparent);
   }
+  .torii-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
   .torii-tunnel__scene {
     position: absolute;
     inset: 0;
@@ -52,29 +119,35 @@ const list = Array.from({ length: gates }, (_, i) => i);
     transform: translateZ(var(--scroll-z, 0px));
     will-change: transform;
   }
+
   .torii-gate {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: min(74vw, 46rem);
-    aspect-ratio: 200 / 170;
+    width: min(62vw, 40rem);
+    aspect-ratio: 300 / 264;
     translate: -50% -50%;
     transform: translateZ(var(--depth));
     opacity: var(--o);
+    /* Aerial perspective: distant gates lose contrast and warmth, the way
+       real ones do up the mountain. */
+    filter: saturate(calc(1 - var(--haze) * 0.45)) brightness(calc(1 - var(--haze) * 0.18));
   }
-  .torii-gate svg { width: 100%; height: 100%; }
-  .torii-gate path,
-  .torii-gate rect { fill: var(--torii); }
-  /* the nearest gates read deeper red, the far ones catch more light */
-  .torii-gate:nth-child(-n + 2) path,
-  .torii-gate:nth-child(-n + 2) rect { fill: var(--torii-deep); }
+  .torii-gate svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* The nearest gate is very slightly out of focus, which is what sells the
+     depth more than any amount of extra geometry. */
+  .torii-gate:first-child { filter: blur(1.4px) saturate(1.05); }
+  .torii-gate:nth-child(2) { filter: blur(0.5px); }
+
+  :root[data-theme='light'] .torii-gate { opacity: calc(var(--o) * 0.72); }
 
   @media (prefers-reduced-motion: reduce) {
     .torii-tunnel { perspective: none; }
     .torii-tunnel__scene { transform: none; }
-    .torii-gate { transform: none; }
-    .torii-gate:not(:first-child) { display: none; }
-    .torii-gate:first-child { opacity: 0.32; }
+    .torii-gate { transform: none; filter: none; }
+    .torii-gate:not(:nth-child(3)) { display: none; }
+    .torii-gate:nth-child(3) { opacity: 0.35; }
   }
 </style>
 
@@ -94,7 +167,7 @@ const list = Array.from({ length: gates }, (_, i) => i);
         // -1 (below the fold) .. 1 (scrolled past)
         const progress = (window.innerHeight / 2 - (rect.top + rect.height / 2)) / window.innerHeight;
         const scene = t.querySelector<HTMLElement>('.torii-tunnel__scene');
-        if (scene) scene.style.setProperty('--scroll-z', `${progress * 420}px`);
+        if (scene) scene.style.setProperty('--scroll-z', `${progress * 520}px`);
       }
     };
     const onScroll = () => {

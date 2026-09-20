@@ -9,7 +9,9 @@ const { class: cls = '' } = Astro.props;
 <div class={`globe ${cls}`}>
   <canvas data-globe aria-hidden="true"></canvas>
   <p class="visually-hidden">
-    An illustrated globe showing the flight path from Detroit, Michigan to Tokyo, Japan.
+    An illustrated globe. A line traces the flight from Detroit, Michigan to Tokyo, Japan.
+    Smaller markers show the countries the author is working toward next, which are
+    listed in full further down this page.
   </p>
   <p class="globe__hint" aria-hidden="true"><span>drag to spin</span></p>
 </div>

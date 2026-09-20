@@ -72,10 +72,11 @@ for (const poly of polygons) {
 /* --- the trip's cities --------------------------------------------------- */
 const CITIES = [
   { id: 'tokyo', name: 'Tokyo', lat: 35.676, lon: 139.65, order: 1 },
-  { id: 'kyoto', name: 'Kyoto', lat: 35.011, lon: 135.768, order: 2 },
-  { id: 'osaka', name: 'Osaka', lat: 34.694, lon: 135.502, order: 3 },
-  { id: 'kakegawa', name: 'Kakegawa', lat: 34.769, lon: 138.015, order: 0, aside: true },
+  { id: 'osaka', name: 'Osaka', lat: 34.694, lon: 135.502, order: 2 },
+  { id: 'hamamatsu', name: 'Hamamatsu', lat: 34.711, lon: 137.726, order: 3 },
   { id: 'hiroshima', name: 'Hiroshima', lat: 34.385, lon: 132.455, order: 4 },
+  // Kyoto was a day trip out of Osaka on June 20, not an overnight base.
+  { id: 'kyoto', name: 'Kyoto', lat: 35.011, lon: 135.768, order: 0, aside: true },
 ];
 const cities = CITIES.map((c) => ({ ...c, x: r2(sx(c.lon)), y: r2(sy(c.lat)) }));
 

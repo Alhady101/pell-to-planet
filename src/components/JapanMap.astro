@@ -3,15 +3,18 @@ import { JAPAN_PATHS, MAP_CITIES } from '../data/japan-map';
 
 /**
  * The route, drawn on a real map. Coastline comes from Natural Earth 1:50m
- * (public domain) via a build-time script — no mapping library ships to the
- * browser, just path data.
+ * (public domain) via a build-time script, so no mapping library ships to the
+ * browser — just path data.
+ *
+ * The route deliberately shows the backtrack: the group ran west past
+ * Hamamatsu to Osaka, then returned east to Hamamatsu for the Yamaha visit,
+ * then west again to Hiroshima. That zigzag is a real cost in transfer days.
  */
 const route = MAP_CITIES.filter((c) => !c.aside).sort((a, b) => a.order - b.order);
-const kakegawa = MAP_CITIES.find((c) => c.aside)!;
+const kyoto = MAP_CITIES.find((c) => c.aside)!;
 const osaka = MAP_CITIES.find((c) => c.id === 'osaka')!;
 
 const routeD = 'M' + route.map((c) => `${c.x} ${c.y}`).join('L');
-// Rough path length, used to animate the line drawing itself in.
 const len = Math.round(
   route.slice(1).reduce((a, c, i) => a + Math.hypot(c.x - route[i].x, c.y - route[i].y), 0),
 );
@@ -19,46 +22,63 @@ const len = Math.round(
 // Focused on Honshu between Hiroshima and Tokyo, with coastline for context.
 const VIEW = '318 466 528 286';
 
-// Kyoto and Osaka sit ~18 units apart, so their labels would collide. Kyoto's
-// pair is lifted clear above the dot; everything else keeps the default.
-const OFFSET: Record<string, { label: number; order: number; anchor?: string }> = {
-  kyoto: { label: -30, order: -18 },
+/** Hand-placed so no two labels collide at this crop. */
+type Place = { dx: number; dy: number; anchor: 'middle' | 'start' | 'end' };
+const LABEL: Record<string, Place> = {
+  tokyo: { dx: 0, dy: -14, anchor: 'middle' },
+  osaka: { dx: -12, dy: 5, anchor: 'end' },
+  hamamatsu: { dx: 0, dy: 21, anchor: 'middle' },
+  hiroshima: { dx: 0, dy: -14, anchor: 'middle' },
 };
-const off = (id: string) => OFFSET[id] ?? { label: -13, order: 20 };
+const ORDER: Record<string, Place> = {
+  tokyo: { dx: 0, dy: 21, anchor: 'middle' },
+  osaka: { dx: -12, dy: 18, anchor: 'end' },
+  hamamatsu: { dx: 0, dy: 33, anchor: 'middle' },
+  hiroshima: { dx: 0, dy: 21, anchor: 'middle' },
+};
+const fallbackL: Place = { dx: 0, dy: -14, anchor: 'middle' };
+const fallbackO: Place = { dx: 0, dy: 21, anchor: 'middle' };
 ---
 <figure class="jmap">
   <svg viewBox={VIEW} role="img" aria-labelledby="jmap-t jmap-d" preserveAspectRatio="xMidYMid meet">
     <title id="jmap-t">Map of central and western Honshu, Japan, showing the programme route</title>
     <desc id="jmap-d">
-      The route runs west from Tokyo to Kyoto, then Osaka, then Hiroshima, with a
-      separate visit to the Yamaha factory at Kakegawa between Tokyo and Osaka.
+      Four overnight bases in order: Tokyo, then west to Osaka, then back east to
+      Hamamatsu, then west again to Hiroshima. Kyoto was visited as a day trip out
+      of Osaka, shown as a separate marker.
     </desc>
 
     <g class="jmap__land">
       {JAPAN_PATHS.map((d) => <path d={d} />)}
     </g>
 
-    {/* the detour out to the Kakegawa factory */}
-    <line class="jmap__aside" x1={osaka.x} y1={osaka.y} x2={kakegawa.x} y2={kakegawa.y} />
+    {/* the Kyoto day trip, out and back from Osaka */}
+    <line class="jmap__aside" x1={osaka.x} y1={osaka.y} x2={kyoto.x} y2={kyoto.y} />
 
     <path class="jmap__route" d={routeD} style={`--len:${len}`} />
 
-    {route.map((c, i) => (
-      <g class="jmap__city" style={`--i:${i}`}>
-        <circle class="jmap__halo" cx={c.x} cy={c.y} r="9" />
-        <circle class="jmap__dot" cx={c.x} cy={c.y} r="4" />
-        <text class="jmap__label" x={c.x} y={c.y + off(c.id).label} text-anchor="middle">{c.name}</text>
-        <text class="jmap__order" x={c.x} y={c.y + off(c.id).order} text-anchor="middle">{String(i + 1).padStart(2, '0')}</text>
-      </g>
-    ))}
+    {route.map((c, i) => {
+      const l = LABEL[c.id] ?? fallbackL;
+      const o = ORDER[c.id] ?? fallbackO;
+      return (
+        <g class="jmap__city" style={`--i:${i}`}>
+          <circle class="jmap__halo" cx={c.x} cy={c.y} r="9" />
+          <circle class="jmap__dot" cx={c.x} cy={c.y} r="4" />
+          <text class="jmap__label" x={c.x + l.dx} y={c.y + l.dy} text-anchor={l.anchor}>{c.name}</text>
+          <text class="jmap__order" x={c.x + o.dx} y={c.y + o.dy} text-anchor={o.anchor}>{String(i + 1).padStart(2, '0')}</text>
+        </g>
+      );
+    })}
 
     <g class="jmap__city jmap__city--aside" style="--i:4">
-      <circle class="jmap__dot jmap__dot--sm" cx={kakegawa.x} cy={kakegawa.y} r="3" />
-      <text class="jmap__label jmap__label--sm" x={kakegawa.x} y={kakegawa.y + 20} text-anchor="middle">Kakegawa</text>
+      <circle class="jmap__dot jmap__dot--sm" cx={kyoto.x} cy={kyoto.y} r="3" />
+      <text class="jmap__label jmap__label--sm" x={kyoto.x + 6} y={kyoto.y - 10} text-anchor="start">Kyoto</text>
+      <text class="jmap__label jmap__label--sm jmap__daytrip" x={kyoto.x + 6} y={kyoto.y - 1} text-anchor="start">day trip</text>
     </g>
   </svg>
   <figcaption>
-    Coastline: Natural Earth 1:50m, public domain. Route drawn from the programme itinerary.
+    Four overnight bases, plus the Kyoto day trip. Coastline: Natural Earth 1:50m,
+    public domain. Route drawn from the program itinerary.
   </figcaption>
 </figure>
 
@@ -75,12 +95,7 @@ const off = (id: string) => OFFSET[id] ?? { label: -13, order: 20 };
     stroke-linejoin: round;
   }
 
-  .jmap__aside {
-    stroke: var(--ink-3);
-    stroke-width: 1.2;
-    stroke-dasharray: 4 4;
-    opacity: 0.7;
-  }
+  .jmap__aside { stroke: var(--gold); stroke-width: 1.2; stroke-dasharray: 4 4; opacity: 0.8; }
 
   .jmap__route {
     fill: none;
@@ -105,7 +120,8 @@ const off = (id: string) => OFFSET[id] ?? { label: -13, order: 20 };
     stroke-width: 3.5;
     stroke-linejoin: round;
   }
-  .jmap__label--sm { fill: var(--gold); font-size: 10.5px; font-weight: 500; }
+  .jmap__label--sm { fill: var(--gold); font-size: 10px; font-weight: 500; stroke-width: 3; }
+  .jmap__daytrip { opacity: 0.8; font-size: 7.5px; letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono); }
   .jmap__order {
     fill: var(--torii);
     font-family: var(--mono);

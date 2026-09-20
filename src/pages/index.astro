@@ -6,6 +6,7 @@ import ToriiTunnel from '../components/ToriiTunnel.astro';
 import Figure from '../components/Figure.astro';
 import Money from '../components/Money.astro';
 import { totals, program } from '../data/facts';
+import { DESTINATIONS, REGIONS } from '../data/destinations';
 
 import pKyotoGroup from '../assets/photos/kyoto-fushimi-group-selfie.jpg';
 import pYamahaGroup from '../assets/photos/yamaha-kakegawa-group-flag.jpg';
@@ -17,7 +18,7 @@ import pRain from '../assets/photos/hiroshima-rain-classmates.jpg';
 const base = import.meta.env.BASE_URL;
 
 const chapters = [
-  { n: '01', href: 'the-trip/', title: 'The trip', dek: 'Fourteen days, four cities, four factory floors — and the evenings in between. What travelling with your school and ten classmates is actually like.' },
+  { n: '01', href: 'the-trip/', title: 'The trip', dek: 'Fourteen days, five cities, four factory floors — and the evenings in between. What travelling with your school and a group of classmates is actually like.' },
   { n: '02', href: 'my-numbers/', title: 'My numbers', dek: 'Every dollar the program cost me, every award that covered it, and the dates the money actually moved. Nothing rounded up to look good.' },
   { n: '03', href: 'funding/', title: 'Funding', dek: 'Where the money comes from: federal aid, campus awards, national scholarships. What each one requires and who to ask.' },
   { n: '04', href: 'gilman/', title: 'Gilman', dek: 'The scholarship that made mine possible. Eligibility, the four essays, the deadlines, and how I approached my application.' },
@@ -156,7 +157,7 @@ const stats = [
       <div class="mosaic-head">
         <div>
           <p class="eyebrow" data-reveal>What going with your school looks like</p>
-          <h2 data-reveal>Ten students, one flag,<br />and a very full two weeks.</h2>
+          <h2 data-reveal>One flag, four hotels,<br />and a very full two weeks.</h2>
         </div>
         <p class="dek" data-reveal>
           Faculty-led programs are the short, structured way in. You travel as a group,
@@ -244,6 +245,47 @@ const stats = [
           <h3>Anyone checking my work</h3>
           <p>Every figure, rule and date on this site is listed with its source on the <a href={`${base}sources/`}>sources page</a>.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ================= WHERE NEXT ================= */}
+  <section class="section section--ruled" id="next">
+    <div class="wrap">
+      <div class="next-head">
+        <div>
+          <p class="eyebrow" data-reveal>Where I go from here</p>
+          <h2 data-reveal>Japan was the first one.<br />It is not meant to be the last.</h2>
+        </div>
+        <p class="dek" data-reveal>
+          Two weeks changed what I think is possible. I am working toward a graduate
+          program abroad in manufacturing and supply chain, and these are the countries
+          I am aiming at. They are plotted on the globe at the top of this page.
+        </p>
+      </div>
+
+      <div class="dest-grid">
+        {REGIONS.map((region, ri) => (
+          <div class="dest-group" data-reveal data-reveal-delay={ri * 60}>
+            <p class="dest-group__h">{region}</p>
+            <ul>
+              {DESTINATIONS.filter((d) => d.region === region).map((d) => <li>{d.name}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div class="callout callout--box dest-note" data-reveal>
+        <p>
+          <strong>If you fund, host or advise international students,</strong> I would
+          like to hear from you. My background is mechanical engineering and global
+          supply chain management, and what I want next is to study how electrified,
+          automated manufacturing actually works somewhere it is being built.
+        </p>
+        <p class="cta-row" style="margin-top:1rem">
+          <a class="button button--ghost button--sm" href="mailto:alhadygotibeh@gmail.com?subject=Pell%20to%20Planet">Get in touch</a>
+          <a class="button button--ghost button--sm" href="https://www.linkedin.com/in/gotibeh/" rel="noopener">LinkedIn</a>
+        </p>
       </div>
     </div>
   </section>
@@ -339,8 +381,15 @@ const stats = [
       background: linear-gradient(180deg, var(--void), color-mix(in oklab, var(--torii) 5%, var(--void)) 50%, var(--void));
       border-block: 1px solid var(--hairline);
     }
+    /* A scrim between the gates and the copy. Without it the tunnel wins and
+       the words become decoration. */
+    .torii-section::after {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse 46% 30% at 50% 50%, color-mix(in oklab, var(--void) 72%, transparent) 0%, color-mix(in oklab, var(--void) 34%, transparent) 60%, transparent 85%);
+    }
     .torii-section__inner { position: relative; z-index: 2; text-align: center; max-width: 52rem; }
-    .torii-section__h { font-size: clamp(2.2rem, 6vw, 4.2rem); margin-bottom: 1.5rem; }
+    .torii-section__h { font-size: clamp(2.2rem, 6vw, 4.2rem); margin-bottom: 1.5rem; text-shadow: 0 2px 24px var(--void), 0 1px 4px var(--void); }
+    .torii-section .lede, .torii-section .eyebrow { text-shadow: 0 1px 14px var(--void), 0 1px 3px var(--void); }
     .torii-section .lede { margin-inline: auto; max-width: 44ch; }
 
     /* ---------------- mosaic ---------------- */
@@ -373,6 +422,15 @@ const stats = [
     }
 
     .who-grid { gap: 1rem; }
+
+    .next-head { display: grid; gap: 1.25rem; margin-bottom: 2.5rem; }
+    @media (min-width: 56rem) { .next-head { grid-template-columns: 1.15fr 1fr; align-items: end; gap: 3rem; } }
+    .dest-grid { display: grid; gap: 1.75rem 2rem; grid-template-columns: repeat(2, 1fr); }
+    @media (min-width: 56rem) { .dest-grid { grid-template-columns: repeat(4, 1fr); } }
+    .dest-group__h { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--torii); margin-bottom: 0.75rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--hairline); }
+    .dest-group ul { list-style: none; padding: 0; margin: 0; }
+    .dest-group li { font-size: 0.95rem; color: var(--ink-2); margin-bottom: 0.4rem; }
+    .dest-note { margin-top: 2.5rem; max-width: 46rem; }
     .closer { text-align: center; }
     .closer h2 { font-size: clamp(2.1rem, 5.5vw, 3.6rem); }
   </style>

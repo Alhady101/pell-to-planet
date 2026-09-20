@@ -3,82 +3,99 @@ import Base from '../layouts/Base.astro';
 import Figure from '../components/Figure.astro';
 import Petals from '../components/Petals.astro';
 import JapanMap from '../components/JapanMap.astro';
-import { STOPS, CONNECTIONS, HONEST } from '../data/trip';
+import { STOPS, CONNECTIONS, HONEST, THANKS } from '../data/trip';
 import { program } from '../data/facts';
 
+import pTokyoBus from '../assets/photos/tokyo-open-top-bus.jpg';
 import pTokyoTower from '../assets/photos/tokyo-tower-selfie.jpg';
 import pTokyoGroup from '../assets/photos/tokyo-tower-group.jpg';
-import pTokyoBus from '../assets/photos/tokyo-bus-tour-group.jpg';
+import pPalace from '../assets/photos/tokyo-palace-gate-selfie.jpg';
+import pDisney from '../assets/photos/tokyo-disneysea.jpg';
 import pShibuya from '../assets/photos/tokyo-shibuya-night.jpg';
 import pCamii from '../assets/photos/tokyo-camii-interior.jpg';
-import pPalace from '../assets/photos/tokyo-palace-gate-selfie.jpg';
-
-import pFushimiSelfie from '../assets/photos/kyoto-fushimi-inari-selfie.jpg';
-import pFushimiGroup from '../assets/photos/kyoto-fushimi-group-selfie.jpg';
 
 import pOsakaUni from '../assets/photos/osaka-university-group-flag.jpg';
+import pOsakaArcade from '../assets/photos/osaka-arcade.jpg';
+import pDinnerOut from '../assets/photos/group-dinner-out.jpg';
+
+import pFushimiGroup from '../assets/photos/kyoto-fushimi-group-selfie.jpg';
+import pFushimiSelfie from '../assets/photos/kyoto-fushimi-inari-selfie.jpg';
+import pKyotoTorii from '../assets/photos/kyoto-torii-path.jpg';
+
 import pYamahaGroup from '../assets/photos/yamaha-kakegawa-group-flag.jpg';
 import pYamahaEntrance from '../assets/photos/hamamatsu-yamaha-entrance.jpg';
 import pYamahaDrums from '../assets/photos/yamaha-drums-classmate.jpg';
-import pTeppan from '../assets/photos/hamamatsu-teppanyaki-table.jpg';
-import pOsakaArcade from '../assets/photos/osaka-arcade.jpg';
+import pTeppanTable from '../assets/photos/hamamatsu-teppanyaki-table.jpg';
+import pTeppanGroup from '../assets/photos/hamamatsu-teppanyaki-group.jpg';
 
+import pDelta from '../assets/photos/delta-hq-group.jpg';
 import pMazda787 from '../assets/photos/hiroshima-mazda-787b-selfie.jpg';
 import pRxVision from '../assets/photos/hiroshima-mazda-rx-vision.jpg';
+import pDome from '../assets/photos/hiroshima-atomic-dome-group.jpg';
+import pHostDinner from '../assets/photos/hiroshima-host-dinner.jpg';
+import pRainHosts from '../assets/photos/rain-walk-hosts.jpg';
 import pHiroshimaGate from '../assets/photos/hiroshima-shrine-gate.jpg';
-import pHiroshimaRain from '../assets/photos/hiroshima-rain-classmates.jpg';
-import pHiroshimaDinner from '../assets/photos/hiroshima-group-dinner.jpg';
 import pHiroshimaMountain from '../assets/photos/hiroshima-mountain-night.jpg';
 
 const base = import.meta.env.BASE_URL;
 
-const photoSets: Record<string, { src: any; alt: string; caption: string; ratio: '4x3' | '3x4' | '16x9' }[]> = {
+type Shot = { src: any; alt: string; caption: string; ratio: '4x3' | '3x4' | '16x9' };
+const photoSets: Record<string, Shot[]> = {
   tokyo: [
-    { src: pTokyoBus, alt: 'A selfie from the top deck of an open-top tour bus in Tokyo, filled with Wayne State classmates.', caption: 'The open-top bus tour, day two.', ratio: '4x3' },
+    { src: pTokyoBus, alt: 'Classmates filling the open upper deck of a Tokyo tour bus, throwing peace signs, with office towers and trees behind them.', caption: 'The open-top bus tour, June 15.', ratio: '4x3' },
     { src: pTokyoTower, alt: 'Gotibeh in sunglasses in a park below Tokyo Tower, the orange lattice tower rising behind the trees.', caption: 'Tokyo Tower.', ratio: '3x4' },
     { src: pTokyoGroup, alt: 'Classmates crowded into a lift, faces lit from above, on the way up Tokyo Tower.', caption: 'On the way up.', ratio: '4x3' },
-    { src: pPalace, alt: 'Gotibeh in a teal shirt and sunglasses in front of a dark wooden gate at the Imperial Palace grounds.', caption: 'Imperial Palace grounds.', ratio: '4x3' },
+    { src: pPalace, alt: 'Gotibeh in a teal jacket and sunglasses in front of a dark wooden gate at the Imperial Palace grounds.', caption: 'Imperial Palace grounds.', ratio: '4x3' },
+    { src: pDisney, alt: 'Gotibeh standing on the waterfront promenade at Tokyo DisneySea with the volcano of Mysterious Island rising behind him.', caption: 'Tokyo DisneySea, June 16.', ratio: '3x4' },
     { src: pShibuya, alt: 'A Tokyo street at night lit by pink and blue neon signs, with people walking under the shopfronts.', caption: 'Out in the city at night.', ratio: '3x4' },
     { src: pCamii, alt: 'The interior dome of Tokyo Camii mosque, decorated with blue and gold geometric tilework and stained glass.', caption: 'Tokyo Camii.', ratio: '3x4' },
   ],
-  kyoto: [
-    { src: pFushimiGroup, alt: 'The Wayne State group gathered for a selfie in front of the two-storey gate at Fushimi Inari, umbrellas up around them in the rain.', caption: 'The whole group at the gate.', ratio: '4x3' },
-    { src: pFushimiSelfie, alt: 'Gotibeh in a blue polo beside a tall vermilion torii pillar at Fushimi Inari, the shrine buildings behind him.', caption: 'Fushimi Inari, June 20.', ratio: '3x4' },
-  ],
   osaka: [
     { src: pOsakaUni, alt: 'Wayne State students and Japanese university students posed together holding a Wayne State flag outside a university building in Osaka.', caption: 'After the case study, Osaka.', ratio: '16x9' },
+    { src: pDinnerOut, alt: 'The group crowded around a table in a small restaurant with graffiti-covered walls and round porthole windows, plates and drinks in front of them.', caption: 'Dinner out with the group.', ratio: '4x3' },
+    { src: pOsakaArcade, alt: 'A long covered shopping arcade in Osaka with a chequered floor and shopfronts receding into the distance.', caption: 'Osaka, on my own.', ratio: '3x4' },
+  ],
+  kyoto: [
+    { src: pFushimiGroup, alt: 'The Wayne State group gathered for a selfie in front of the two-storey gate at Fushimi Inari, umbrellas up around them in the rain.', caption: 'The whole group at the gate.', ratio: '4x3' },
+    { src: pKyotoTorii, alt: 'A path at Fushimi Inari running under vermilion torii gates, with weathered stone shrine markers and miniature gates stacked along the side.', caption: 'Up the mountain path.', ratio: '3x4' },
+    { src: pFushimiSelfie, alt: 'Gotibeh in a blue polo beside a tall vermilion torii pillar at Fushimi Inari, the shrine buildings behind him.', caption: 'Fushimi Inari, June 20.', ratio: '3x4' },
+  ],
+  hamamatsu: [
     { src: pYamahaGroup, alt: 'The group holding a Wayne State flag in the Yamaha Kakegawa lobby beside a piano-shaped welcome board reading 2026 6 22.', caption: 'Yamaha Kakegawa, June 22.', ratio: '4x3' },
     { src: pYamahaEntrance, alt: 'Gotibeh outside the glass and steel entrance of the Yamaha factory under a cloudy sky.', caption: 'Arriving at Yamaha.', ratio: '4x3' },
     { src: pYamahaDrums, alt: 'A classmate grinning behind an electronic drum kit in the Yamaha showroom, sticks raised.', caption: 'The showroom afterwards.', ratio: '3x4' },
-    { src: pTeppan, alt: 'The group seated around a teppanyaki grill while a chef in white cooks in front of them.', caption: 'Team dinner.', ratio: '4x3' },
-    { src: pOsakaArcade, alt: 'A long covered shopping arcade in Osaka with a chequered floor and shopfronts receding into the distance.', caption: 'Osaka, on my own.', ratio: '3x4' },
+    { src: pTeppanTable, alt: 'The group seated along both sides of a long teppanyaki counter while a chef in white works the griddle at the far end.', caption: 'Team dinner, Hamamatsu.', ratio: '4x3' },
+    { src: pTeppanGroup, alt: 'The group standing together in aprons behind the teppanyaki griddle at the end of the meal.', caption: 'The same dinner, standing up.', ratio: '4x3' },
   ],
   hiroshima: [
+    { src: pDelta, alt: 'Wayne State students and DELTA staff posed together holding a Wayne State flag in front of the DELTA company sign in the lobby.', caption: 'DELTA headquarters, June 26.', ratio: '16x9' },
     { src: pMazda787, alt: 'Gotibeh in a Wayne State Global Supply Chain polo at the Mazda Museum, the green and orange Mazda 787B Le Mans car behind him.', caption: 'Mazda Museum, June 25.', ratio: '4x3' },
     { src: pRxVision, alt: 'A deep red Mazda RX-Vision concept car under spotlights in the Mazda design hall.', caption: 'Mazda design hall.', ratio: '4x3' },
+    { src: pDome, alt: 'Classmates and a Japanese host standing under umbrellas in front of the ruined shell of the Atomic Bomb Dome in Hiroshima.', caption: 'The Atomic Bomb Dome.', ratio: '3x4' },
+    { src: pRainHosts, alt: 'The group walking in ponchos and under umbrellas along a wet street in Hiroshima, following the yellow tactile paving.', caption: 'It rained most of the week.', ratio: '3x4' },
+    { src: pHostDinner, alt: 'A large group of students and Japanese hosts packed together for a photo at the end of a dinner in a small restaurant.', caption: 'Dinner with our hosts, June 24.', ratio: '4x3' },
     { src: pHiroshimaGate, alt: 'A weathered stone torii gate framed by trees on a path in Hiroshima.', caption: 'On the way up the mountain.', ratio: '3x4' },
     { src: pHiroshimaMountain, alt: 'Gotibeh at night on a dark hillside above Hiroshima with the city lights below.', caption: 'Above the city.', ratio: '4x3' },
-    { src: pHiroshimaRain, alt: 'Three classmates in clear plastic rain ponchos on a wet residential street in Hiroshima at dusk.', caption: 'The rain did not stop.', ratio: '4x3' },
-    { src: pHiroshimaDinner, alt: 'A group of classmates crowded together smiling in a small Korean restaurant in Hiroshima.', caption: 'Dinner, Hiroshima.', ratio: '4x3' },
   ],
 };
 
 const srcLabel: Record<string, string> = {
-  ITIN: 'Program itinerary',
+  ITIN: 'The program itinerary',
   REFLECT: 'My post-trip reflection',
   PHOTO: 'My photographs, dated',
+  HOTEL: 'The program accommodation list',
 };
 ---
 <Base
   title="The trip"
-  description="Fourteen days in Japan with ten classmates: four cities, four factory floors, a case study with Japanese students, and the free evenings in between. What a faculty-led study abroad program is actually like."
+  description="Fourteen days in Japan with a Wayne State group: five cities, four factory floors, a case study with Japanese students, and the free evenings in between. What a faculty-led study abroad program is actually like."
 >
   {/* ---------------- HERO ---------------- */}
   <section class="trip-hero">
     <Petals count={10} />
     <div class="wrap">
-      <p class="eyebrow" data-reveal>Chapter 01 · The trip</p>
-      <h1 data-reveal>Fourteen days,<br />four cities,<br /><em>four factory floors.</em></h1>
+      <p class="eyebrow" data-reveal>Chapter 01 &middot; The trip</p>
+      <h1 data-reveal>Fourteen days,<br />five cities,<br /><em>four factory floors.</em></h1>
       <p class="lede" data-reveal>
         This is what a short, faculty-led study abroad program actually looks like from
         the inside — the scheduled half and the other half, which is where a lot of the
@@ -88,7 +105,7 @@ const srcLabel: Record<string, string> = {
       <ol class="route" data-reveal aria-label="Route">
         {STOPS.map((s, i) => (
           <li>
-            <a href={`#${s.id}`}>
+            <a href={`#${s.id}`} class={s.dayTrip ? 'is-aside' : ''}>
               <span class="route__kana" aria-hidden="true">{s.kana}</span>
               <span class="route__city">{s.city}</span>
               <span class="route__dates">{s.dates}</span>
@@ -104,23 +121,26 @@ const srcLabel: Record<string, string> = {
 
       <dl class="trip-meta" data-reveal>
         <div><dt>Program</dt><dd>{program.name}</dd></div>
-        <div><dt>Course</dt><dd>{program.course} · {program.credits} credits</dd></div>
+        <div><dt>Course</dt><dd>{program.course} &middot; {program.credits} credits</dd></div>
         <div><dt>Group</dt><dd>{program.students} students, led by {program.facultyLeader}</dd></div>
-        <div><dt>Dates</dt><dd>June 13 – 27, 2026</dd></div>
+        <div><dt>Dates</dt><dd>June 13 &ndash; 27, 2026</dd></div>
       </dl>
     </div>
   </section>
 
   {/* ---------------- CITY CHAPTERS ---------------- */}
   {STOPS.map((stop, idx) => (
-    <section class="stop" id={stop.id}>
+    <section class={`stop ${stop.dayTrip ? 'stop--aside' : ''}`} id={stop.id}>
       <div class="wrap">
         <header class="stop__head" data-reveal>
           <span class="stop__kana" aria-hidden="true">{stop.kana}</span>
           <div>
-            <p class="stop__n">{String(idx + 1).padStart(2, '0')} / {String(STOPS.length).padStart(2, '0')}</p>
+            <p class="stop__n">
+              {stop.dayTrip ? 'Day trip' : `${String(idx + 1).padStart(2, '0')} / ${String(STOPS.length).padStart(2, '0')}`}
+            </p>
             <h2>{stop.city}</h2>
             <p class="stop__dates">{stop.dates}, 2026</p>
+            {stop.hotel && <p class="stop__hotel">Based at {stop.hotel}</p>}
           </div>
           <p class="stop__dek">{stop.dek}</p>
         </header>
@@ -128,7 +148,7 @@ const srcLabel: Record<string, string> = {
         <div class="stop__body">
           <div class="stop__cols">
             <div class="col" data-reveal>
-              <h3 class="col__h"><span class="col__dot col__dot--a" aria-hidden="true"></span>On the programme</h3>
+              <h3 class="col__h"><span class="col__dot col__dot--a" aria-hidden="true"></span>On the program</h3>
               <ul class="entries">
                 {stop.academic.map((e) => (
                   <li>
@@ -185,7 +205,7 @@ const srcLabel: Record<string, string> = {
 
       <div class="table-scroll" data-reveal>
         <table class="conn-table">
-          <caption>Four industrial visits, and what each one demonstrated. Drawn from my post-trip reflection.</caption>
+          <caption>Four industrial visits, and what each one demonstrated. Drawn from the program itinerary and my post-trip reflection.</caption>
           <thead>
             <tr><th scope="col">Where</th><th scope="col">Discipline</th><th scope="col">What I saw</th><th scope="col">What it meant</th></tr>
           </thead>
@@ -206,9 +226,10 @@ const srcLabel: Record<string, string> = {
         <p>
           <strong>This is the part that goes on a resume.</strong> Not "went to Japan", but
           "observed component manufacturing at two tier suppliers and final assembly at the
-          customer they feed, and worked with Japanese university students on a business
-          case." Describe what you actually did and what you saw. A site visit is not
-          employment, and you do not need it to be.
+          customer they feed, took part in a supply chain question-and-answer session with
+          the assembler, and worked with Japanese university students on a business case."
+          Describe what you actually did and what you saw. A site visit is not employment,
+          and it does not need to be.
         </p>
       </div>
     </div>
@@ -231,28 +252,39 @@ const srcLabel: Record<string, string> = {
     </div>
   </section>
 
+  {/* ---------------- THANKS ---------------- */}
+  <section class="section section--raised" id="thanks">
+    <div class="wrap wrap--mid">
+      <p class="eyebrow" data-reveal>Credit where it is due</p>
+      <h2 class="thanks__h" data-reveal>The person who<br />opened the door.</h2>
+      <p class="thanks__name" data-reveal>{THANKS.lead}</p>
+      <p class="thanks__body" data-reveal>{THANKS.body}</p>
+    </div>
+  </section>
+
   {/* ---------------- SOURCES + NEXT ---------------- */}
   <section class="section section--ruled">
     <div class="wrap grid-2">
       <div data-reveal>
         <p class="eyebrow">Where this account comes from</p>
-        <h2>Three sources, no reconstruction.</h2>
+        <h2>Four sources, no reconstruction.</h2>
         <ul class="src-list">
           {Object.entries(srcLabel).map(([k, v]) => (
             <li><span class="mono src-list__k">{k}</span><span>{v}</span></li>
           ))}
         </ul>
         <p class="small">
-          Where my own records disagree — the itinerary and my reflection place the Yamaha
-          visit slightly differently — the site follows the photograph, which is dated
-          June 22, 2026. Nothing has been filled in from memory after the fact.
+          Where my memory and the paperwork disagreed, the paperwork won. An earlier
+          version of this page had Kyoto as an overnight stay. The program itinerary and
+          the hotel list both show it was a day trip out of Osaka, so that is what it says
+          now. Nothing here has been filled in after the fact.
         </p>
       </div>
       <div class="next-card card" data-reveal>
         <p class="eyebrow">Next</p>
         <h3>What all of this cost</h3>
         <p>The program fee, the flight, the tuition share, the awards that covered it, and the dates the money moved.</p>
-        <p><a class="button" href={`${base}my-numbers/`}>My numbers<span class="arrow" aria-hidden="true">→</span></a></p>
+        <p><a class="button" href={`${base}my-numbers/`}>My numbers<span class="arrow" aria-hidden="true">&rarr;</span></a></p>
       </div>
     </div>
   </section>
@@ -272,13 +304,16 @@ const srcLabel: Record<string, string> = {
       transition: border-color 0.2s, transform 0.2s;
     }
     .route a:hover { border-color: var(--torii); transform: translateY(-2px); color: inherit; }
+    .route a.is-aside { background: transparent; border-style: dashed; }
+    .route a.is-aside .route__kana { color: var(--gold); }
     .route__kana { font-size: 0.95rem; color: var(--torii); line-height: 1; }
     .route__city { font-weight: 600; font-size: 1rem; }
     .route__dates { font-family: var(--mono); font-size: 0.66rem; color: var(--ink-3); letter-spacing: 0.04em; }
     .route__link { width: 1.5rem; align-self: center; height: 1px; background: var(--hairline-2); }
-    @media (max-width: 34rem) { .route__link { display: none; } .route { gap: 0.5rem; } }
+    @media (max-width: 46rem) { .route__link { display: none; } .route { gap: 0.5rem; } }
 
     .trip-map { margin: 0 0 2.5rem; max-width: 52rem; }
+
     .trip-meta { display: grid; gap: 1.25rem 2rem; margin: 0; padding-top: 1.75rem; border-top: 1px solid var(--hairline); }
     @media (min-width: 40rem) { .trip-meta { grid-template-columns: repeat(4, auto); justify-content: start; gap: 3rem; } }
     .trip-meta dt { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.25rem; }
@@ -286,15 +321,19 @@ const srcLabel: Record<string, string> = {
 
     /* ---- stop ---- */
     .stop { padding-block: clamp(3rem, 8vw, 6rem); border-top: 1px solid var(--hairline); position: relative; }
+    .stop--aside { background: color-mix(in oklab, var(--surface-1) 55%, transparent); }
     .stop__head { display: grid; gap: 0.5rem 2rem; margin-bottom: 2.5rem; align-items: start; }
     @media (min-width: 56rem) { .stop__head { grid-template-columns: auto 1fr 1.1fr; gap: 2.5rem; align-items: end; } }
     .stop__kana {
       font-family: var(--serif); font-size: clamp(3rem, 8vw, 5.5rem); line-height: 0.85;
       color: var(--torii); opacity: 0.22; letter-spacing: 0.02em;
     }
-    .stop__n { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; color: var(--ink-3); margin-bottom: 0.3rem; }
+    .stop--aside .stop__kana { color: var(--gold); }
+    .stop__n { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; color: var(--ink-3); margin-bottom: 0.3rem; text-transform: uppercase; }
     .stop h2 { margin-bottom: 0.2rem; }
-    .stop__dates { font-family: var(--mono); font-size: 0.74rem; color: var(--torii); letter-spacing: 0.06em; margin: 0; }
+    .stop__dates { font-family: var(--mono); font-size: 0.74rem; color: var(--torii); letter-spacing: 0.06em; margin: 0 0 0.35rem; }
+    .stop--aside .stop__dates { color: var(--gold); }
+    .stop__hotel { font-size: 0.82rem; color: var(--ink-3); margin: 0; }
     .stop__dek { color: var(--ink-2); font-size: 1.02rem; margin: 0; align-self: end; }
 
     .stop__cols { display: grid; gap: 2rem; }
@@ -328,6 +367,11 @@ const srcLabel: Record<string, string> = {
 
     /* ---- honest ---- */
     .honest__h { margin-bottom: 2.25rem; }
+
+    /* ---- thanks ---- */
+    .thanks__h { margin-bottom: 1.5rem; }
+    .thanks__name { font-family: var(--serif); font-size: clamp(1.6rem, 3.5vw, 2.4rem); color: var(--torii); margin-bottom: 0.9rem; }
+    .thanks__body { font-size: 1.05rem; color: var(--ink-2); max-width: 58ch; }
 
     /* ---- sources ---- */
     .src-list { list-style: none; padding: 0; margin: 1.25rem 0; }

@@ -155,6 +155,23 @@ export const AWARDS: Award[] = [
     confirmed: true,
   },
   {
+    id: 'ilitch',
+    name: 'The one I applied for and did not get',
+    tier: 'campus',
+    amount: 'A named study abroad scholarship at my own business school.',
+    who: 'Students on an approved program, by the terms of that particular award.',
+    requires: [
+      'Two essays, on my goals and on my cultural preparation',
+      'Submitted well before departure',
+      'They chose other students. That is the normal outcome.',
+    ],
+    timing: 'Its own cycle, separate from everything else I applied for.',
+    url: 'https://oip.wayne.edu/study-abroad',
+    urlLabel: 'WSU Office of Study Abroad and Global Programs',
+    note: 'I am listing this because the rest of the page could read as though every application worked. It did not. I wrote two essays for this one and was not selected, and I still went, because I had applied to enough other things that losing one did not end it. Apply to more than you think you need to.',
+    confirmed: true,
+  },
+  {
     id: 'campusScholarships',
     name: 'General university scholarships',
     tier: 'campus',
