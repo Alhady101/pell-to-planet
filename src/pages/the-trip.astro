@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Figure from '../components/Figure.astro';
 import Petals from '../components/Petals.astro';
+import JapanMap from '../components/JapanMap.astro';
 import { STOPS, CONNECTIONS, HONEST } from '../data/trip';
 import { program } from '../data/facts';
 
@@ -96,6 +97,10 @@ const srcLabel: Record<string, string> = {
           </li>
         ))}
       </ol>
+
+      <div class="trip-map" data-reveal>
+        <JapanMap />
+      </div>
 
       <dl class="trip-meta" data-reveal>
         <div><dt>Program</dt><dd>{program.name}</dd></div>
@@ -273,6 +278,7 @@ const srcLabel: Record<string, string> = {
     .route__link { width: 1.5rem; align-self: center; height: 1px; background: var(--hairline-2); }
     @media (max-width: 34rem) { .route__link { display: none; } .route { gap: 0.5rem; } }
 
+    .trip-map { margin: 0 0 2.5rem; max-width: 52rem; }
     .trip-meta { display: grid; gap: 1.25rem 2rem; margin: 0; padding-top: 1.75rem; border-top: 1px solid var(--hairline); }
     @media (min-width: 40rem) { .trip-meta { grid-template-columns: repeat(4, auto); justify-content: start; gap: 3rem; } }
     .trip-meta dt { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.25rem; }

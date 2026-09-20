@@ -1,0 +1,146 @@
+---
+import { JAPAN_PATHS, MAP_CITIES } from '../data/japan-map';
+
+/**
+ * The route, drawn on a real map. Coastline comes from Natural Earth 1:50m
+ * (public domain) via a build-time script — no mapping library ships to the
+ * browser, just path data.
+ */
+const route = MAP_CITIES.filter((c) => !c.aside).sort((a, b) => a.order - b.order);
+const kakegawa = MAP_CITIES.find((c) => c.aside)!;
+const osaka = MAP_CITIES.find((c) => c.id === 'osaka')!;
+
+const routeD = 'M' + route.map((c) => `${c.x} ${c.y}`).join('L');
+// Rough path length, used to animate the line drawing itself in.
+const len = Math.round(
+  route.slice(1).reduce((a, c, i) => a + Math.hypot(c.x - route[i].x, c.y - route[i].y), 0),
+);
+
+// Focused on Honshu between Hiroshima and Tokyo, with coastline for context.
+const VIEW = '318 466 528 286';
+
+// Kyoto and Osaka sit ~18 units apart, so their labels would collide. Kyoto's
+// pair is lifted clear above the dot; everything else keeps the default.
+const OFFSET: Record<string, { label: number; order: number; anchor?: string }> = {
+  kyoto: { label: -30, order: -18 },
+};
+const off = (id: string) => OFFSET[id] ?? { label: -13, order: 20 };
+---
+<figure class="jmap">
+  <svg viewBox={VIEW} role="img" aria-labelledby="jmap-t jmap-d" preserveAspectRatio="xMidYMid meet">
+    <title id="jmap-t">Map of central and western Honshu, Japan, showing the programme route</title>
+    <desc id="jmap-d">
+      The route runs west from Tokyo to Kyoto, then Osaka, then Hiroshima, with a
+      separate visit to the Yamaha factory at Kakegawa between Tokyo and Osaka.
+    </desc>
+
+    <g class="jmap__land">
+      {JAPAN_PATHS.map((d) => <path d={d} />)}
+    </g>
+
+    {/* the detour out to the Kakegawa factory */}
+    <line class="jmap__aside" x1={osaka.x} y1={osaka.y} x2={kakegawa.x} y2={kakegawa.y} />
+
+    <path class="jmap__route" d={routeD} style={`--len:${len}`} />
+
+    {route.map((c, i) => (
+      <g class="jmap__city" style={`--i:${i}`}>
+        <circle class="jmap__halo" cx={c.x} cy={c.y} r="9" />
+        <circle class="jmap__dot" cx={c.x} cy={c.y} r="4" />
+        <text class="jmap__label" x={c.x} y={c.y + off(c.id).label} text-anchor="middle">{c.name}</text>
+        <text class="jmap__order" x={c.x} y={c.y + off(c.id).order} text-anchor="middle">{String(i + 1).padStart(2, '0')}</text>
+      </g>
+    ))}
+
+    <g class="jmap__city jmap__city--aside" style="--i:4">
+      <circle class="jmap__dot jmap__dot--sm" cx={kakegawa.x} cy={kakegawa.y} r="3" />
+      <text class="jmap__label jmap__label--sm" x={kakegawa.x} y={kakegawa.y + 20} text-anchor="middle">Kakegawa</text>
+    </g>
+  </svg>
+  <figcaption>
+    Coastline: Natural Earth 1:50m, public domain. Route drawn from the programme itinerary.
+  </figcaption>
+</figure>
+
+<style>
+  .jmap { margin: 0; }
+  /* Must clip: the viewBox is a crop of the whole country, and SVG would
+     otherwise paint every ring that falls outside it. */
+  .jmap svg { width: 100%; height: auto; overflow: hidden; display: block; border-radius: var(--r); background: var(--surface-1); }
+
+  .jmap__land path {
+    fill: var(--surface-2);
+    stroke: var(--hairline-2);
+    stroke-width: 0.8;
+    stroke-linejoin: round;
+  }
+
+  .jmap__aside {
+    stroke: var(--ink-3);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 4;
+    opacity: 0.7;
+  }
+
+  .jmap__route {
+    fill: none;
+    stroke: var(--torii);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 6px rgb(var(--glow) / 0.45));
+  }
+
+  .jmap__halo { fill: none; stroke: var(--torii); stroke-width: 1; opacity: 0.35; }
+  .jmap__dot { fill: var(--torii); stroke: var(--void); stroke-width: 1.6; }
+  .jmap__dot--sm { fill: var(--gold); stroke-width: 1.2; }
+
+  .jmap__label {
+    fill: var(--ink);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    paint-order: stroke;
+    stroke: var(--void);
+    stroke-width: 3.5;
+    stroke-linejoin: round;
+  }
+  .jmap__label--sm { fill: var(--gold); font-size: 10.5px; font-weight: 500; }
+  .jmap__order {
+    fill: var(--torii);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    paint-order: stroke;
+    stroke: var(--void);
+    stroke-width: 3;
+  }
+
+  /* Animation is an enhancement, never a prerequisite. The DEFAULT state is
+     the finished one — route drawn, cities visible — so a frozen background
+     tab, a stalled animation or no scripting at all still shows a complete
+     map. The keyframes rewind to empty and play forward from there. */
+  .jmap__route { stroke-dasharray: var(--len); stroke-dashoffset: 0; }
+  .jmap__city { opacity: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .is-in .jmap__route { animation: jmap-draw 1.7s cubic-bezier(.4, 0, .2, 1) both; }
+    .is-in .jmap__city {
+      animation: jmap-pop 0.5s cubic-bezier(.2, .8, .3, 1) both;
+      animation-delay: calc(0.35s + var(--i) * 0.34s);
+    }
+    .is-in .jmap__halo { animation: jmap-halo 2.4s ease-out infinite; animation-delay: calc(1s + var(--i) * 0.34s); }
+  }
+
+  @keyframes jmap-draw {
+    from { stroke-dashoffset: var(--len); }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes jmap-pop { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes jmap-halo {
+    0% { r: 5; opacity: 0.5; }
+    70%, 100% { r: 15; opacity: 0; }
+  }
+
+  figcaption { font-size: 0.74rem; color: var(--ink-3); margin-top: 0.75rem; }
+</style>
