@@ -1,0 +1,111 @@
+---
+/**
+ * A receding tunnel of torii gates — the senbon torii of Fushimi Inari, which
+ * the group walked through on June 20. Real CSS 3D: each gate sits at its own
+ * translateZ inside a perspective container, and the container's Z is driven
+ * by scroll so the viewer moves through the gates.
+ *
+ * Decorative: aria-hidden, and it flattens to a single still gate under
+ * prefers-reduced-motion.
+ */
+interface Props { gates?: number; class?: string }
+const { gates = 7, class: cls = '' } = Astro.props;
+const list = Array.from({ length: gates }, (_, i) => i);
+---
+<div class={`torii-tunnel ${cls}`} aria-hidden="true" data-torii>
+  <div class="torii-tunnel__scene">
+    {list.map((i) => (
+      <div class="torii-gate" style={`--i:${i}; --depth:${i * -220}px; --o:${(1 - i / gates) * 0.85 + 0.08}`}>
+        <svg viewBox="0 0 200 170" width="100%" height="100%" focusable="false">
+          {/* kasagi — the curved top lintel */}
+          <path d="M14 34 Q100 12 186 34 L182 46 Q100 26 18 46 Z" />
+          {/* shimaki — the block beneath it */}
+          <path d="M26 47 Q100 29 174 47 L174 58 Q100 41 26 58 Z" />
+          {/* gakuzuka — the central tablet */}
+          <rect x="94" y="58" width="12" height="20" />
+          {/* nuki — the lower crossbeam */}
+          <path d="M32 78 L168 78 L168 90 L32 90 Z" />
+          {/* hashira — the two pillars, tapering outward as they fall */}
+          <path d="M46 58 L60 58 L64 170 L44 170 Z" />
+          <path d="M140 58 L154 58 L156 170 L136 170 Z" />
+        </svg>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .torii-tunnel {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    perspective: 700px;
+    perspective-origin: 50% 58%;
+    mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 72%, transparent);
+  }
+  .torii-tunnel__scene {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: translateZ(var(--scroll-z, 0px));
+    will-change: transform;
+  }
+  .torii-gate {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(74vw, 46rem);
+    aspect-ratio: 200 / 170;
+    translate: -50% -50%;
+    transform: translateZ(var(--depth));
+    opacity: var(--o);
+  }
+  .torii-gate svg { width: 100%; height: 100%; }
+  .torii-gate path,
+  .torii-gate rect { fill: var(--torii); }
+  /* the nearest gates read deeper red, the far ones catch more light */
+  .torii-gate:nth-child(-n + 2) path,
+  .torii-gate:nth-child(-n + 2) rect { fill: var(--torii-deep); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .torii-tunnel { perspective: none; }
+    .torii-tunnel__scene { transform: none; }
+    .torii-gate { transform: none; }
+    .torii-gate:not(:first-child) { display: none; }
+    .torii-gate:first-child { opacity: 0.32; }
+  }
+</style>
+
+<script>
+  // Drive the tunnel's depth from scroll position, rAF-throttled.
+  const setup = () => {
+    const tunnels = Array.from(document.querySelectorAll<HTMLElement>('[data-torii]'));
+    if (!tunnels.length) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      for (const t of tunnels) {
+        const rect = t.getBoundingClientRect();
+        if (rect.bottom < -200 || rect.top > window.innerHeight + 200) continue;
+        // -1 (below the fold) .. 1 (scrolled past)
+        const progress = (window.innerHeight / 2 - (rect.top + rect.height / 2)) / window.innerHeight;
+        const scene = t.querySelector<HTMLElement>('.torii-tunnel__scene');
+        if (scene) scene.style.setProperty('--scroll-z', `${progress * 420}px`);
+      }
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  };
+  setup();
+  document.addEventListener('astro:page-load', setup);
+</script>

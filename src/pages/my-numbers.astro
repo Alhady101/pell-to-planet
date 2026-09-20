@@ -4,21 +4,28 @@ import Chip from '../components/Chip.astro';
 import Money from '../components/Money.astro';
 import StackBars from '../components/StackBars.astro';
 import Timeline from '../components/Timeline.astro';
-import { Image } from 'astro:assets';
-import { program, term, termChargesUSD, japanShareOfTerm, costs, funding, payments, totals, tripSpecificFunding } from '../data/facts';
-import heroPhoto from '../assets/photos/hiroshima-mazda-787b-selfie.jpg';
-import yamahaPhoto from '../assets/photos/hamamatsu-yamaha-entrance.jpg';
+import Figure from '../components/Figure.astro';
+import {
+  program, term, termChargesUSD, japanShareOfTerm,
+  costs, funding, payments, totals, tripSpecificFunding,
+} from '../data/facts';
 
+import pMazda from '../assets/photos/hiroshima-mazda-787b-selfie.jpg';
+import pYamaha from '../assets/photos/hamamatsu-yamaha-entrance.jpg';
+
+const base = import.meta.env.BASE_URL;
 const byId = (id: string) => costs.find((c) => c.id === id) ?? funding.find((f) => f.id === id)!;
 const v = (id: string) => byId(id).amountUSD ?? 0;
+
+const groundTotal = v('food') + v('localTransit') + v('esim') + v('scooter') + v('suitcase');
 
 const costBar = {
   title: 'What the trip cost',
   segments: [
     { label: 'Program fee + application', value: v('programFee') + v('applicationFee'), slot: 1 as const },
-    { label: 'Tuition share (3 of 13 credits)', value: v('tuitionShare'), slot: 2 as const },
+    { label: 'Tuition share, 3 of 13 credits', value: v('tuitionShare'), slot: 2 as const },
     { label: 'Airfare', value: v('airfare'), slot: 3 as const },
-    { label: 'On the ground', value: v('food') + v('localTransit') + v('esim') + v('scooter') + v('suitcase'), slot: 4 as const },
+    { label: 'On the ground', value: groundTotal, slot: 4 as const },
   ],
 };
 const fundBar = {
@@ -26,46 +33,99 @@ const fundBar = {
   segments: [
     { label: 'Gilman', value: v('gilman'), slot: 1 as const },
     { label: 'WSU Global Experiences', value: v('globalExperiences'), slot: 2 as const },
-    { label: 'Share of term aid (Pell + Senior Sprint)', value: totals.termAidJapanShare, slot: 4 as const },
+    { label: 'Term aid, my share', value: totals.termAidJapanShare, slot: 4 as const },
     { label: 'Out of pocket', value: Math.max(0, totals.outOfPocket), slot: 'muted' as const },
   ],
 };
-const pct = (n: number) => Math.round(n * 100);
+const pct = Math.round(japanShareOfTerm * 100);
+
+const lessons = [
+  { n: '01', head: 'Book the flight earlier', body: 'Detroit to Tokyo fares move a lot. At $1,800 it was my second-largest line after the program fee, and the one I had the most control over.' },
+  { n: '02', head: 'Budget one surprise', body: 'A suitcase broke on a city-transfer day and cost $120 to replace. Something always happens. Put $150 in the plan and be pleased if you do not spend it.' },
+  { n: '03', head: 'Choose the term on purpose', body: 'Taking three other courses alongside the trip spread my Pell and Senior Sprint across the whole term. That was right for my degree, but I found out on the statement rather than planning for it.' },
+  { n: '04', head: 'Ask when, not just how much', body: 'Every program payment I made landed before a single award did. Knowing an award is coming is not the same as having it when the bill is due.' },
+];
 ---
-<Base title="My numbers" description="Every dollar of a two-week Gilman-funded study abroad program to Japan: what it cost, what covered it, and when the money actually moved.">
-  <section class="hero">
-    <div class="wrap hero__grid">
+<Base
+  title="My numbers"
+  description="Every dollar of a two-week Gilman-funded study abroad program in Japan: what it cost, which awards covered it, how term aid actually splits, and the dates the money moved."
+>
+  {/* ---------------- HERO ---------------- */}
+  <section class="section section--tight nm-hero">
+    <div class="wrap nm-hero__grid">
       <div>
-        <p class="eyebrow">Case study · Japan, June 2026</p>
-        <h1>Two weeks in Japan cost me about <Money value={Math.round(totals.costsKnown / 100) * 100} class="hero__num" />.<br />Here is every dollar.</h1>
-        <p class="lede">A program fee is only the first line. This page shows the whole stack for my Wayne State <em>{program.name}</em> course, the awards that covered it, the term aid that only partly did, and the dates the money actually moved.</p>
-        <p class="small">Figures carry a status chip. <Chip status="verified" /> means a document backs it. <Chip status="estimate" /> shows the method. <Chip status="todo" /> means I have not confirmed it yet and will not guess.</p>
+        <p class="eyebrow" data-reveal>Chapter 02 · My numbers</p>
+        <h1 data-reveal>
+          Two weeks in Japan cost me about<br />
+          <em><Money value={Math.round(totals.costsKnown / 100) * 100} /></em>.<br />
+          Here is every dollar.
+        </h1>
+        <p class="lede" data-reveal>
+          A program fee is the first line, not the price. This is the whole stack for my
+          Wayne State <em>{program.name}</em> course — what it cost, what covered it, and
+          when the money actually moved.
+        </p>
+        <p class="nm-key" data-reveal>
+          <Chip status="verified" /> a document backs it ·
+          <Chip status="estimate" /> the method is shown ·
+          <Chip status="todo" /> I have not confirmed it, so I will not state it
+        </p>
       </div>
-      <figure class="hero__fig">
-        <Image src={heroPhoto} alt="Gotibeh, in a Wayne State polo, at the Mazda Museum in Hiroshima with the green-and-orange Mazda 787B Le Mans race car behind him." widths={[480, 800, 1200]} sizes="(min-width: 60rem) 34rem, 100vw" loading="eager" />
-        <figcaption>Mazda Museum, Hiroshima. June 25, 2026.</figcaption>
-      </figure>
+      <div data-reveal>
+        <Figure
+          src={pMazda}
+          alt="Gotibeh in a Wayne State Global Supply Chain polo at the Mazda Museum in Hiroshima, the green and orange Mazda 787B Le Mans car behind him."
+          caption="Mazda Museum, Hiroshima. June 25, 2026."
+          ratio="4x3" eager
+          sizes="(min-width: 64rem) 30rem, 92vw" widths={[480, 900, 1300]}
+        />
+      </div>
     </div>
   </section>
 
-  <section class="section">
+  {/* ---------------- THE PICTURE ---------------- */}
+  <section class="section section--raised" id="picture">
     <div class="wrap">
-      <p class="eyebrow">01 · The picture</p>
-      <h2>Cost on top, coverage underneath.</h2>
-      <p>The bars share one scale. The gray tail on the second bar is what I paid myself, after the awards and my slice of term aid. On-the-ground spending is my own estimate and the one line most students forget to plan for.</p>
-      <StackBars id="cost-vs-funding" bars={[costBar, fundBar]} />
-      <p class="small">Airport transfer fares are not yet in the total. {totals.costsTodoCount} line{totals.costsTodoCount === 1 ? '' : 's'} still marked to confirm.</p>
+      <div class="nm-head">
+        <div>
+          <p class="eyebrow" data-reveal>01 · The picture</p>
+          <h2 data-reveal>Cost on top,<br />coverage underneath.</h2>
+        </div>
+        <p class="dek" data-reveal>
+          Both bars share one scale. The grey tail on the second is what I paid myself
+          once the awards and my share of term aid were counted.
+        </p>
+      </div>
+      <div data-reveal><StackBars id="cost-vs-funding" bars={[costBar, fundBar]} /></div>
+      <p class="small" data-reveal>
+        Airport transfer fares are still to be confirmed, so they are not in the total.
+        {' '}{totals.costsTodoCount} line{totals.costsTodoCount === 1 ? '' : 's'} outstanding.
+      </p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap two-col">
+  {/* ---------------- COSTS ---------------- */}
+  <section class="section" id="costs">
+    <div class="wrap grid-2">
       <div>
-        <p class="eyebrow">02 · Costs</p>
-        <h2>The full stack</h2>
-        <p>The program fee covered more than I expected: lodging, breakfast, several dinners, the JR Pass, excursions, and insurance. Everything else below was on me.</p>
+        <p class="eyebrow" data-reveal>02 · Costs</p>
+        <h2 data-reveal>The full stack</h2>
+        <div data-reveal>
+          <p>
+            The program fee covered more than I expected: accommodation, daily breakfast,
+            some group meals, most transport including the rail pass, the required
+            excursions and travel insurance.
+          </p>
+          <p>Everything in the list beside this was on top of that.</p>
+          <div class="callout">
+            <p>
+              <strong>Read the inclusions before you budget.</strong> I nearly
+              double-counted rail travel that the fee already paid for.
+            </p>
+          </div>
+        </div>
       </div>
-      <ul class="ledger">
+      <ul class="ledger" data-reveal>
         {costs.map((c) => (
           <li>
             <span class="label">{c.label} <Chip status={c.status} title={c.source} /></span>
@@ -73,112 +133,184 @@ const pct = (n: number) => Math.round(n * 100);
             {(c.method || c.note) && <p class="note">{c.method ?? c.note}</p>}
           </li>
         ))}
-        <li class="total"><span class="label">Known costs</span><span class="amount"><Money value={totals.costsKnown} approx /></span></li>
+        <li class="total total--key">
+          <span class="label">Known costs</span>
+          <span class="amount"><Money value={totals.costsKnown} approx /></span>
+        </li>
       </ul>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap two-col">
+  {/* ---------------- FUNDING ---------------- */}
+  <section class="section section--ruled" id="funding">
+    <div class="wrap grid-2">
       <div>
-        <p class="eyebrow">03 · Funding</p>
-        <h2>Two kinds of money</h2>
-        <p><strong>Trip-specific awards</strong> follow the trip. Gilman and the campus Global Experiences award were mine to spend on Japan.</p>
-        <p><strong>Term aid</strong> follows the semester. Pell and Senior Sprint posted against my whole {term.credits}-credit summer term, which had four courses in it. The Japan course was {program.credits} of those credits, so only about <strong>{pct(japanShareOfTerm)}%</strong> of that aid really went to Japan.</p>
-        <div class="callout">
-          <p>If you take only the study abroad course that term, term aid can cover much more of it. If you stack other classes, the aid gets shared. Plan for whichever you actually do.</p>
+        <p class="eyebrow" data-reveal>03 · Funding</p>
+        <h2 data-reveal>Two kinds of money</h2>
+        <div data-reveal>
+          <p>
+            <strong>Trip-specific awards</strong> follow the trip. Gilman and the campus
+            Global Experiences award were mine to spend on Japan, and all of both counts.
+          </p>
+          <p>
+            <strong>Term aid</strong> follows the semester. Pell and Senior Sprint posted
+            against my whole {term.credits}-credit summer term, which held four courses.
+            The Japan course was {program.credits} of those credits, so about
+            <strong> {pct}%</strong> of that money is honestly attributable to the trip.
+          </p>
+          <div class="callout callout--box">
+            <p>
+              Take only the study abroad course that term and term aid can cover far more
+              of it. Stack other classes and it gets shared out. Either is fine — just
+              know which one you are doing before the bill arrives.
+            </p>
+          </div>
         </div>
       </div>
-      <ul class="ledger">
+      <ul class="ledger" data-reveal>
         {funding.map((f) => (
           <li>
-            <span class="label">{f.label} <Chip status={f.status} title={f.source} /> {tripSpecificFunding.includes(f.id) ? <span class="tag">trip-specific</span> : <span class="tag tag--term">term aid</span>}</span>
+            <span class="label">
+              {f.label} <Chip status={f.status} title={f.source} />
+              {tripSpecificFunding.includes(f.id)
+                ? <span class="tag">trip-specific</span>
+                : <span class="tag tag--term">term aid</span>}
+            </span>
             <span class="amount"><Money value={f.amountUSD} /></span>
             {f.note && <p class="note">{f.note}</p>}
           </li>
         ))}
         <li class="total"><span class="label">Trip-specific awards</span><span class="amount"><Money value={totals.tripSpecificFunding} /></span></li>
         <li class="total"><span class="label">Term aid × {program.credits}/{term.credits}</span><span class="amount"><Money value={totals.termAidJapanShare} approx /></span></li>
-        <li class="total"><span class="label">Left for me to cover</span><span class="amount"><Money value={totals.outOfPocket} approx /></span></li>
+        <li class="total total--key"><span class="label">Left for me to cover</span><span class="amount"><Money value={totals.outOfPocket} approx /></span></li>
       </ul>
     </div>
   </section>
 
-  <section class="section">
+  {/* ---------------- THE TERM ---------------- */}
+  <section class="section section--raised" id="term">
     <div class="wrap">
-      <p class="eyebrow">04 · The term behind the course</p>
-      <h2>Why the tuition line is a share, not a bill.</h2>
-      <div class="two-col">
+      <div class="nm-head">
         <div>
-          <p>Wayne State billed my summer as one term: <Money value={term.tuitionUSD} /> of tuition plus <Money value={+term.feesUSD.toFixed(2)} /> in fees for {term.credits} credits. There is no separate "Japan tuition" line on the statement, so the honest number is the course's share of the term.</p>
-          <p class="small">Source: {term.source}. Verified {term.verifiedOn}.</p>
+          <p class="eyebrow" data-reveal>04 · The term behind the course</p>
+          <h2 data-reveal>Why tuition is a share,<br />not a bill.</h2>
         </div>
-        <table>
-          <thead><tr><th>Term line</th><th class="num">USD</th></tr></thead>
-          <tbody>
-            <tr><td>Tuition, {term.credits} credits</td><td class="num"><Money value={term.tuitionUSD} /></td></tr>
-            <tr><td>University fees</td><td class="num"><Money value={+term.feesUSD.toFixed(2)} /></td></tr>
-            <tr><td>Pell Grant</td><td class="num">− <Money value={3697} /></td></tr>
-            <tr><td>Senior Sprint</td><td class="num">− <Money value={2500} /></td></tr>
-            <tr><td>Paid by me, three installments</td><td class="num">− <Money value={totals.termPaidByAuthor} /></td></tr>
-          </tbody>
-          <tfoot>
-            <tr><td>Term charges</td><td class="num"><Money value={termChargesUSD} /></td></tr>
-            <tr><td>Japan course share ({program.credits}/{term.credits})</td><td class="num"><Money value={v('tuitionShare')} approx /></td></tr>
-          </tfoot>
-        </table>
+        <p class="dek" data-reveal>
+          There is no line on my statement that says "Japan". The course was billed inside
+          a normal summer term, so the only defensible figure is its share of that term.
+        </p>
       </div>
-      <p class="small">The statement's credits total $1,000 less than its charges. That gap most likely reflects the Global Experiences award; it is marked for confirmation rather than assumed.</p>
+
+      <div class="grid-2">
+        <div class="table-scroll" data-reveal>
+          <table>
+            <caption>Spring/Summer 2026 student account, term code {term.termCode}.</caption>
+            <thead><tr><th scope="col">Term line</th><th scope="col" class="num">USD</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Tuition, {term.credits} credits</th><td class="num"><Money value={term.tuitionUSD} /></td></tr>
+              <tr><th scope="row">University fees</th><td class="num"><Money value={+term.feesUSD.toFixed(2)} /></td></tr>
+              <tr><th scope="row">Federal Pell Grant</th><td class="num">− <Money value={3697} /></td></tr>
+              <tr><th scope="row">Senior Sprint</th><td class="num">− <Money value={2500} /></td></tr>
+              <tr><th scope="row">Paid by me, three installments</th><td class="num">− <Money value={totals.termPaidByAuthor} /></td></tr>
+            </tbody>
+            <tfoot>
+              <tr><th scope="row">Term charges</th><td class="num"><Money value={termChargesUSD} /></td></tr>
+              <tr><th scope="row">Japan course share ({program.credits}/{term.credits})</th><td class="num"><Money value={v('tuitionShare')} approx /></td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <div data-reveal>
+          <p>
+            The statement's credits come to $1,000 less than its charges. That gap most
+            likely reflects the Global Experiences award posting elsewhere, but I have
+            not confirmed it, so it is flagged rather than assumed.
+          </p>
+          <p class="small">
+            Source: {term.source}. Verified {term.verifiedOn}.
+          </p>
+          <div class="callout">
+            <p>
+              <strong>Ask early:</strong> is this course billed on its own, or inside a
+              term? The answer changes how much of your aid is really paying for it.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap two-col">
+  {/* ---------------- TIMING ---------------- */}
+  <section class="section" id="timing">
+    <div class="wrap grid-2">
       <div>
-        <p class="eyebrow">05 · Timing</p>
-        <h2>The money arrived after the bills did.</h2>
-        <p>This is the part no budget sheet shows you. I was accepted in January and the program payments were due through the winter. The Gilman letter came April 30. Term aid posted May 21. Every program payment I made came before a single award landed.</p>
-        <div class="callout">
-          <p>Ask two dates for every award: when it is decided, and when it is paid. Then line them up against your deposit and fee deadlines.</p>
+        <p class="eyebrow" data-reveal>05 · Timing</p>
+        <h2 data-reveal>The money arrived<br />after the bills did.</h2>
+        <div data-reveal>
+          <p>
+            This is the part no budget sheet shows. I was accepted in January and the
+            program payments ran through the winter. The Gilman letter came on April 30,
+            and funds follow document approval by a couple of weeks after that. Term aid
+            posted on May 21.
+          </p>
+          <p>Every program payment I made came before a single award landed.</p>
+          <div class="callout callout--box">
+            <p>
+              <strong>Ask two dates for every award:</strong> when it is decided, and when
+              it pays out. Then line both up against your deposit and fee deadlines.
+            </p>
+          </div>
         </div>
-        <figure class="fig-inline">
-          <Image src={yamahaPhoto} alt="Selfie in front of the glass-fronted Yamaha factory entrance in Kakegawa, near Hamamatsu, under a cloudy sky." widths={[480, 800]} sizes="(min-width: 60rem) 26rem, 100vw" />
-          <figcaption>Yamaha, Kakegawa. June 22, 2026.</figcaption>
-        </figure>
+        <div data-reveal style="margin-top:2rem">
+          <Figure
+            src={pYamaha}
+            alt="Gotibeh outside the glass and steel entrance of the Yamaha factory in Kakegawa under a cloudy sky."
+            caption="Yamaha, Kakegawa. June 22, 2026."
+            ratio="4x3" sizes="(min-width: 64rem) 26rem, 92vw" widths={[420, 800]}
+          />
+        </div>
       </div>
-      <Timeline items={payments} />
+      <div data-reveal><Timeline items={payments} /></div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap wrap--narrow">
-      <p class="eyebrow">06 · What I would do differently</p>
-      <h2>Three things.</h2>
-      <ol class="lessons">
-        <li><strong>Book the flight earlier.</strong> Detroit to Tokyo fares move a lot. My $1,800 was the second-largest line after the program fee.</li>
-        <li><strong>Budget one surprise.</strong> A suitcase broke on a transfer day and cost $120. Something will happen. Put $150 in the plan for it.</li>
-        <li><strong>Decide the summer term on purpose.</strong> Taking other courses alongside the trip spread my Pell and Senior Sprint across four classes. That was the right call for my degree, but I would have planned the cash flow for it instead of discovering it on the statement.</li>
-      </ol>
-      <p><a class="button" href={`${import.meta.env.BASE_URL}tools/`}>Build your own version of this page →</a></p>
+  {/* ---------------- LESSONS ---------------- */}
+  <section class="section section--ruled">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>06 · With hindsight</p>
+      <h2 class="nm-lessons__h" data-reveal>Four things I would<br />do differently.</h2>
+      <div class="nm-lessons">
+        {lessons.map((l, i) => (
+          <div class="nm-lesson" data-reveal data-reveal-delay={i * 60}>
+            <span class="nm-lesson__n">{l.n}</span>
+            <h3>{l.head}</h3>
+            <p>{l.body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="cta-row" style="margin-top:2.5rem" data-reveal>
+        <a class="button" href={`${base}tools/`}>Build your own version of this<span class="arrow" aria-hidden="true">→</span></a>
+        <a class="button button--ghost" href={`${base}sources/`}>Check my sources</a>
+      </p>
     </div>
   </section>
 
   <style>
-    .hero { padding-block: clamp(2.5rem, 7vw, 5rem) clamp(2rem, 5vw, 4rem); }
-    .hero__grid { display: grid; gap: 2rem; align-items: end; }
-    @media (min-width: 60rem) { .hero__grid { grid-template-columns: 1.15fr 1fr; gap: 3rem; } }
-    .hero h1 { max-width: 20ch; }
-    .hero__num { color: var(--vermilion-ink); white-space: nowrap; }
-    .hero__fig { margin: 0; }
-    .hero__fig img { border-radius: var(--radius); aspect-ratio: 4 / 3; object-fit: cover; }
-    figcaption { font-size: 0.8rem; color: var(--ink-3); margin-top: 0.5rem; }
-    .two-col { display: grid; gap: 1.5rem 3rem; }
-    @media (min-width: 56rem) { .two-col { grid-template-columns: 1fr 1.2fr; align-items: start; } }
-    .tag { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.1em 0.5em; border-radius: 3px; background: var(--vermilion-wash); color: var(--vermilion-ink); font-weight: 600; }
-    .tag--term { background: var(--paper-3); color: var(--ink-2); }
-    .fig-inline { margin: 2rem 0 0; }
-    .fig-inline img { border-radius: var(--radius); }
-    .lessons { padding-left: 1.2rem; }
-    .lessons li { margin-bottom: 1rem; max-width: var(--measure); }
+    .nm-hero__grid { display: grid; gap: 2.5rem; align-items: center; }
+    @media (min-width: 64rem) { .nm-hero__grid { grid-template-columns: 1.25fr 1fr; gap: 3.5rem; } }
+    .nm-hero h1 { max-width: 17ch; }
+    .nm-hero h1 em { color: var(--torii); font-family: var(--serif); font-style: normal; }
+    .nm-key { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: center; font-size: 0.82rem; color: var(--ink-3); margin-top: 1.75rem; }
+
+    .nm-head { display: grid; gap: 1.25rem; margin-bottom: 2.25rem; }
+    @media (min-width: 56rem) { .nm-head { grid-template-columns: 1.15fr 1fr; align-items: end; gap: 3rem; } }
+
+    .nm-lessons__h { margin-bottom: 2.25rem; }
+    .nm-lessons { display: grid; gap: 1.75rem 2.5rem; }
+    @media (min-width: 40rem) { .nm-lessons { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 72rem) { .nm-lessons { grid-template-columns: repeat(4, 1fr); } }
+    .nm-lesson { border-top: 1px solid var(--hairline-2); padding-top: 1rem; }
+    .nm-lesson__n { font-family: var(--mono); font-size: 0.68rem; color: var(--torii); letter-spacing: 0.1em; }
+    .nm-lesson h3 { font-family: var(--sans); font-size: 1rem; font-weight: 600; margin: 0.5rem 0 0.4rem; }
+    .nm-lesson p { font-size: 0.9rem; color: var(--ink-2); margin: 0; }
   </style>
 </Base>

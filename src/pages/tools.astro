@@ -1,6 +1,344 @@
 ---
 import Base from '../layouts/Base.astro';
+import GapCalculator from '../components/GapCalculator.astro';
+
+const base = import.meta.env.BASE_URL;
+
+/**
+ * A planning rhythm, not a set of official deadlines. Every real deadline
+ * belongs to an office or a program and must be read off their own page —
+ * which is why each row says who to ask rather than asserting a date.
+ */
+const milestones = [
+  { at: 12, label: 'Pick the program, confirm it carries credit', who: 'Study abroad office + your academic advisor', why: 'Credit-bearing is a requirement for most scholarships, including Gilman. Confirm it in writing.' },
+  { at: 10, label: 'Match your program dates to a scholarship cycle', who: 'The scholarship\'s own deadlines page', why: 'Cycles have eligible program-start windows. The wrong cycle disqualifies a good application.' },
+  { at: 9, label: 'File the FAFSA for the right aid year', who: 'studentaid.gov', why: 'Almost everything need-based downstream depends on it being on file.' },
+  { at: 8, label: 'Write and submit scholarship applications', who: 'You, plus a reader you trust', why: 'Essays take longer than you think, and advisors need lead time to certify.' },
+  { at: 6, label: 'Ask about a cost-of-attendance review', who: 'Financial aid office', why: 'Bring the program budget, tuition estimate and a flight quote. An adjustment changes eligibility, not guarantees.' },
+  { at: 5, label: 'Accept, and find out what is due when', who: 'Program administrator', why: 'Get the payment schedule in writing. This is the step I most wish I had done earlier.' },
+  { at: 4, label: 'Start the passport, if you need one', who: 'travel.state.gov', why: 'Check current processing times on the official page and work backwards from them.' },
+  { at: 3, label: 'Book flights, unless the program buys them', who: 'You', why: 'Fares move. If your scholarship pays for travel, check whether any flag-carrier rules apply first.' },
+  { at: 2, label: 'Confirm disbursement dates against payment dates', who: 'Financial aid office', why: 'Ask when each award actually pays out, then compare it with your due dates.' },
+  { at: 1, label: 'Insurance, enrolment, and travel registration', who: 'Program + your scholarship\'s requirements', why: 'Scholarships often have their own pre-departure conditions. Missing one can delay your money.' },
+  { at: 0, label: 'Depart', who: '', why: '' },
+];
+
+const scripts = [
+  {
+    id: 'coa',
+    title: 'Asking financial aid for a study-abroad cost-of-attendance review',
+    to: 'Your financial aid office',
+    body: `Subject: Study abroad cost of attendance review — [your name], [student ID]
+
+Hello,
+
+I have been accepted to [program name], a credit-bearing study abroad program running [dates], for [n] credits.
+
+I would like to ask whether my cost of attendance can be reviewed to reflect the actual costs of this program. I can provide:
+
+- the program budget sheet from the program office
+- the tuition and fee estimate for the term
+- a flight quote for the travel dates
+- my acceptance confirmation
+
+Could you tell me:
+1. What form or process you need from me for this review?
+2. Which of these costs can be recognised?
+3. Whether an adjustment would change my grant, scholarship or loan eligibility?
+4. What the expected disbursement dates are for the aid I already have this term?
+
+Thank you,
+[your name]`,
+  },
+  {
+    id: 'advisor',
+    title: 'Asking your department about scholarships you have not heard of',
+    to: 'Your academic advisor or department',
+    body: `Subject: Departmental funding for a study abroad course — [your name]
+
+Hello,
+
+I am planning to take [program name] in [term], which carries [n] credits toward my [major] degree.
+
+Two questions:
+
+1. Are there departmental or college scholarships that can be applied to a study abroad course? I have found the university-wide ones, but I want to be sure I am not missing anything held at the department level.
+
+2. Who is the certifying advisor for study abroad scholarships in our college? I will need a signature for my application by [date].
+
+Happy to send my program details and budget if that helps.
+
+Thank you,
+[your name]`,
+  },
+  {
+    id: 'questions',
+    title: 'The five questions to ask before you pay anything',
+    to: 'Program office and financial aid',
+    body: `1. What exactly does the program fee include, and what is billed separately?
+
+2. Is the deposit part of the fee, or on top of it? When is each payment due?
+
+3. Is the course tuition billed as part of a normal term? If so, how many credits, and what will the term cost in total?
+
+4. Which of my awards apply to this program, and which apply to the whole term?
+
+5. On what date does each award actually disburse, compared with each payment due date?`,
+  },
+];
 ---
-<Base title="tools" description="Coming soon.">
-  <section class="section section--flush"><div class="wrap wrap--narrow"><p class="eyebrow">Coming soon</p><h1>This page is being built.</h1></div></section>
+<Base
+  title="Tools"
+  description="A gap calculator, a backward-planning timeline, and the email scripts for asking financial aid the right questions. Everything runs in your browser — nothing is uploaded."
+>
+  <section class="section section--tight">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Chapter 05 · Tools</p>
+      <h1 data-reveal>Work out <em>your</em> number.</h1>
+      <p class="lede" data-reveal>
+        Three things I had to build for myself: a way to see the gap, a rhythm for
+        when to do what, and the words for asking an office a question I did not
+        know how to phrase.
+      </p>
+    </div>
+  </section>
+
+  {/* ---------------- CALCULATOR ---------------- */}
+  <section class="section section--ruled" id="calculator">
+    <div class="wrap">
+      <div class="tool-head" data-reveal>
+        <div>
+          <p class="eyebrow">Tool one</p>
+          <h2>The gap calculator</h2>
+        </div>
+        <p class="dek">
+          Most calculators add up costs and subtract aid. This one also splits your
+          term aid by credits, which is the step that made my own number honest.
+        </p>
+      </div>
+      <GapCalculator />
+    </div>
+  </section>
+
+  {/* ---------------- PLANNER ---------------- */}
+  <section class="section section--raised" id="planner">
+    <div class="wrap">
+      <div class="tool-head" data-reveal>
+        <div>
+          <p class="eyebrow">Tool two</p>
+          <h2>The backward planner</h2>
+        </div>
+        <p class="dek">
+          Enter the month your program starts and this counts back. These are planning
+          milestones, not official deadlines — every real date belongs to an office,
+          and the last column says which one to ask.
+        </p>
+      </div>
+
+      <div class="planner" data-planner>
+        <div class="planner__control">
+          <label for="start-month">My program starts</label>
+          <input type="month" id="start-month" data-start />
+          <button type="button" class="button button--ghost button--sm" data-clear-planner>Clear</button>
+        </div>
+
+        <ol class="planner__list">
+          {milestones.map((m) => (
+            <li class={m.at === 0 ? 'is-end' : ''} data-months={m.at} data-reveal>
+              <div class="planner__when">
+                <span class="planner__rel">{m.at === 0 ? 'Departure' : `${m.at} mo before`}</span>
+                <span class="planner__date" data-date hidden></span>
+              </div>
+              <div class="planner__what">
+                <p class="planner__label">{m.label}</p>
+                {m.why && <p class="planner__why">{m.why}</p>}
+              </div>
+              <div class="planner__who">{m.who && <span class="tag tag--term">{m.who}</span>}</div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- SCRIPTS ---------------- */}
+  <section class="section" id="scripts">
+    <div class="wrap">
+      <div class="tool-head" data-reveal>
+        <div>
+          <p class="eyebrow">Tool three</p>
+          <h2>What to actually say</h2>
+        </div>
+        <p class="dek">
+          The hardest part was not the money. It was not knowing that you are allowed to
+          ask, or how. Copy these, fill in the brackets, send them.
+        </p>
+      </div>
+
+      <div class="scripts">
+        {scripts.map((s, i) => (
+          <details class="script" data-reveal data-reveal-delay={i * 60} open={i === 0}>
+            <summary>
+              <span class="script__title">{s.title}</span>
+              <span class="script__to">{s.to}</span>
+              <span class="script__chev" aria-hidden="true"></span>
+            </summary>
+            <div class="script__body">
+              <pre data-script-text>{s.body}</pre>
+              <button type="button" class="button button--ghost button--sm" data-copy>Copy</button>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- NEXT ---------------- */}
+  <section class="section section--ruled">
+    <div class="wrap grid-2">
+      <div data-reveal>
+        <p class="eyebrow">Before you use any of this</p>
+        <h2>Numbers change. Ask anyway.</h2>
+        <p>
+          Award amounts, deadlines and rules all move year to year. Nothing on this
+          site is a substitute for the office that holds the money. Use the tools to
+          walk in with a question already written down — that is the whole point.
+        </p>
+      </div>
+      <div class="card" data-reveal>
+        <p class="eyebrow">Next</p>
+        <h3>Where the money comes from</h3>
+        <p>Federal aid, campus awards, and the national scholarships worth your time, with what each one requires.</p>
+        <p><a class="button" href={`${base}funding/`}>The funding directory<span class="arrow" aria-hidden="true">→</span></a></p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .tool-head { display: grid; gap: 1.25rem; margin-bottom: 2.25rem; }
+    @media (min-width: 56rem) { .tool-head { grid-template-columns: 1fr 1fr; align-items: end; gap: 3rem; } }
+    h1 em { color: var(--torii); }
+
+    /* ---- planner ---- */
+    .planner__control {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
+      padding: 1rem 1.15rem; background: var(--surface-2); border: 1px solid var(--hairline);
+      border-radius: var(--r); margin-bottom: 2rem;
+    }
+    .planner__control label { font-size: 0.9rem; font-weight: 500; }
+    .planner__control input {
+      background: var(--surface-1); border: 1px solid var(--hairline-2); border-radius: var(--r);
+      color: var(--ink); font: inherit; font-size: 0.9rem; padding: 0.5rem 0.7rem;
+      color-scheme: dark;
+    }
+    :root[data-theme='light'] .planner__control input { color-scheme: light; }
+    .planner__control input:focus-visible { border-color: var(--torii); }
+
+    .planner__list { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--hairline); }
+    .planner__list li {
+      display: grid; gap: 0.35rem 1.5rem; padding: 1rem 0 1rem 1.5rem; position: relative; margin: 0;
+      max-width: none;
+    }
+    @media (min-width: 56rem) { .planner__list li { grid-template-columns: 9rem 1fr 14rem; align-items: start; } }
+    .planner__list li::before {
+      content: ''; position: absolute; left: -7px; top: 1.35rem; width: 12px; height: 12px;
+      border-radius: 50%; background: var(--void); border: 2px solid var(--hairline-2);
+    }
+    .planner__list li.is-end::before { background: var(--torii); border-color: var(--torii); }
+    .planner__list li.is-end .planner__label { color: var(--torii); font-family: var(--serif); font-size: 1.5rem; }
+    .planner__rel { display: block; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+    .planner__date { display: block; font-family: var(--mono); font-size: 0.82rem; color: var(--torii); margin-top: 0.15rem; }
+    .planner__label { font-weight: 600; margin: 0 0 0.2rem; }
+    .planner__why { font-size: 0.88rem; color: var(--ink-2); margin: 0; max-width: 52ch; }
+    .planner__who { align-self: start; }
+
+    /* ---- scripts ---- */
+    .scripts { display: grid; gap: 0.75rem; }
+    .script { border: 1px solid var(--hairline); border-radius: var(--r); background: var(--surface-1); overflow: hidden; }
+    .script summary {
+      display: grid; grid-template-columns: 1fr auto; gap: 0.2rem 1rem; align-items: center;
+      padding: 1.1rem 1.25rem; cursor: pointer; list-style: none;
+    }
+    .script summary::-webkit-details-marker { display: none; }
+    .script__title { font-weight: 600; grid-column: 1; }
+    .script__to { grid-column: 1; font-size: 0.82rem; color: var(--ink-3); }
+    .script__chev { grid-column: 2; grid-row: 1 / span 2; width: 0.6rem; height: 0.6rem; border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3); rotate: 45deg; transition: rotate 0.25s; }
+    .script[open] .script__chev { rotate: 225deg; }
+    .script[open] summary { border-bottom: 1px solid var(--hairline); }
+    .script__body { padding: 1.25rem; }
+    .script__body pre {
+      font-family: var(--mono); font-size: 0.82rem; line-height: 1.65; white-space: pre-wrap;
+      word-break: break-word; margin: 0 0 1rem; color: var(--ink-2); background: var(--surface-2);
+      padding: 1.1rem; border-radius: var(--r); border: 1px solid var(--hairline);
+      max-height: 26rem; overflow-y: auto;
+    }
+  </style>
+
+  <script>
+    function initTools() {
+      /* ---- planner ---- */
+      const planner = document.querySelector<HTMLElement>('[data-planner]');
+      if (planner) {
+        const input = planner.querySelector<HTMLInputElement>('[data-start]')!;
+        const KEY = 'p2p-planner-v1';
+
+        const paint = () => {
+          const raw = input.value;
+          const rows = planner.querySelectorAll<HTMLElement>('[data-months]');
+          if (!raw) {
+            rows.forEach((r) => { const d = r.querySelector<HTMLElement>('[data-date]'); if (d) d.hidden = true; });
+            return;
+          }
+          const [y, m] = raw.split('-').map(Number);
+          rows.forEach((row) => {
+            const back = Number(row.dataset.months ?? 0);
+            const d = new Date(y, (m - 1) - back, 1);
+            const el = row.querySelector<HTMLElement>('[data-date]');
+            if (el) {
+              el.textContent = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+              el.hidden = false;
+            }
+          });
+        };
+
+        input.addEventListener('input', () => {
+          paint();
+          try { localStorage.setItem(KEY, input.value); } catch (_) {}
+        });
+        planner.querySelector('[data-clear-planner]')?.addEventListener('click', () => {
+          input.value = '';
+          try { localStorage.removeItem(KEY); } catch (_) {}
+          paint();
+        });
+        try {
+          const saved = localStorage.getItem(KEY);
+          if (saved) input.value = saved;
+        } catch (_) {}
+        paint();
+      }
+
+      /* ---- copy buttons ---- */
+      document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const pre = btn.parentElement?.querySelector('[data-script-text]');
+          if (!pre) return;
+          try {
+            await navigator.clipboard.writeText(pre.textContent ?? '');
+            const old = btn.textContent;
+            btn.textContent = 'Copied';
+            window.setTimeout(() => (btn.textContent = old), 1600);
+          } catch (_) {
+            const range = document.createRange();
+            range.selectNodeContents(pre);
+            const sel = window.getSelection();
+            sel?.removeAllRanges();
+            sel?.addRange(range);
+          }
+        });
+      });
+    }
+
+    initTools();
+    document.addEventListener('astro:page-load', initTools);
+  </script>
 </Base>

@@ -1,6 +1,439 @@
 ---
 import Base from '../layouts/Base.astro';
+import Money from '../components/Money.astro';
+import Chip from '../components/Chip.astro';
+import Figure from '../components/Figure.astro';
+import ToriiTunnel from '../components/ToriiTunnel.astro';
+import pYamahaGroup from '../assets/photos/yamaha-kakegawa-group-flag.jpg';
+
+const base = import.meta.env.BASE_URL;
+
+/** Straight from the program's published eligibility and the Terms and Conditions I signed. */
+const checks = [
+  { id: 'citizen', label: 'I am a U.S. citizen or U.S. national.', hard: true },
+  { id: 'undergrad', label: 'I am an undergraduate in good standing at an accredited U.S. institution.', hard: true },
+  { id: 'pell', label: 'I receive a Federal Pell Grant now, or I will during my time abroad.', hard: true },
+  { id: 'credit', label: 'My program is credit-bearing at my home institution — study abroad or an internship.', hard: true },
+  { id: 'first', label: 'I have not previously received a Gilman Scholarship.', hard: true },
+  { id: 'dest', label: 'My destination meets the program\'s current travel-advisory requirements.', hard: false },
+];
+
+const essays = [
+  {
+    n: '01',
+    title: 'Motivation',
+    job: 'Why this program, in this country, for your specific goals.',
+    trap: 'Writing a love letter to the destination. The country is not the point; what you will do there is.',
+    mine: 'I wrote about the gap between studying the Toyota Production System in a classroom and standing inside a plant that runs it. The program was the only route to closing that gap, and I said why it had to be that program and not a generic one.',
+  },
+  {
+    n: '02',
+    title: 'Preparation and skills',
+    job: 'The evidence that you can handle it, and what you intend to build.',
+    trap: 'Listing achievements. They want the thread between what you have already done and what you will do next.',
+    mine: 'I connected rebuilding cars in a garage, a four-month engineering internship, and undergraduate research to a single habit: taking a system apart to find out why it behaves the way it does. Then I said what I wanted to learn that I could not learn at home.',
+  },
+  {
+    n: '03',
+    title: 'Citizen diplomacy',
+    job: 'How you will engage locally, and what picture of the United States you carry.',
+    trap: 'Treating it as a formality. This is the essay where the program\'s actual purpose lives.',
+    mine: 'I wrote about listening before talking, and about representing a Detroit that is more than its reputation. Coming from a mixed, low-income background near Detroit is a version of America a lot of people abroad have never been shown.',
+  },
+  {
+    n: '04',
+    title: 'Follow-on Service Project',
+    job: 'A concrete, feasible plan to bring the experience home to a named audience.',
+    trap: 'Proposing something vague or enormous. It has to be specific enough that you could start it next week, and you will be held to it.',
+    mine: 'I proposed exactly this site: a funding guide for Pell-eligible engineering and business students at my university. You are reading the thing I promised.',
+  },
+];
+
+/** Every item below is in the Gilman Terms and Conditions the author signed. */
+const afterWin = [
+  { head: 'Documentation before money', body: 'Your award is not paid until the required documents are approved. Proof of U.S. citizenship, proof of insurance, and the rest all go through the portal first.' },
+  { head: 'Register with STEP', body: 'Enrolment in the U.S. Department of State\'s Smart Traveler Enrollment Program is required, and proof of it is required to receive funding.' },
+  { head: 'File your flights with International SOS', body: 'Your itinerary goes into the MyTrips feature so the program can reach you in an emergency.' },
+  { head: 'Confirm arrival within 72 hours', body: 'Through the portal, with an in-country address, phone and email, plus a local program contact. If you move country or location, you do it again for each one.' },
+  { head: 'Insurance that actually qualifies', body: 'Health, accident and sickness, repatriation of remains, and emergency evacuation. Check your program\'s policy covers all four.' },
+  { head: 'Fly America, if Gilman pays for the flight', body: 'Travel to and from the U.S. funded by federal money generally has to be on a U.S. flag carrier. If you cannot comply, you certify that Gilman funds did not pay for airfare. Ask before you book.' },
+  { head: 'Stay enrolled', body: 'You are expected to remain a matriculated, degree-seeking undergraduate for the duration of the program.' },
+  { head: 'Both surveys', body: 'There is a pre-program and a post-program evaluation survey, each with its own window.' },
+  { head: 'The Follow-on Service Project', body: 'Required, as proposed in your application, and both the project and its evaluation report must be complete within six months of returning to the United States. Not doing it can cost you your alumni status.' },
+  { head: 'Tax awareness', body: 'Scholarship money can carry a tax liability. The program points recipients to IRS Publication 970.' },
+];
 ---
-<Base title="gilman" description="Coming soon.">
-  <section class="section section--flush"><div class="wrap wrap--narrow"><p class="eyebrow">Coming soon</p><h1>This page is being built.</h1></div></section>
+<Base
+  title="Gilman"
+  description="A guide to the Benjamin A. Gilman International Scholarship for Pell Grant recipients: eligibility, how the cycles work, what each of the four essays is for, and everything the Terms and Conditions require after you win."
+>
+  {/* ---------------- HERO ---------------- */}
+  <section class="section section--tight g-hero">
+    <div class="wrap grid-2">
+      <div>
+        <p class="eyebrow" data-reveal>Chapter 04 · Gilman</p>
+        <h1 data-reveal>The award that made<br /><em>mine possible.</em></h1>
+        <p class="lede" data-reveal>
+          The Benjamin A. Gilman International Scholarship is a U.S. Department of State
+          program for undergraduates who receive a Pell Grant. If that is you, it is
+          almost certainly the most important application on this whole site.
+        </p>
+        <div class="g-award" data-reveal>
+          <div>
+            <span class="g-award__label">My award</span>
+            <span class="g-award__value"><Money value={2500} /></span>
+          </div>
+          <p class="g-award__note">
+            Awarded April 30, 2026 <Chip status="verified" title="U.S. Department of State award letter" /><br />
+            Award sizes vary, and supplements exist for some destinations and languages.
+            Check the official page for the current figures.
+          </p>
+        </div>
+      </div>
+      <div data-reveal>
+        <Figure
+          src={pYamahaGroup}
+          alt="The Wayne State group holding a university flag in the lobby of the Yamaha Kakegawa piano factory, beside a piano-shaped welcome sign dated June 22, 2026."
+          caption="What the award bought: a factory floor in Kakegawa, June 22, 2026."
+          ratio="4x3" eager sizes="(min-width: 64rem) 30rem, 92vw" widths={[480, 900]}
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- ELIGIBILITY ---------------- */}
+  <section class="section section--raised" id="eligibility">
+    <div class="wrap">
+      <div class="g-head">
+        <div>
+          <p class="eyebrow" data-reveal>01 · Eligibility</p>
+          <h2 data-reveal>Can you apply?</h2>
+        </div>
+        <p class="dek" data-reveal>
+          Tick what is true. This is a reading aid built from the published criteria, not
+          a decision — the official eligibility page is the only authority.
+        </p>
+      </div>
+
+      <div class="elig" data-elig data-reveal>
+        <ul class="elig__list">
+          {checks.map((c) => (
+            <li>
+              <label>
+                <input type="checkbox" data-check data-hard={String(c.hard)} />
+                <span class="elig__box" aria-hidden="true"></span>
+                <span class="elig__text">{c.label}</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+        <p class="elig__verdict" data-verdict aria-live="polite">Tick the statements that apply to you.</p>
+        <p class="small">
+          Gilman has no minimum program length, which is what makes short summer
+          programs like mine viable. Your program still has to satisfy every other rule.
+        </p>
+        <p class="cta-row">
+          <a class="button button--ghost button--sm" href="https://www.gilmanscholarship.org/applicants/eligibility/" rel="noopener">Official eligibility page ↗</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- CYCLES ---------------- */}
+  <section class="section" id="cycles">
+    <div class="wrap grid-2">
+      <div>
+        <p class="eyebrow" data-reveal>02 · Timing</p>
+        <h2 data-reveal>Match the cycle<br />to your program.</h2>
+        <div data-reveal>
+          <p>
+            Gilman runs in application cycles rather than one annual deadline, and this
+            is where good applications get disqualified. Each cycle has three dates that
+            matter:
+          </p>
+          <ol class="g-cycle">
+            <li><strong>The student deadline.</strong> When your application is due.</li>
+            <li><strong>The advisor certification deadline.</strong> Usually a little after yours. Two people at your school have to certify you, so they need warning.</li>
+            <li><strong>The eligible program start window.</strong> Your program has to begin inside it. This is the one people miss.</li>
+          </ol>
+          <p>
+            Work backwards from your program dates to find the right cycle, not forwards
+            from whichever deadline is nearest.
+          </p>
+        </div>
+      </div>
+      <div class="card g-dates" data-reveal>
+        <p class="eyebrow eyebrow--plain">Why no dates are printed here</p>
+        <p>
+          Cycle dates move every year. Rather than publish a snapshot that will quietly
+          go stale and mislead somebody, this page sends you to the page that is always
+          current.
+        </p>
+        <p class="cta-row">
+          <a class="button" href="https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/" rel="noopener">Official deadlines and timeline<span class="arrow" aria-hidden="true">↗</span></a>
+        </p>
+        <hr />
+        <p class="small">
+          One thing that does not change: get your two certifying advisors lined up
+          early. Mine were in the study abroad office and in financial aid. Their
+          deadline is not your deadline, and they have other students.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- TORII BREAK ---------------- */}
+  <section class="g-break">
+    <ToriiTunnel gates={6} />
+    <div class="wrap g-break__inner">
+      <p class="g-break__quote" data-reveal>
+        Four essays, five hundred words each.<br />
+        <em>They are four different questions.</em>
+      </p>
+    </div>
+  </section>
+
+  {/* ---------------- ESSAYS ---------------- */}
+  <section class="section" id="essays">
+    <div class="wrap">
+      <div class="g-head">
+        <div>
+          <p class="eyebrow" data-reveal>03 · The essays</p>
+          <h2 data-reveal>Give each one<br />a separate job.</h2>
+        </div>
+        <p class="dek" data-reveal>
+          The most common mistake is writing the same essay four times. Each prompt is
+          asking for something the others are not. Read the current prompts and word
+          limits on the official page — what follows is how I thought about mine.
+        </p>
+      </div>
+
+      <div class="essays">
+        {essays.map((e, i) => (
+          <article class="essay" data-reveal data-reveal-delay={i * 60}>
+            <span class="essay__n">{e.n}</span>
+            <h3>{e.title}</h3>
+            <p class="essay__job">{e.job}</p>
+            <div class="essay__row">
+              <p class="essay__k">The trap</p>
+              <p class="essay__v">{e.trap}</p>
+            </div>
+            <div class="essay__row">
+              <p class="essay__k">What I did</p>
+              <p class="essay__v">{e.mine}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="callout callout--box" data-reveal>
+        <p>
+          <strong>Use your own life.</strong> Mine worked because the material was
+          specific and true, not because the writing was clever. A committee reads
+          thousands of these. The thing only you can write is the thing worth writing.
+        </p>
+      </div>
+
+      <p class="cta-row" data-reveal style="margin-top:1.5rem">
+        <a class="button button--ghost" href="https://www.gilmanscholarship.org/applicants/essays/" rel="noopener">Current prompts and word limits ↗</a>
+      </p>
+    </div>
+  </section>
+
+  {/* ---------------- AFTER YOU WIN ---------------- */}
+  <section class="section section--raised" id="after">
+    <div class="wrap">
+      <div class="g-head">
+        <div>
+          <p class="eyebrow" data-reveal>04 · After you win</p>
+          <h2 data-reveal>The part nobody<br />writes about.</h2>
+        </div>
+        <p class="dek" data-reveal>
+          Winning is the start of a set of obligations. Every item below is in the Terms
+          and Conditions I signed. None of it is hard, and all of it is easier if you
+          know it is coming.
+        </p>
+      </div>
+
+      <ol class="after">
+        {afterWin.map((a, i) => (
+          <li data-reveal data-reveal-delay={i * 40}>
+            <span class="after__n">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <p class="after__head">{a.head}</p>
+              <p class="after__body">{a.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <p class="small" data-reveal style="margin-top:1.75rem">
+        Source: Benjamin A. Gilman International Scholarship Program Terms and
+        Conditions, the version I signed on accepting my award.
+        <Chip status="verified" /> Read the current version yourself before you accept —
+        these can change.
+      </p>
+    </div>
+  </section>
+
+  {/* ---------------- FOLLOW-ON ---------------- */}
+  <section class="section" id="follow-on">
+    <div class="wrap grid-2">
+      <div data-reveal>
+        <p class="eyebrow">05 · The Follow-on Service Project</p>
+        <h2>You are looking at mine.</h2>
+        <p>
+          Every recipient commits to a service project in their application and has to
+          carry it out, with a report, within six months of returning to the United
+          States. It is not a formality — it is the mechanism by which the program
+          multiplies.
+        </p>
+        <p>
+          Mine was this site: a funding guide for Pell-eligible engineering and business
+          students at my university, which is exactly what I proposed in Essay 4 before
+          I ever got on the plane.
+        </p>
+        <div class="callout">
+          <p>
+            <strong>Pick something you would want to exist anyway.</strong> You will be
+            doing it after the trip, when the excitement has worn off and term has
+            started. Propose the thing you would build regardless.
+          </p>
+        </div>
+        <p class="cta-row">
+          <a class="button button--ghost" href="https://www.gilmanscholarship.org/current-recipients/service-project/" rel="noopener">Official service project guidance ↗</a>
+        </p>
+      </div>
+      <div class="card" data-reveal>
+        <p class="eyebrow">Next</p>
+        <h3>What it all cost</h3>
+        <p>
+          The award was <Money value={2500} />. The trip cost more than that. Here is the
+          complete accounting, including the part I paid myself.
+        </p>
+        <p class="cta-row">
+          <a class="button" href={`${base}my-numbers/`}>My numbers<span class="arrow" aria-hidden="true">→</span></a>
+          <a class="button button--ghost" href={`${base}tools/`}>The calculator</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    h1 { max-width: 13ch; }
+    h1 em { color: var(--torii); font-style: normal; font-family: var(--serif); }
+
+    .g-award { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--hairline-2); }
+    .g-award__label { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 0.25rem; }
+    .g-award__value { font-size: clamp(2.4rem, 5vw, 3.2rem); font-weight: 600; letter-spacing: -0.035em; color: var(--torii); line-height: 1; }
+    .g-award__note { font-size: 0.85rem; color: var(--ink-2); margin: 0.85rem 0 0; }
+
+    .g-head { display: grid; gap: 1.25rem; margin-bottom: 2.25rem; }
+    @media (min-width: 56rem) { .g-head { grid-template-columns: 1fr 1.15fr; align-items: end; gap: 3rem; } }
+
+    /* eligibility */
+    .elig { max-width: 46rem; }
+    .elig__list { list-style: none; padding: 0; margin: 0 0 1.5rem; }
+    .elig__list li { margin: 0; max-width: none; border-bottom: 1px solid var(--hairline); }
+    .elig label { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem 0; cursor: pointer; }
+    .elig input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .elig__box {
+      width: 1.15rem; height: 1.15rem; border: 1.5px solid var(--hairline-2); border-radius: 4px;
+      flex: none; margin-top: 0.15rem; display: grid; place-items: center; transition: background 0.18s, border-color 0.18s;
+    }
+    .elig__box::after {
+      content: ''; width: 0.32rem; height: 0.6rem; border: solid #fff; border-width: 0 2px 2px 0;
+      rotate: 45deg; margin-top: -3px; opacity: 0; transition: opacity 0.15s;
+    }
+    .elig input:checked + .elig__box { background: var(--torii); border-color: var(--torii); }
+    .elig input:checked + .elig__box::after { opacity: 1; }
+    .elig input:focus-visible + .elig__box { outline: 2px solid var(--torii); outline-offset: 3px; }
+    .elig__text { font-size: 0.97rem; }
+    .elig__verdict {
+      font-size: 0.97rem; padding: 0.9rem 1.1rem; border-radius: var(--r);
+      background: var(--surface-2); border: 1px solid var(--hairline); border-left: 2px solid var(--hairline-2);
+    }
+    .elig__verdict.is-yes { border-left-color: var(--ok); color: var(--ink); }
+    .elig__verdict.is-no { border-left-color: var(--warn); }
+
+    .g-cycle { padding-left: 1.15rem; }
+    .g-cycle li { margin-bottom: 0.65rem; }
+    .g-dates hr { margin: 1.5rem 0; }
+
+    /* torii break */
+    .g-break {
+      position: relative; overflow: hidden; padding-block: clamp(5rem, 14vh, 8rem);
+      background: linear-gradient(180deg, var(--void), color-mix(in oklab, var(--torii) 5%, var(--void)) 50%, var(--void));
+      border-block: 1px solid var(--hairline);
+    }
+    .g-break__inner { position: relative; z-index: 2; text-align: center; }
+    .g-break__quote {
+      font-family: var(--serif); font-size: clamp(1.8rem, 4.5vw, 3.2rem); line-height: 1.18;
+      max-width: 22ch; margin-inline: auto; color: var(--ink);
+    }
+    .g-break__quote em { color: var(--torii); }
+
+    /* essays */
+    .essays { display: grid; gap: 1.15rem; margin-bottom: 2rem; }
+    @media (min-width: 52rem) { .essays { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; } }
+    .essay { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: var(--r-lg); padding: clamp(1.25rem, 2.5vw, 1.75rem); }
+    .essay__n { font-family: var(--mono); font-size: 0.7rem; color: var(--torii); letter-spacing: 0.1em; }
+    .essay h3 { font-family: var(--sans); font-size: 1.2rem; font-weight: 600; margin: 0.4rem 0 0.4rem; }
+    .essay__job { font-size: 0.95rem; color: var(--ink); margin-bottom: 1.15rem; }
+    .essay__row { display: grid; gap: 0.2rem; padding-top: 0.85rem; border-top: 1px solid var(--hairline); margin-bottom: 0.85rem; }
+    .essay__row:last-child { margin-bottom: 0; }
+    .essay__k { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin: 0; }
+    .essay__v { font-size: 0.89rem; color: var(--ink-2); margin: 0; }
+
+    /* after */
+    .after { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+    @media (min-width: 52rem) { .after { grid-template-columns: repeat(2, 1fr); gap: 0 3rem; } }
+    .after li { display: grid; grid-template-columns: auto 1fr; gap: 1rem; padding: 1.1rem 0; border-top: 1px solid var(--hairline); margin: 0; max-width: none; }
+    .after__n { font-family: var(--mono); font-size: 0.68rem; color: var(--torii); letter-spacing: 0.1em; padding-top: 0.3rem; }
+    .after__head { font-weight: 600; margin: 0 0 0.2rem; }
+    .after__body { font-size: 0.88rem; color: var(--ink-2); margin: 0; }
+  </style>
+
+  <script>
+    function initElig() {
+      const root = document.querySelector<HTMLElement>('[data-elig]');
+      if (!root) return;
+      const boxes = Array.from(root.querySelectorAll<HTMLInputElement>('[data-check]'));
+      const verdict = root.querySelector<HTMLElement>('[data-verdict]')!;
+      const hardBoxes = boxes.filter((b) => b.dataset.hard === 'true');
+
+      const update = () => {
+        const ticked = boxes.filter((b) => b.checked).length;
+        const hardAll = hardBoxes.every((b) => b.checked);
+        const allAll = boxes.every((b) => b.checked);
+        verdict.classList.remove('is-yes', 'is-no');
+
+        if (ticked === 0) {
+          verdict.textContent = 'Tick the statements that apply to you.';
+          return;
+        }
+        if (allAll) {
+          verdict.classList.add('is-yes');
+          verdict.textContent =
+            'On these criteria you look eligible. Confirm against the official eligibility page, then find the cycle that matches your program dates.';
+          return;
+        }
+        if (hardAll) {
+          verdict.classList.add('is-yes');
+          verdict.textContent =
+            'You meet the core criteria. The remaining item depends on your destination — check the official page, and ask your study abroad advisor about your specific country.';
+          return;
+        }
+        verdict.classList.add('is-no');
+        const missing = hardBoxes.filter((b) => !b.checked).length;
+        verdict.textContent =
+          `${missing} core requirement${missing === 1 ? '' : 's'} not yet ticked. Some can change — receiving Pell during your time abroad also counts, and a program that is not yet credit-bearing can sometimes be made so. Talk to your study abroad office before you rule yourself out.`;
+      };
+
+      boxes.forEach((b) => b.addEventListener('change', update));
+      update();
+    }
+    initElig();
+    document.addEventListener('astro:page-load', initElig);
+  </script>
 </Base>

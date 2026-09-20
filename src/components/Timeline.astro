@@ -1,12 +1,13 @@
 ---
 import type { Payment } from '../data/schema';
-import Chip from './Chip.astro';
-import Money from './Money.astro';
+import Money from '../components/Money.astro';
+
 interface Props { items: Payment[] }
 const { items } = Astro.props;
+
 const sorted = [...items].sort((a, b) => a.date.localeCompare(b.date));
-const fmtDate = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-// Group by month for a visual rhythm
+const fmtDate = (d: string) =>
+  new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 ---
 <ol class="timeline">
   {sorted.map((p) => (
@@ -15,7 +16,13 @@ const fmtDate = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('en-
       <div class="tl__body">
         <div class="tl__head">
           <span class="tl__label">{p.label}</span>
-          {p.amountUSD !== null && <span class="tl__amt"><span aria-hidden="true">{p.direction === 'in' ? '+' : '−'}</span><span class="visually-hidden">{p.direction === 'in' ? 'received' : 'paid'}</span> <Money value={p.amountUSD} /></span>}
+          {p.amountUSD !== null && (
+            <span class="tl__amt">
+              <span aria-hidden="true">{p.direction === 'in' ? '+' : '−'}</span>
+              <span class="visually-hidden">{p.direction === 'in' ? 'received' : 'paid'}</span>
+              {' '}<Money value={p.amountUSD} />
+            </span>
+          )}
           {p.status === 'todo' && <Money value={null} />}
         </div>
         {p.note && <p class="tl__note">{p.note}</p>}
@@ -23,18 +30,33 @@ const fmtDate = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('en-
     </li>
   ))}
 </ol>
+
 <style>
-  .timeline { list-style: none; margin: 1.5rem 0; padding: 0; border-left: 2px solid var(--rule); }
-  .tl { position: relative; display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.5rem 1rem; padding: 0.55rem 0 0.55rem 1.25rem; }
-  .tl::before { content: ''; position: absolute; left: -6px; top: 1.05rem; width: 10px; height: 10px; border-radius: 50%; background: var(--ink-3); box-shadow: 0 0 0 2px var(--paper); }
+  .timeline { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--hairline-2); }
+  .tl {
+    display: grid; grid-template-columns: 7.25rem 1fr; gap: 0.35rem 1.15rem;
+    padding: 0.7rem 0 0.7rem 1.35rem; position: relative; margin: 0; max-width: none;
+  }
+  .tl::before {
+    content: ''; position: absolute; left: -5.5px; top: 1.15rem; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--ink-3); box-shadow: 0 0 0 3px var(--void);
+  }
   .tl--in::before { background: var(--s4); }
   .tl--out::before { background: var(--s1); }
-  .tl--todo::before { background: var(--paper); border: 2px solid var(--warn); }
-  time { font-size: 0.85rem; color: var(--ink-2); font-variant-numeric: tabular-nums; padding-top: 0.15rem; }
-  .tl__head { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; align-items: baseline; }
+  .tl--todo::before { background: var(--void); border: 2px solid var(--warn); box-shadow: 0 0 0 3px var(--void); }
+
+  time {
+    font-family: var(--mono); font-size: 0.76rem; color: var(--ink-3);
+    font-variant-numeric: tabular-nums; padding-top: 0.2rem; letter-spacing: 0.02em;
+  }
+  .tl__head { display: flex; flex-wrap: wrap; gap: 0.3rem 0.75rem; align-items: baseline; }
   .tl__label { font-weight: 500; }
-  .tl__amt { font-variant-numeric: tabular-nums; }
+  .tl__amt { font-variant-numeric: tabular-nums; font-size: 0.95rem; }
   .tl--in .tl__amt { color: var(--ok); }
-  .tl__note { font-size: 0.85rem; color: var(--ink-2); margin: 0.2rem 0 0; }
-  @media (max-width: 30rem) { .tl { grid-template-columns: 1fr; gap: 0.1rem; } }
+  .tl__note { font-size: 0.84rem; color: var(--ink-3); margin: 0.2rem 0 0; max-width: 46ch; }
+
+  @media (max-width: 32rem) {
+    .tl { grid-template-columns: 1fr; gap: 0.1rem; }
+    time { padding-top: 0; }
+  }
 </style>

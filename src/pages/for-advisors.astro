@@ -1,0 +1,198 @@
+---
+import Base from '../layouts/Base.astro';
+import Figure from '../components/Figure.astro';
+import pOsakaUni from '../assets/photos/osaka-university-group-flag.jpg';
+
+const base = import.meta.env.BASE_URL;
+const SITE_URL = 'https://alhady101.github.io/pell-to-planet/';
+
+const blurb = `Pell to Planet — a student-built guide to funding short-term study abroad
+
+One of our students, Gotibeh Alhady (Mechanical Engineering), has built a free
+guide for Pell-eligible students who assume study abroad is out of reach
+financially. It is his Follow-on Service Project for the Benjamin A. Gilman
+International Scholarship.
+
+It covers:
+- the full itemised cost of a real two-week, credit-bearing program, with sources
+- how term aid splits across a term versus trip-specific awards
+- a gap calculator and a backward-planning timeline students can fill in
+- what to say when asking about a cost-of-attendance review
+- an honest account of what the program was actually like
+
+It is free to share and is not an official university publication.
+
+${SITE_URL}`;
+
+const asks = [
+  { n: '01', head: 'Share the link', body: 'Advising pages, a study abroad newsletter, a pre-departure email, or a slide in an information session. The copy block on this page is written to be forwarded as-is.' },
+  { n: '02', head: 'Point students at the calculator', body: 'It is built so a student can arrive at your office with their own numbers already worked out, and a specific question rather than a vague worry.' },
+  { n: '03', head: 'Tell me what is wrong', body: 'If a figure, a rule or an office detail is out of date or incorrect, I want to fix it. Corrections are welcome and I will credit the source.' },
+];
+
+const audience = [
+  'Pell-eligible students who have already decided study abroad is not for them',
+  'Engineering and business students who assume short programs do not carry real academic value',
+  'First-generation students with nobody in their family who has done this before',
+  'Any student who needs to see a real budget before they will believe the brochure',
+];
+---
+<Base
+  title="For advisors"
+  description="Information for study abroad advisors, financial aid staff, faculty and student organisations who want to share Pell to Planet with students."
+>
+  <section class="section section--tight">
+    <div class="wrap grid-2">
+      <div>
+        <p class="eyebrow" data-reveal>For advisors and student organisations</p>
+        <h1 data-reveal>Please share this<br />with your students.</h1>
+        <p class="lede" data-reveal>
+          Pell to Planet is a free, independent guide built by a Wayne State
+          undergraduate as the Follow-on Service Project for his Gilman Scholarship.
+          It is written for the students who never make it as far as your office.
+        </p>
+      </div>
+      <div data-reveal>
+        <Figure
+          src={pOsakaUni}
+          alt="Wayne State students and Japanese university students posed together holding a Wayne State flag outside a university building in Osaka."
+          caption="Wayne State students with Japanese students in Osaka, June 2026."
+          ratio="4x3" eager sizes="(min-width: 64rem) 30rem, 92vw" widths={[480, 900]}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--raised">
+    <div class="wrap grid-2">
+      <div>
+        <p class="eyebrow" data-reveal>What it is</p>
+        <h2 data-reveal>A real case study,<br />not a brochure.</h2>
+        <div data-reveal>
+          <p>
+            The centre of the site is one student's complete, sourced accounting of a
+            two-week faculty-led program: the program fee, the tuition share, the flight,
+            the on-the-ground spending, the awards, and the dates every payment and
+            disbursement actually landed.
+          </p>
+          <p>
+            Around it sit a funding directory, a Gilman guide, a gap calculator and a
+            planning timeline. Everything is free, contains no advertising and no
+            analytics, and works without an account.
+          </p>
+        </div>
+        <div class="callout callout--box" data-reveal>
+          <p>
+            <strong>On accuracy.</strong> Every figure carries a source and a
+            verified-on date. Where a number is not confirmed, the site says so rather
+            than estimating. Rules and amounts are explicitly framed as snapshots, and
+            students are directed to the official page in every case.
+          </p>
+        </div>
+      </div>
+      <div data-reveal>
+        <h3>Who it is written for</h3>
+        <ul class="aud-list">
+          {audience.map((a) => <li>{a}</li>)}
+        </ul>
+        <h3 style="margin-top:2rem">What it is not</h3>
+        <p class="small">
+          It is not an official Wayne State publication, and it does not give financial
+          advice or make any promise about an award. Every page routes individual
+          questions back to the financial aid office and to the scholarship's own site.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Three asks</p>
+      <h2 class="asks__h" data-reveal>If it is useful, here is<br />what would help most.</h2>
+      <div class="grid-3">
+        {asks.map((a, i) => (
+          <div class="card" data-reveal data-reveal-delay={i * 60}>
+            <span class="asks__n">{a.n}</span>
+            <h3>{a.head}</h3>
+            <p>{a.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--raised" id="copy">
+    <div class="wrap grid-2">
+      <div data-reveal>
+        <p class="eyebrow">Ready to forward</p>
+        <h2>A paragraph you can paste.</h2>
+        <p>
+          Written so it can go straight into a newsletter, an advising page or an email
+          without editing. Please do change it to fit your own voice if that helps.
+        </p>
+        <p class="cta-row">
+          <a class="button button--ghost" href={`${base}`}>See the student-facing site</a>
+        </p>
+      </div>
+      <div data-reveal>
+        <div class="copyblock">
+          <pre data-blurb>{blurb}</pre>
+          <div class="copyblock__actions">
+            <button type="button" class="button button--sm" data-copy-blurb>Copy text</button>
+            <button type="button" class="button button--ghost button--sm" data-print>Print this page</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--ruled">
+    <div class="wrap wrap--narrow centered">
+      <p class="eyebrow centered" data-reveal>Contact</p>
+      <h2 data-reveal>Corrections and questions</h2>
+      <p class="lede centered" data-reveal>
+        If something here is wrong, out of date, or would be more useful in another
+        shape, I would genuinely like to hear it.
+      </p>
+      <p class="cta-row" style="justify-content:center" data-reveal>
+        <a class="button" href="mailto:alhadygotibeh@gmail.com?subject=Pell%20to%20Planet">Email me<span class="arrow" aria-hidden="true">→</span></a>
+        <a class="button button--ghost" href="https://www.linkedin.com/in/gotibeh/" rel="noopener">LinkedIn</a>
+      </p>
+    </div>
+  </section>
+
+  <style>
+    h1 { max-width: 14ch; }
+    .aud-list { list-style: none; padding: 0; margin: 1rem 0 0; }
+    .aud-list li { display: flex; gap: 0.75rem; padding: 0.7rem 0; border-bottom: 1px solid var(--hairline); font-size: 0.95rem; color: var(--ink-2); }
+    .aud-list li::before { content: '—'; color: var(--torii); flex: none; }
+    .asks__h { margin-bottom: 2.25rem; }
+    .asks__n { font-family: var(--mono); font-size: 0.7rem; color: var(--torii); letter-spacing: 0.1em; display: block; margin-bottom: 0.75rem; }
+    .copyblock { background: var(--surface-2); border: 1px solid var(--hairline); border-radius: var(--r); padding: 1.25rem; }
+    .copyblock pre {
+      font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; white-space: pre-wrap;
+      word-break: break-word; margin: 0 0 1rem; color: var(--ink-2); max-height: 28rem; overflow-y: auto;
+    }
+    .copyblock__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    @media print { .copyblock__actions, .cta-row { display: none; } }
+  </style>
+
+  <script>
+    function initAdvisors() {
+      document.querySelector('[data-copy-blurb]')?.addEventListener('click', async (e) => {
+        const btn = e.currentTarget as HTMLButtonElement;
+        const pre = document.querySelector('[data-blurb]');
+        if (!pre) return;
+        try {
+          await navigator.clipboard.writeText(pre.textContent ?? '');
+          const old = btn.textContent;
+          btn.textContent = 'Copied';
+          window.setTimeout(() => (btn.textContent = old), 1600);
+        } catch (_) {}
+      });
+      document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
+    }
+    initAdvisors();
+    document.addEventListener('astro:page-load', initAdvisors);
+  </script>
+</Base>

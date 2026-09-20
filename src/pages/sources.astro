@@ -1,0 +1,219 @@
+---
+import Base from '../layouts/Base.astro';
+import Chip from '../components/Chip.astro';
+import { costs, funding, payments, deadlines, SOURCES, term } from '../data/facts';
+import { AWARDS } from '../data/funding';
+
+const base = import.meta.env.BASE_URL;
+
+const outstanding = [
+  ...costs.filter((c) => c.status === 'todo').map((c) => ({ where: 'My numbers — costs', what: c.label, note: c.note ?? '' })),
+  ...payments.filter((p) => p.status === 'todo').map((p) => ({ where: 'My numbers — timeline', what: p.label, note: p.note ?? '' })),
+  ...deadlines.filter((d) => d.status === 'todo').map((d) => ({ where: 'Gilman', what: d.label, note: d.note ?? '' })),
+];
+
+const personal = [
+  { doc: 'Student account statement, Spring/Summer 2026', holds: 'Tuition, university fees, Pell and Senior Sprint disbursements, and my three payment-plan installments.', used: 'The tuition share, the term table, and four dated entries on the payment timeline.' },
+  { doc: 'U.S. Department of State award letter, April 30, 2026', holds: 'The Gilman award amount and the conditions attached to it.', used: 'The $2,500 figure everywhere it appears, and the award date.' },
+  { doc: 'Gilman Terms and Conditions, the version I signed', holds: 'Every post-award obligation.', used: 'The whole "after you win" section of the Gilman chapter.' },
+  { doc: 'Financial aid award summary, 2025–26', holds: 'The full list of grants and scholarships in my package.', used: 'The Global Experiences and SEOG amounts.' },
+  { doc: 'Wayne State study abroad program listing', holds: 'The program fee, the application fee and what the fee includes.', used: 'The two program cost lines and the inclusions list.' },
+  { doc: 'Program acceptance letter, January 15, 2026', holds: 'My acceptance and the term.', used: 'The first entry on the payment timeline.' },
+  { doc: 'My post-trip reflection for GSC 4991', holds: 'My own written account of every city, site and company visit.', used: 'Almost all of the trip chapter.' },
+  { doc: 'My photographs, with their capture dates', holds: 'Dated, located evidence of where the group was and when.', used: 'Every photo on the site, and the June 22 date for the Yamaha visit.' },
+];
+
+const official = [
+  { name: 'Gilman Scholarship Program', url: 'https://www.gilmanscholarship.org/', for: 'Eligibility, cycle deadlines, essay prompts, service project guidance.' },
+  { name: 'Gilman: eligibility', url: 'https://www.gilmanscholarship.org/applicants/eligibility/', for: 'The criteria in the eligibility checker.' },
+  { name: 'Gilman: deadlines and timeline', url: 'https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/', for: 'Current cycle dates, which this site deliberately does not reproduce.' },
+  { name: 'Gilman: essays', url: 'https://www.gilmanscholarship.org/applicants/essays/', for: 'Current prompts and word limits.' },
+  { name: 'Gilman: Follow-on Service Project', url: 'https://www.gilmanscholarship.org/current-recipients/service-project/', for: 'The requirement this site exists to fulfil.' },
+  { name: 'Federal Student Aid: Pell Grant', url: 'https://studentaid.gov/understand-aid/types/grants/pell', for: 'Current Pell rules and maximum.' },
+  { name: 'Federal Student Aid: FSEOG', url: 'https://studentaid.gov/understand-aid/types/grants/fseog', for: 'SEOG rules and ranges.' },
+  { name: 'Federal Student Aid: FAFSA', url: 'https://studentaid.gov/h/apply-for-aid/fafsa', for: 'The application everything else depends on.' },
+  { name: 'Federal Student Aid: cost of attendance', url: 'https://studentaid.gov/help-center/answers/article/what-is-cost-of-attendance', for: 'What a cost-of-attendance review is.' },
+  { name: 'Wayne State Study Abroad', url: 'https://abroad.wayne.edu/', for: 'Programs, the Global Experiences award, and office contact details.' },
+  { name: 'WSU Scholarship Universe', url: 'https://wayne.scholarshipuniverse.com/', for: 'Campus scholarship matching.' },
+  { name: 'Fund for Education Abroad', url: 'https://fundforeducationabroad.org/applicants/', for: 'Current eligibility and deadlines.' },
+  { name: 'Boren Awards', url: 'https://www.borenawards.org/', for: 'Language and region-focused funding.' },
+  { name: 'Critical Language Scholarship', url: 'https://clscholarship.org/', for: 'Fully funded summer language institutes.' },
+  { name: 'U.S. Department of State: STEP', url: 'https://step.state.gov/', for: 'The traveller registration Gilman requires.' },
+  { name: 'IRS Publication 970', url: 'https://www.irs.gov/publications/p970', for: 'Tax treatment of scholarships.' },
+];
+---
+<Base
+  title="Sources"
+  description="Every document, record and official page behind the figures on Pell to Planet, plus a list of what is still unconfirmed."
+>
+  <section class="section section--tight">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Sources</p>
+      <h1 data-reveal>Check my<br /><em>working</em>.</h1>
+      <p class="lede" data-reveal>
+        This site carries my name and a federal scholarship. Every figure on it comes
+        from a document I hold or an official page, and anything I cannot show you is
+        marked unconfirmed rather than estimated into existence.
+      </p>
+    </div>
+  </section>
+
+  {/* ---------------- THE RULE ---------------- */}
+  <section class="section section--raised">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>How figures are handled</p>
+      <h2 class="src-h" data-reveal>Four labels, one rule.</h2>
+      <div class="grid-3 src-key">
+        <div class="card" data-reveal>
+          <Chip status="verified" />
+          <h3>Verified</h3>
+          <p>A primary document backs it — a statement, an award letter, or an official page. Hover the chip anywhere on the site to see which one.</p>
+        </div>
+        <div class="card" data-reveal data-reveal-delay="60">
+          <Chip status="stated" />
+          <h3>My record</h3>
+          <p>My own account, with no document to show. Real, but you are trusting me rather than a receipt.</p>
+        </div>
+        <div class="card" data-reveal data-reveal-delay="120">
+          <Chip status="estimate" />
+          <h3>Estimate</h3>
+          <p>Derived from a stated rate or a documented total. The method is always printed next to the number.</p>
+        </div>
+        <div class="card" data-reveal data-reveal-delay="180">
+          <Chip status="todo" />
+          <h3>To confirm</h3>
+          <p>I do not know it yet. It renders as a visible gap rather than a plausible-looking guess.</p>
+        </div>
+      </div>
+      <div class="callout callout--box" data-reveal style="margin-top:2rem;max-width:48rem">
+        <p>
+          <strong>The build enforces this.</strong> Every figure passes a schema that
+          requires a source and a verified-on date before the site will compile. A
+          number without a source cannot be published, because the site will not build.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- PERSONAL RECORDS ---------------- */}
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>01 · My own records</p>
+      <h2 class="src-h" data-reveal>Primary documents</h2>
+      <p class="dek" data-reveal style="margin-bottom:2rem;max-width:46rem">
+        These are not published — they hold my student ID and account details — but they
+        exist, and I will show the relevant lines to anyone verifying this work.
+      </p>
+      <div class="table-scroll" data-reveal>
+        <table>
+          <thead><tr><th scope="col">Document</th><th scope="col">What it establishes</th><th scope="col">Where it is used</th></tr></thead>
+          <tbody>
+            {personal.map((p) => (
+              <tr><th scope="row">{p.doc}</th><td>{p.holds}</td><td>{p.used}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- OFFICIAL ---------------- */}
+  <section class="section section--raised">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>02 · Official pages</p>
+      <h2 class="src-h" data-reveal>Where the live numbers are</h2>
+      <p class="dek" data-reveal style="margin-bottom:2rem;max-width:46rem">
+        Rules, amounts and deadlines all move. Rather than snapshot them, this site
+        links to the page that holds the current version.
+      </p>
+      <ul class="src-links">
+        {official.map((o, i) => (
+          <li data-reveal data-reveal-delay={Math.min(i * 25, 300)}>
+            <a href={o.url} rel="noopener">
+              <span class="src-links__name">{o.name}</span>
+              <span class="src-links__for">{o.for}</span>
+              <span class="src-links__arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {/* ---------------- OUTSTANDING ---------------- */}
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>03 · Still open</p>
+      <h2 class="src-h" data-reveal>What I have not confirmed</h2>
+      <p class="dek" data-reveal style="margin-bottom:2rem;max-width:46rem">
+        This list is generated from the site's own data, so it cannot drift out of step
+        with what the pages show. {outstanding.length} item{outstanding.length === 1 ? '' : 's'} outstanding.
+      </p>
+      <ul class="todo-list">
+        {outstanding.map((o, i) => (
+          <li data-reveal data-reveal-delay={Math.min(i * 40, 300)}>
+            <Chip status="todo" />
+            <div>
+              <p class="todo-list__what">{o.what}</p>
+              <p class="todo-list__where">{o.where}{o.note ? ` — ${o.note.replace(/^TODO:\s*/, '')}` : ''}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div class="callout" data-reveal>
+        <p>
+          The statement gap of $1,000 between charges and credits on my Spring/Summer
+          2026 account is most likely the Global Experiences award posting through a
+          different route. It is flagged on the numbers page rather than assumed.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- CORRECTIONS ---------------- */}
+  <section class="section section--ruled">
+    <div class="wrap wrap--narrow centered">
+      <p class="eyebrow centered" data-reveal>Corrections</p>
+      <h2 data-reveal>Found something wrong?</h2>
+      <p class="lede centered" data-reveal>
+        Tell me and I will fix it. If a rule has changed, an office has moved, or a
+        figure is out of date, that is worth more to me than a compliment.
+      </p>
+      <p class="cta-row" style="justify-content:center" data-reveal>
+        <a class="button" href="mailto:alhadygotibeh@gmail.com?subject=Pell%20to%20Planet%20correction">Send a correction<span class="arrow" aria-hidden="true">→</span></a>
+        <a class="button button--ghost" href={`${base}for-advisors/`}>For advisors</a>
+      </p>
+      <p class="small" data-reveal style="margin-top:2rem">
+        Content on this site was last reviewed against its sources on {term.verifiedOn}.
+        It is an independent student resource, not an official publication of Wayne
+        State University, the U.S. Department of State or the Gilman Program.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    h1 { max-width: 10ch; }
+    h1 em { color: var(--torii); }
+    .src-h { margin-bottom: 1.25rem; }
+    .src-key .card h3 { font-family: var(--sans); font-size: 1.02rem; font-weight: 600; margin: 0.75rem 0 0.35rem; }
+    .src-key .card p { font-size: 0.89rem; color: var(--ink-2); }
+
+    .src-links { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--hairline); }
+    .src-links li { margin: 0; max-width: none; }
+    .src-links a {
+      display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 1rem; align-items: center;
+      padding: 0.95rem 0.5rem 0.95rem 0; border-bottom: 1px solid var(--hairline);
+      text-decoration: none; transition: padding 0.25s, background 0.25s;
+    }
+    .src-links a:hover { padding-left: 0.75rem; background: linear-gradient(90deg, color-mix(in oklab, var(--torii) 8%, transparent), transparent 70%); color: inherit; }
+    .src-links__name { font-weight: 500; }
+    .src-links__for { grid-column: 1; font-size: 0.85rem; color: var(--ink-3); }
+    .src-links__arrow { grid-column: 2; grid-row: 1 / span 2; color: var(--ink-3); transition: color 0.2s, transform 0.2s; }
+    .src-links a:hover .src-links__arrow { color: var(--torii); transform: translate(2px, -2px); }
+
+    .todo-list { list-style: none; padding: 0; margin: 0 0 2rem; }
+    .todo-list li { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.85rem 0; border-bottom: 1px solid var(--hairline); margin: 0; max-width: none; }
+    .todo-list__what { font-weight: 500; margin: 0 0 0.15rem; }
+    .todo-list__where { font-size: 0.85rem; color: var(--ink-3); margin: 0; }
+  </style>
+</Base>

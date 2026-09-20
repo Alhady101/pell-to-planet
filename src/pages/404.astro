@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL;
+---
+<Base title="Page not found" description="That page does not exist on Pell to Planet.">
+  <section class="section nf">
+    <div class="wrap wrap--narrow centered">
+      <p class="eyebrow centered">404</p>
+      <h1>This one is<br /><em>off the itinerary.</em></h1>
+      <p class="lede centered">
+        That page does not exist. The five chapters below are where everything lives.
+      </p>
+      <nav class="nf__links" aria-label="Site sections">
+        <a href={`${base}`}>Start</a>
+        <a href={`${base}the-trip/`}>The trip</a>
+        <a href={`${base}my-numbers/`}>My numbers</a>
+        <a href={`${base}funding/`}>Funding</a>
+        <a href={`${base}gilman/`}>Gilman</a>
+        <a href={`${base}tools/`}>Tools</a>
+      </nav>
+    </div>
+  </section>
+  <style>
+    .nf { min-height: 60svh; display: grid; align-items: center; }
+    .nf h1 em { color: var(--torii); }
+    .nf__links { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 2rem; }
+    .nf__links a {
+      padding: 0.5rem 0.9rem; border: 1px solid var(--hairline-2); border-radius: var(--r);
+      text-decoration: none; font-size: 0.9rem;
+    }
+    .nf__links a:hover { border-color: var(--torii); }
+  </style>
+</Base>

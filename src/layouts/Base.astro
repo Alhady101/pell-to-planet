@@ -1,100 +1,361 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
   description: string;
-  /** Path relative to site base, e.g. "/my-numbers/" */
-  path?: string;
+  /** Hide the header's bottom rule when the page opens on a full-bleed hero. */
+  transparentHeader?: boolean;
 }
-const { title, description } = Astro.props;
+const { title, description, transparentHeader = false } = Astro.props;
+
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const current = Astro.url.pathname.replace(base, '') || '/';
+const here = Astro.url.pathname.replace(base, '') || '/';
 
 const nav = [
-  { href: '/', label: 'Start' },
-  { href: '/my-numbers/', label: 'My numbers' },
-  { href: '/funding/', label: 'Funding' },
-  { href: '/gilman/', label: 'Gilman' },
-  { href: '/what-i-gained/', label: 'What I gained' },
-  { href: '/tools/', label: 'Tools' },
+  { href: '/the-trip/', label: 'The trip', n: '01' },
+  { href: '/my-numbers/', label: 'My numbers', n: '02' },
+  { href: '/funding/', label: 'Funding', n: '03' },
+  { href: '/gilman/', label: 'Gilman', n: '04' },
+  { href: '/tools/', label: 'Tools', n: '05' },
 ];
-const siteTitle = 'Pell to Planet';
+const utility = [
+  { href: '/for-advisors/', label: 'For advisors' },
+  { href: '/sources/', label: 'Sources' },
+];
+const SITE = 'Pell to Planet';
+const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad` : `${title} · ${SITE}`;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title === siteTitle ? title : `${title} · ${siteTitle}`}</title>
+    <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#17161a" media="(prefers-color-scheme: dark)" />
+    <meta name="author" content="Gotibeh Alhady" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#08090d" />
     <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <link rel="canonical" href={Astro.url.href} />
+    <meta property="og:site_name" content={SITE} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {/* Set the theme before first paint so there is no flash. */}
+    <script is:inline>
+      (() => {
+        // Marks scripting as available. Reveal animations are scoped to .js so
+        // that a script failure can never leave the page blank.
+        document.documentElement.classList.add('js');
+        try {
+          const saved = localStorage.getItem('p2p-theme');
+          if (saved === 'light' || saved === 'dark') {
+            document.documentElement.dataset.theme = saved;
+          }
+        } catch (_) {}
+      })();
+    </script>
+
+    <ClientRouter />
   </head>
+
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <div class="scroll-progress" aria-hidden="true"><i data-progress></i></div>
 
-    <header class="site-header">
+    <header class={`site-header ${transparentHeader ? 'is-transparent' : ''}`} data-header>
       <div class="wrap site-header__inner">
-        <a class="brand" href={`${base}/`} aria-label="Pell to Planet, home">
-          <span class="brand__mark" aria-hidden="true"></span>
-          <span>Pell <em>to</em> Planet</span>
+        <a class="brand" href={`${base}/`}>
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".45" />
+              <ellipse cx="12" cy="12" rx="4.2" ry="9" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".45" />
+              <path d="M3 12h18" stroke="currentColor" stroke-width="1.4" opacity=".45" />
+              <circle cx="16.4" cy="7.2" r="2.6" fill="currentColor" />
+            </svg>
+          </span>
+          <span class="brand__text">Pell <em>to</em> Planet</span>
         </a>
-        <nav aria-label="Main">
+
+        <nav class="nav-desktop" aria-label="Main">
           <ul>
             {nav.map((n) => (
               <li>
-                <a href={`${base}${n.href}`} aria-current={current === n.href ? 'page' : undefined}>{n.label}</a>
+                <a href={`${base}${n.href}`} aria-current={here === n.href ? 'page' : undefined}>
+                  <span class="nav-n" aria-hidden="true">{n.n}</span>{n.label}
+                </a>
               </li>
             ))}
           </ul>
         </nav>
+
+        <div class="header-tools">
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Switch to light theme">
+            <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></g></svg>
+          </button>
+          <button class="icon-button nav-burger" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
+            <span class="burger" aria-hidden="true"><i></i><i></i></span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main id="main">
-      <slot />
-    </main>
+    <div class="mobile-nav" id="mobile-nav" data-menu hidden>
+      <nav aria-label="Main, mobile">
+        <ul>
+          {nav.map((n) => (
+            <li><a href={`${base}${n.href}`} aria-current={here === n.href ? 'page' : undefined}><span class="nav-n" aria-hidden="true">{n.n}</span>{n.label}</a></li>
+          ))}
+        </ul>
+        <hr />
+        <ul class="mobile-nav__utility">
+          {utility.map((n) => (
+            <li><a href={`${base}${n.href}`} aria-current={here === n.href ? 'page' : undefined}>{n.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+
+    <main id="main"><slot /></main>
 
     <footer class="site-footer">
-      <div class="wrap site-footer__inner">
-        <div>
-          <p class="site-footer__brand">Pell to Planet</p>
-          <p>A Gilman Follow-on Service Project by Gotibeh Alhady, Wayne State University.</p>
-          <p><a href="mailto:alhadygotibeh@gmail.com">alhadygotibeh@gmail.com</a> · <a href="https://www.linkedin.com/in/gotibeh/" rel="me noopener">LinkedIn</a></p>
+      <div class="wrap">
+        <div class="site-footer__top">
+          <div>
+            <p class="site-footer__brand">Pell <em>to</em> Planet</p>
+            <p class="small">A Gilman Follow-on Service Project by Gotibeh Alhady.<br />Mechanical Engineering, Wayne State University.</p>
+            <p class="small">
+              <a href="mailto:alhadygotibeh@gmail.com">alhadygotibeh@gmail.com</a><br />
+              <a href="https://www.linkedin.com/in/gotibeh/" rel="me noopener">LinkedIn</a>
+            </p>
+          </div>
+          <nav aria-label="Footer">
+            <p class="footer-head">The guide</p>
+            <ul>{nav.map((n) => <li><a href={`${base}${n.href}`}>{n.label}</a></li>)}</ul>
+          </nav>
+          <nav aria-label="Footer, more">
+            <p class="footer-head">More</p>
+            <ul>
+              {utility.map((n) => <li><a href={`${base}${n.href}`}>{n.label}</a></li>)}
+              <li><a href="https://www.gilmanscholarship.org/" rel="noopener">Gilman Program ↗</a></li>
+              <li><a href="https://abroad.wayne.edu/" rel="noopener">WSU Study Abroad ↗</a></li>
+            </ul>
+          </nav>
         </div>
-        <div>
-          <p>Independent student resource. Not an official publication of Wayne State University or the Gilman Program.</p>
-          <p>Figures are a snapshot with a verified-on date. Check the official sources linked before you apply or pay.</p>
+        <div class="site-footer__bottom">
+          <p class="small">Independent student resource. Not an official publication of Wayne State University, the U.S. Department of State, or the Gilman Program.</p>
+          <p class="small">Every figure carries a source and a verified-on date. Rules, amounts and deadlines change — confirm with the official source before you apply or pay.</p>
         </div>
       </div>
     </footer>
 
     <style>
-      .site-header { position: sticky; top: 0; z-index: 50; background: color-mix(in oklab, var(--paper) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
-      .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; }
-      .brand { display: inline-flex; align-items: center; gap: 0.55rem; text-decoration: none; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
-      .brand em { font-size: 1.1em; }
-      .brand__mark { width: 0.9rem; height: 0.9rem; border-radius: 50%; background: var(--vermilion); box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3.5px var(--vermilion); }
-      nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.15rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-      nav ul::-webkit-scrollbar { display: none; }
-      nav a { display: block; padding: 0.55rem 0.6rem; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius); white-space: nowrap; color: var(--ink-2); }
-      nav a:hover { color: var(--ink); background: var(--paper-2); }
-      nav a[aria-current='page'] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--vermilion); border-radius: 0; }
-      @media (max-width: 40rem) {
-        .site-header__inner { flex-wrap: wrap; padding-block: 0.4rem; }
-        nav { width: calc(100% + 2 * var(--gutter)); margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+      /* ---- scroll progress ---- */
+      .scroll-progress { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 120; pointer-events: none; background: transparent; }
+      .scroll-progress i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--torii), var(--gold)); transition: width 0.08s linear; }
+
+      /* ---- header ---- */
+      .site-header {
+        position: sticky; top: 0; z-index: 100;
+        background: color-mix(in oklab, var(--void) 82%, transparent);
+        backdrop-filter: blur(14px) saturate(140%);
+        -webkit-backdrop-filter: blur(14px) saturate(140%);
+        border-bottom: 1px solid var(--hairline);
+        transition: border-color 0.3s, background 0.3s;
       }
-      .site-footer { border-top: 1px solid var(--rule); padding-block: 2.5rem 3rem; font-size: 0.875rem; color: var(--ink-2); margin-top: 4rem; }
-      .site-footer__inner { display: grid; gap: 1.5rem; }
-      @media (min-width: 48rem) { .site-footer__inner { grid-template-columns: 1fr 1fr; } }
-      .site-footer__brand { font-family: var(--serif); font-size: 1.4rem; color: var(--ink); margin-bottom: 0.25rem; }
-      .site-footer p { margin-bottom: 0.4rem; }
+      .site-header.is-transparent:not(.is-stuck) { border-bottom-color: transparent; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+      .site-header__inner { display: flex; align-items: center; gap: 1rem; min-height: 3.9rem; }
+
+      .brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; font-weight: 600; font-size: 1.02rem; letter-spacing: -0.015em; white-space: nowrap; margin-right: auto; }
+      .brand:hover { color: inherit; }
+      .brand__mark { color: var(--torii); display: grid; place-items: center; transition: transform 0.5s cubic-bezier(.2,.8,.3,1); }
+      .brand:hover .brand__mark { transform: rotate(180deg); }
+      .brand em { font-size: 1.12em; color: var(--torii); }
+
+      .nav-desktop ul { display: flex; gap: 0.1rem; list-style: none; margin: 0; padding: 0; }
+      .nav-desktop li { margin: 0; }
+      .nav-desktop a {
+        display: inline-flex; align-items: baseline; gap: 0.4rem; padding: 0.5rem 0.7rem;
+        font-size: 0.88rem; text-decoration: none; color: var(--ink-2); border-radius: var(--r);
+        position: relative; transition: color 0.2s, background 0.2s;
+      }
+      .nav-desktop a:hover { color: var(--ink); background: color-mix(in oklab, var(--surface-2) 70%, transparent); }
+      .nav-desktop a[aria-current='page'] { color: var(--ink); }
+      .nav-desktop a[aria-current='page']::after {
+        content: ''; position: absolute; left: 0.7rem; right: 0.7rem; bottom: 0.15rem;
+        height: 1.5px; background: var(--torii); border-radius: 2px;
+      }
+      .nav-n { font-family: var(--mono); font-size: 0.6rem; color: var(--torii); opacity: 0.75; letter-spacing: 0.05em; }
+      @media (max-width: 63.99rem) { .nav-desktop { display: none; } }
+
+      .header-tools { display: flex; align-items: center; gap: 0.3rem; }
+      .icon-button {
+        display: grid; place-items: center; width: 2.35rem; height: 2.35rem; padding: 0;
+        background: transparent; border: 1px solid transparent; border-radius: var(--r);
+        color: var(--ink-2); cursor: pointer; transition: color 0.2s, background 0.2s, border-color 0.2s;
+      }
+      .icon-button:hover { color: var(--ink); background: var(--surface-2); border-color: var(--hairline); }
+      /* Show the theme you'll switch TO, matching the button's label. */
+      .icon-moon { display: none; }
+      :root[data-theme='light'] .icon-moon { display: block; }
+      :root[data-theme='light'] .icon-sun { display: none; }
+      .nav-burger { display: none; }
+      @media (max-width: 63.99rem) { .nav-burger { display: grid; } }
+
+      .burger { display: grid; gap: 5px; width: 17px; }
+      .burger i { display: block; height: 1.6px; background: currentColor; border-radius: 2px; transition: transform 0.28s cubic-bezier(.2,.8,.3,1); }
+      [aria-expanded='true'] .burger i:first-child { transform: translateY(3.3px) rotate(45deg); }
+      [aria-expanded='true'] .burger i:last-child { transform: translateY(-3.3px) rotate(-45deg); }
+
+      /* ---- mobile nav ---- */
+      .mobile-nav {
+        position: fixed; inset: 3.9rem 0 0 0; z-index: 99;
+        background: color-mix(in oklab, var(--void) 96%, transparent);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        padding: 2rem var(--gutter) 3rem; overflow-y: auto;
+        animation: menu-in 0.32s cubic-bezier(.2,.8,.3,1);
+      }
+      .mobile-nav[hidden] { display: none; }
+      @keyframes menu-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+      .mobile-nav ul { list-style: none; margin: 0; padding: 0; }
+      .mobile-nav li { margin: 0; }
+      .mobile-nav a {
+        display: flex; align-items: baseline; gap: 0.75rem; padding: 0.85rem 0;
+        font-family: var(--serif); font-size: 1.9rem; text-decoration: none;
+        border-bottom: 1px solid var(--hairline); color: var(--ink);
+      }
+      .mobile-nav a[aria-current='page'] { color: var(--torii); }
+      .mobile-nav .nav-n { font-size: 0.7rem; }
+      .mobile-nav__utility a { font-family: var(--sans); font-size: 1rem; color: var(--ink-2); border-bottom: 0; padding: 0.45rem 0; }
+
+      /* ---- footer ---- */
+      .site-footer { border-top: 1px solid var(--hairline); margin-top: clamp(4rem, 10vw, 8rem); padding-block: clamp(2.5rem, 6vw, 4rem) 2.5rem; background: var(--surface-1); }
+      .site-footer__top { display: grid; gap: 2.25rem; }
+      @media (min-width: 48rem) { .site-footer__top { grid-template-columns: 2fr 1fr 1fr; gap: 3rem; } }
+      .site-footer__brand { font-family: var(--serif); font-size: 1.65rem; margin-bottom: 0.5rem; }
+      .site-footer__brand em { color: var(--torii); }
+      .footer-head { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.85rem; }
+      .site-footer nav ul { list-style: none; margin: 0; padding: 0; }
+      .site-footer nav li { margin-bottom: 0.45rem; }
+      .site-footer nav a { font-size: 0.9rem; color: var(--ink-2); text-decoration: none; }
+      .site-footer nav a:hover { color: var(--torii); }
+      .site-footer__bottom { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--hairline); display: grid; gap: 0.5rem; }
+      @media (min-width: 48rem) { .site-footer__bottom { grid-template-columns: 1fr 1fr; gap: 2rem; } }
+      .site-footer__bottom .small { color: var(--ink-3); margin: 0; }
+
+      /* ---- view transitions ---- */
+      @media (prefers-reduced-motion: no-preference) {
+        ::view-transition-old(root) { animation: vt-out 0.22s cubic-bezier(.4,0,1,1) both; }
+        ::view-transition-new(root) { animation: vt-in 0.34s cubic-bezier(0,0,.2,1) both; }
+      }
+      @keyframes vt-out { to { opacity: 0; transform: translateY(-6px); } }
+      @keyframes vt-in { from { opacity: 0; transform: translateY(10px); } }
     </style>
+
+    <script>
+      function boot() {
+        const root = document.documentElement;
+
+        /* theme ------------------------------------------------------- */
+        const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+        const syncLabel = () => {
+          const dark = root.dataset.theme !== 'light';
+          toggle?.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#08090d' : '#f7f4ee');
+        };
+        toggle?.addEventListener('click', () => {
+          const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+          root.dataset.theme = next;
+          try { localStorage.setItem('p2p-theme', next); } catch (_) {}
+          syncLabel();
+          window.dispatchEvent(new CustomEvent('themechange'));
+        });
+        syncLabel();
+
+        /* mobile menu -------------------------------------------------- */
+        const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+        const menu = document.querySelector<HTMLElement>('[data-menu]');
+        const setMenu = (open: boolean) => {
+          if (!menu || !menuBtn) return;
+          menu.hidden = !open;
+          menuBtn.setAttribute('aria-expanded', String(open));
+          menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+          document.body.style.overflow = open ? 'hidden' : '';
+        };
+        menuBtn?.addEventListener('click', () => setMenu(menu?.hidden ?? true));
+        menu?.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('a')) setMenu(false);
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && menu && !menu.hidden) { setMenu(false); menuBtn?.focus(); }
+        });
+
+        /* scroll progress + stuck header ------------------------------- */
+        const bar = document.querySelector<HTMLElement>('[data-progress]');
+        const header = document.querySelector<HTMLElement>('[data-header]');
+        let ticking = false;
+        const onScroll = () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            ticking = false;
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            if (bar) bar.style.width = `${max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0}%`;
+            header?.classList.toggle('is-stuck', window.scrollY > 12);
+          });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        /* scroll reveals ---------------------------------------------- */
+        const targets = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+        if (targets.length) {
+          // In a hidden tab CSS animations are frozen, so skip straight to the
+          // finished state rather than queueing an animation that cannot run.
+          const reveal = (el: HTMLElement) =>
+            el.classList.add(document.hidden ? 'reveal-done' : 'is-in');
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            targets.forEach(reveal);
+          } else {
+            const io = new IntersectionObserver(
+              (entries) => {
+                entries.forEach((entry, i) => {
+                  if (!entry.isIntersecting) return;
+                  const el = entry.target as HTMLElement;
+                  const delay = Number(el.dataset.revealDelay ?? 0) + i * 55;
+                  window.setTimeout(() => reveal(el), delay);
+                  io.unobserve(el);
+                });
+              },
+              { rootMargin: '0px 0px -8% 0px', threshold: 0.06 },
+            );
+            targets.forEach((el) => io.observe(el));
+
+            // Safety net: anything on screen becomes visible outright, with no
+            // animation to depend on. Covers a frozen background tab, a stalled
+            // animation, or an observer that never fired.
+            const forceVisible = () => {
+              targets.forEach((el) => {
+                const r = el.getBoundingClientRect();
+                if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('reveal-done');
+              });
+            };
+            window.setTimeout(forceVisible, 2500);
+            document.addEventListener('visibilitychange', () => {
+              if (!document.hidden) window.setTimeout(forceVisible, 1200);
+            });
+          }
+        }
+      }
+
+      boot();
+      document.addEventListener('astro:page-load', boot);
+      document.addEventListener('astro:before-swap', () => { document.body.style.overflow = ''; });
+    </script>
   </body>
 </html>

@@ -1,0 +1,364 @@
+---
+/**
+ * Gap calculator. Entirely client-side: nothing is uploaded, and values are
+ * kept in this browser's localStorage only.
+ *
+ * The term-aid share is the part generic calculators get wrong. Pell and most
+ * institutional awards pay against a TERM, so if the study abroad course is 3
+ * of 13 credits, only about 3/13 of that money is attributable to the trip.
+ */
+const costFields = [
+  { id: 'fee', label: 'Program fee', hint: 'Check what it already includes before adding anything below.' },
+  { id: 'appfee', label: 'Application or deposit fee', hint: 'Only if it is charged on top of the program fee.' },
+  { id: 'tuition', label: 'Tuition and fees for the course', hint: 'Use the term-share helper below if it is billed as part of a full term.' },
+  { id: 'airfare', label: 'Flights and baggage', hint: 'Unless the program buys the ticket for you.' },
+  { id: 'food', label: 'Food you pay for', hint: 'Daily rate times days, minus any meals the fee covers.' },
+  { id: 'transit', label: 'Local transport', hint: 'Subway, buses, airport transfers.' },
+  { id: 'docs', label: 'Passport, visa and insurance', hint: 'Only what the program does not provide.' },
+  { id: 'misc', label: 'Phone, supplies, contingency', hint: 'Budget for one thing going wrong.' },
+];
+
+const fundFields = [
+  { id: 'tripAwards', label: 'Trip-specific scholarships', hint: 'Gilman, campus study abroad awards — money that follows this trip.', kind: 'trip' },
+  { id: 'termAid', label: 'Term aid for this term', hint: 'Pell, SEOG, institutional awards that pay against the whole term.', kind: 'term' },
+  { id: 'savings', label: 'Your own funds', hint: 'Savings and anything you can set aside before the due dates.', kind: 'trip' },
+  { id: 'other', label: 'Family or other confirmed support', hint: 'Only what is confirmed. Pending applications go in the box below.', kind: 'trip' },
+];
+---
+<div class="calc" data-calc>
+  <form class="calc__form" novalidate>
+    <div class="calc__panel">
+      <div class="calc__panel-head">
+        <h3>1 · What it costs</h3>
+        <button type="button" class="linkish" data-example>Load my Japan trip as an example</button>
+      </div>
+      <div class="calc__fields">
+        {costFields.map((f) => (
+          <div class="field">
+            <label for={`c-${f.id}`}>{f.label}</label>
+            <div class="field__input">
+              <span aria-hidden="true">$</span>
+              <input type="number" inputmode="decimal" min="0" step="1" id={`c-${f.id}`} name={f.id} data-cost placeholder="0" />
+            </div>
+            <p class="field__hint">{f.hint}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="calc__panel">
+      <h3>2 · The term-share helper</h3>
+      <p class="calc__note">
+        If your study abroad course is billed inside a normal term, only part of your
+        term aid is really paying for it. Enter the credits and the calculator does
+        the split.
+      </p>
+      <div class="calc__fields calc__fields--two">
+        <div class="field">
+          <label for="credits-course">Credits for the study abroad course</label>
+          <div class="field__input field__input--plain">
+            <input type="number" inputmode="numeric" min="0" step="1" id="credits-course" data-credits-course placeholder="3" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="credits-term">Total credits you are taking that term</label>
+          <div class="field__input field__input--plain">
+            <input type="number" inputmode="numeric" min="0" step="1" id="credits-term" data-credits-term placeholder="3" />
+          </div>
+          <p class="field__hint">Leave both the same if the course is your only enrolment.</p>
+        </div>
+      </div>
+      <p class="calc__share" data-share-note aria-live="polite"></p>
+    </div>
+
+    <div class="calc__panel">
+      <h3>3 · What covers it</h3>
+      <div class="calc__fields">
+        {fundFields.map((f) => (
+          <div class="field">
+            <label for={`f-${f.id}`}>{f.label}</label>
+            <div class="field__input">
+              <span aria-hidden="true">$</span>
+              <input type="number" inputmode="decimal" min="0" step="1" id={`f-${f.id}`} name={f.id} data-fund data-kind={f.kind} placeholder="0" />
+            </div>
+            <p class="field__hint">{f.hint}</p>
+          </div>
+        ))}
+      </div>
+      <div class="field field--full">
+        <label for="f-pending">Pending applications, not yet awarded</label>
+        <div class="field__input">
+          <span aria-hidden="true">$</span>
+          <input type="number" inputmode="decimal" min="0" step="1" id="f-pending" data-pending placeholder="0" />
+        </div>
+        <p class="field__hint">Deliberately excluded from the totals. Never plan around money you have not been awarded.</p>
+      </div>
+    </div>
+  </form>
+
+  {/* ---------------- results ---------------- */}
+  <aside class="calc__out" aria-live="polite">
+    <div class="calc__sticky">
+      <p class="calc__out-label">Your remaining gap</p>
+      <p class="calc__gap" data-gap>$0</p>
+      <p class="calc__gap-note" data-gap-note>Fill in the fields to see your number.</p>
+
+      <div class="calc__bars" data-bars hidden>
+        <div class="calc__bar">
+          <div class="calc__bar-head"><span>Costs</span><span class="money" data-total-cost>$0</span></div>
+          <div class="calc__track"><i class="seg seg--cost" data-bar-cost style="width:0%"></i></div>
+        </div>
+        <div class="calc__bar">
+          <div class="calc__bar-head"><span>Funding counted</span><span class="money" data-total-fund>$0</span></div>
+          <div class="calc__track">
+            <i class="seg seg--trip" data-bar-trip style="width:0%"></i>
+            <i class="seg seg--term" data-bar-term style="width:0%"></i>
+            <i class="seg seg--gap" data-bar-gap style="width:0%"></i>
+          </div>
+        </div>
+        <ul class="calc__legend">
+          <li><span class="sw sw--trip"></span>Trip-specific + your funds</li>
+          <li><span class="sw sw--term"></span>Term aid, your share</li>
+          <li><span class="sw sw--gap"></span>Still to cover</li>
+        </ul>
+      </div>
+
+      <table class="calc__table" data-table hidden>
+        <caption>Your figures</caption>
+        <tbody>
+          <tr><th scope="row">Total costs</th><td class="num" data-r-cost>$0</td></tr>
+          <tr><th scope="row">Trip-specific funding</th><td class="num" data-r-trip>$0</td></tr>
+          <tr><th scope="row">Term aid attributed to the trip</th><td class="num" data-r-term>$0</td></tr>
+          <tr><th scope="row">Pending, not counted</th><td class="num" data-r-pending>$0</td></tr>
+        </tbody>
+        <tfoot><tr><th scope="row">Remaining gap</th><td class="num" data-r-gap>$0</td></tr></tfoot>
+      </table>
+
+      <div class="calc__actions">
+        <button type="button" class="button button--sm" data-print>Print this plan</button>
+        <button type="button" class="button button--ghost button--sm" data-reset>Clear</button>
+      </div>
+      <p class="calc__privacy">Everything stays in your browser. Nothing is uploaded, and there is no analytics on this page.</p>
+    </div>
+  </aside>
+</div>
+
+<style>
+  .calc { display: grid; gap: 2rem; align-items: start; }
+  @media (min-width: 64rem) { .calc { grid-template-columns: 1.35fr 1fr; gap: 3rem; } }
+
+  .calc__panel { border-top: 1px solid var(--hairline-2); padding-top: 1.5rem; margin-bottom: 2.5rem; }
+  .calc__panel-head { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: baseline; justify-content: space-between; }
+  .calc__panel h3 { font-family: var(--sans); font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 1.1rem; }
+  .calc__panel-head h3 { margin-bottom: 0; }
+  .linkish { background: none; border: 0; padding: 0; color: var(--torii); font: inherit; font-size: 0.85rem; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; }
+  .calc__note { font-size: 0.9rem; color: var(--ink-2); margin: -0.5rem 0 1.25rem; }
+
+  .calc__fields { display: grid; gap: 1.15rem; margin-top: 1.25rem; }
+  @media (min-width: 34rem) { .calc__fields { grid-template-columns: 1fr 1fr; gap: 1.25rem 1.5rem; } }
+  .calc__fields--two { grid-template-columns: 1fr; }
+  @media (min-width: 34rem) { .calc__fields--two { grid-template-columns: 1fr 1fr; } }
+  .field--full { margin-top: 1.25rem; max-width: 22rem; }
+
+  .field label { display: block; font-size: 0.87rem; font-weight: 500; margin-bottom: 0.4rem; }
+  .field__input {
+    display: flex; align-items: center; gap: 0.15rem; background: var(--surface-1);
+    border: 1px solid var(--hairline-2); border-radius: var(--r); padding: 0 0.7rem;
+    transition: border-color 0.18s, box-shadow 0.18s;
+  }
+  .field__input:focus-within { border-color: var(--torii); box-shadow: 0 0 0 3px rgb(var(--glow) / 0.16); }
+  .field__input > span { color: var(--ink-3); font-size: 0.92rem; }
+  .field__input input {
+    flex: 1; min-width: 0; background: none; border: 0; color: var(--ink);
+    font: inherit; font-variant-numeric: tabular-nums; padding: 0.6rem 0.2rem; width: 100%;
+  }
+  .field__input input:focus { outline: none; }
+  .field__input input::-webkit-outer-spin-button,
+  .field__input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .field__input input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+  .field__hint { font-size: 0.78rem; color: var(--ink-3); margin: 0.35rem 0 0; line-height: 1.45; }
+
+  .calc__share { font-size: 0.88rem; color: var(--sky); margin: 1rem 0 0; min-height: 1.3rem; }
+
+  /* ---- output ---- */
+  .calc__out { position: relative; }
+  .calc__sticky {
+    background: var(--surface-1); border: 1px solid var(--hairline); border-radius: var(--r-lg);
+    padding: clamp(1.25rem, 3vw, 1.85rem); box-shadow: var(--shadow-1);
+  }
+  @media (min-width: 64rem) { .calc__sticky { position: sticky; top: 5rem; } }
+  .calc__out-label { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.4rem; }
+  .calc__gap { font-size: clamp(2.5rem, 7vw, 3.4rem); font-weight: 600; letter-spacing: -0.035em; line-height: 1; margin: 0 0 0.5rem; color: var(--torii); }
+  .calc__gap.is-covered { color: var(--ok); }
+  .calc__gap-note { font-size: 0.88rem; color: var(--ink-2); margin-bottom: 1.5rem; }
+
+  .calc__bars { display: grid; gap: 1rem; margin-bottom: 1.5rem; }
+  .calc__bar-head { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--ink-2); margin-bottom: 0.35rem; }
+  .calc__track { display: flex; height: 18px; background: var(--surface-3); border-radius: 4px; overflow: hidden; gap: 2px; }
+  .seg { display: block; height: 100%; transition: width 0.35s cubic-bezier(.2,.8,.3,1); }
+  .seg--cost { background: var(--s1); border-radius: 0 4px 4px 0; }
+  .seg--trip { background: var(--s4); }
+  .seg--term { background: var(--s2); }
+  .seg--gap { background: var(--s-muted); border-radius: 0 4px 4px 0; }
+  .calc__legend { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-size: 0.78rem; color: var(--ink-2); }
+  .calc__legend li { display: inline-flex; align-items: center; gap: 0.4em; margin: 0; }
+  .sw { width: 0.75em; height: 0.75em; border-radius: 2px; }
+  .sw--trip { background: var(--s4); }
+  .sw--term { background: var(--s2); }
+  .sw--gap { background: var(--s-muted); }
+
+  .calc__table { font-size: 0.87rem; margin-bottom: 1.5rem; }
+  .calc__table caption { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .calc__table th { font-weight: 450; color: var(--ink-2); padding-left: 0; }
+  .calc__table td { padding-right: 0; }
+
+  .calc__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .calc__privacy { font-size: 0.76rem; color: var(--ink-3); margin: 1rem 0 0; }
+
+  @media print {
+    .calc { grid-template-columns: 1fr; }
+    .calc__sticky { position: static; border: 1px solid #999; }
+    .calc__actions, .calc__privacy, .linkish, .field__hint { display: none; }
+    .field__input { border: 0; border-bottom: 1px solid #999; border-radius: 0; }
+  }
+</style>
+
+<script>
+  function initCalc() {
+    const root = document.querySelector<HTMLElement>('[data-calc]');
+    if (!root) return;
+
+    const KEY = 'p2p-calc-v1';
+    const costs = Array.from(root.querySelectorAll<HTMLInputElement>('[data-cost]'));
+    const funds = Array.from(root.querySelectorAll<HTMLInputElement>('[data-fund]'));
+    const pending = root.querySelector<HTMLInputElement>('[data-pending]')!;
+    const cCourse = root.querySelector<HTMLInputElement>('[data-credits-course]')!;
+    const cTerm = root.querySelector<HTMLInputElement>('[data-credits-term]')!;
+    const all = [...costs, ...funds, pending, cCourse, cTerm];
+
+    const $ = <T extends Element = HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+    const usd = (n: number) =>
+      n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    const num = (el: HTMLInputElement) => {
+      const v = parseFloat(el.value);
+      return Number.isFinite(v) && v > 0 ? v : 0;
+    };
+
+    function compute() {
+      const totalCost = costs.reduce((a, el) => a + num(el), 0);
+
+      const course = num(cCourse);
+      const term = num(cTerm);
+      // Default to the whole award when credits are not given or are inconsistent.
+      const share = course > 0 && term > 0 ? Math.min(1, course / term) : 1;
+
+      let trip = 0;
+      let termAid = 0;
+      for (const el of funds) {
+        const v = num(el);
+        if (el.dataset.kind === 'term') termAid += v * share;
+        else trip += v;
+      }
+      const counted = trip + termAid;
+      const gap = totalCost - counted;
+      const pend = num(pending);
+
+      // share note
+      const shareNote = $('[data-share-note]');
+      if (course > 0 && term > 0) {
+        if (course > term) {
+          shareNote.textContent = 'The course cannot be more credits than the term. Check those two numbers.';
+        } else {
+          const pct = Math.round(share * 100);
+          shareNote.textContent =
+            share === 1
+              ? 'The course is your whole term, so all of your term aid counts toward it.'
+              : `The course is ${pct}% of your term, so about ${pct}% of your term aid is attributable to it.`;
+        }
+      } else {
+        shareNote.textContent = '';
+      }
+
+      const hasInput = totalCost > 0 || counted > 0;
+      $('[data-bars]').hidden = !hasInput;
+      $('[data-table]').hidden = !hasInput;
+
+      const gapEl = $('[data-gap]');
+      const noteEl = $('[data-gap-note]');
+      if (!hasInput) {
+        gapEl.textContent = usd(0);
+        gapEl.classList.remove('is-covered');
+        noteEl.textContent = 'Fill in the fields to see your number.';
+      } else if (gap <= 0) {
+        gapEl.textContent = usd(0);
+        gapEl.classList.add('is-covered');
+        noteEl.textContent =
+          `Your counted funding covers the costs, with ${usd(Math.abs(gap))} to spare. Confirm the disbursement dates before you rely on it.`;
+      } else {
+        gapEl.textContent = usd(gap);
+        gapEl.classList.remove('is-covered');
+        noteEl.textContent = `That is what you would need to find, borrow or win on top of what is already confirmed.`;
+      }
+
+      const scale = Math.max(totalCost, counted, 1);
+      const pc = (v: number) => `${Math.max(0, Math.min(100, (v / scale) * 100))}%`;
+      ($('[data-bar-cost]') as HTMLElement).style.width = pc(totalCost);
+      ($('[data-bar-trip]') as HTMLElement).style.width = pc(trip);
+      ($('[data-bar-term]') as HTMLElement).style.width = pc(termAid);
+      ($('[data-bar-gap]') as HTMLElement).style.width = pc(Math.max(0, gap));
+
+      $('[data-total-cost]').textContent = usd(totalCost);
+      $('[data-total-fund]').textContent = usd(counted);
+      $('[data-r-cost]').textContent = usd(totalCost);
+      $('[data-r-trip]').textContent = usd(trip);
+      $('[data-r-term]').textContent = usd(termAid);
+      $('[data-r-pending]').textContent = usd(pend);
+      $('[data-r-gap]').textContent = usd(Math.max(0, gap));
+    }
+
+    function save() {
+      try {
+        const data: Record<string, string> = {};
+        all.forEach((el, i) => { if (el.value) data[el.id || String(i)] = el.value; });
+        localStorage.setItem(KEY, JSON.stringify(data));
+      } catch (_) {}
+    }
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw) as Record<string, string>;
+        all.forEach((el) => { if (data[el.id]) el.value = data[el.id]; });
+      } catch (_) {}
+    }
+
+    root.addEventListener('input', () => { compute(); save(); });
+
+    // Example = the author's own verified figures, so the shape is realistic.
+    root.querySelector('[data-example]')?.addEventListener('click', () => {
+      const ex: Record<string, string> = {
+        'c-fee': '3200', 'c-appfee': '50', 'c-tuition': '2348', 'c-airfare': '1800',
+        'c-food': '420', 'c-transit': '30', 'c-docs': '0', 'c-misc': '162',
+        'credits-course': '3', 'credits-term': '13',
+        'f-tripAwards': '3500', 'f-termAid': '6197', 'f-savings': '0', 'f-other': '0', 'f-pending': '0',
+      };
+      all.forEach((el) => { if (ex[el.id] !== undefined) el.value = ex[el.id]; });
+      compute();
+      save();
+    });
+
+    root.querySelector('[data-reset]')?.addEventListener('click', () => {
+      all.forEach((el) => (el.value = ''));
+      try { localStorage.removeItem(KEY); } catch (_) {}
+      compute();
+    });
+
+    root.querySelector('[data-print]')?.addEventListener('click', () => window.print());
+
+    load();
+    compute();
+  }
+
+  initCalc();
+  document.addEventListener('astro:page-load', initCalc);
+</script>

@@ -1,53 +1,81 @@
 ---
 /**
- * Two horizontal stacked bars on one scale: what the trip cost vs. what covered it.
- * Pure SVG, no JS. Every segment is also in the table view below the chart
- * (the WCAG twin), so color never carries meaning alone.
+ * Two horizontal stacked bars on a shared scale. Pure SVG, no JS.
+ *
+ * Colour never carries meaning alone: every segment is named in a per-bar
+ * legend, hoverable via its <title>, and repeated in the table view below.
  */
 interface Segment { label: string; value: number; slot: 1 | 2 | 3 | 4 | 'muted' }
-interface Bar { title: string; segments: Segment[]; caption?: string }
+interface Bar { title: string; segments: Segment[] }
 interface Props { bars: Bar[]; id: string }
 const { bars, id } = Astro.props;
 
-const max = Math.max(...bars.map((b) => b.segments.reduce((a, s) => a + s.value, 0)));
-const W = 720, PAD_R = 90, barH = 22, gap = 2, rowH = 78, padTop = 8;
-const H = padTop + bars.length * rowH;
+const totalOf = (b: Bar) => b.segments.reduce((a, s) => a + s.value, 0);
+const max = Math.max(...bars.map(totalOf));
+
+const W = 720, PAD_R = 92, BAR_H = 26, GAP = 2, ROW_H = 84, PAD_T = 10;
+const H = PAD_T + bars.length * ROW_H;
 const x = (v: number) => (v / max) * W;
 const fmt = (v: number) => '$' + Math.round(v).toLocaleString('en-US');
 const color = (slot: Segment['slot']) => (slot === 'muted' ? 'var(--s-muted)' : `var(--s${slot})`);
-// ticks: clean thousands
-const step = max > 6000 ? 2000 : 1000;
+
+const step = max > 6000 ? 2000 : max > 2500 ? 1000 : 500;
 const ticks: number[] = [];
 for (let t = 0; t <= max; t += step) ticks.push(t);
 ---
 <figure class="stack" aria-labelledby={`${id}-title`}>
-  <svg viewBox={`0 0 ${W + PAD_R} ${H + 24}`} role="img" aria-describedby={`${id}-table`} width="100%">
-    <title id={`${id}-title`}>Cost of the trip compared with the funding that covered it</title>
+  <svg viewBox={`0 0 ${W + PAD_R} ${H + 26}`} role="img" aria-describedby={`${id}-table`} width="100%">
+    <title id={`${id}-title`}>What the trip cost, compared with the funding that covered it</title>
+
     {ticks.map((t) => (
       <g>
-        <line x1={x(t)} x2={x(t)} y1={padTop} y2={H} stroke="var(--rule)" stroke-width="1" />
-        <text x={x(t)} y={H + 18} font-size="11" fill="var(--ink-3)" text-anchor={t === 0 ? 'start' : 'middle'} font-family="var(--sans)">{fmt(t)}</text>
+        <line x1={x(t)} x2={x(t)} y1={PAD_T} y2={H} stroke="var(--hairline)" stroke-width="1" />
+        <text
+          x={x(t)} y={H + 19} font-size="10.5" fill="var(--ink-3)"
+          text-anchor={t === 0 ? 'start' : 'middle'}
+          font-family="var(--mono)" letter-spacing="0.04em"
+        >{fmt(t)}</text>
       </g>
     ))}
+
     {bars.map((bar, bi) => {
-      const y = padTop + bi * rowH + 20;
-      let cx = 0;
-      const total = bar.segments.reduce((a, s) => a + s.value, 0);
+      const y = PAD_T + bi * ROW_H + 26;
+      const total = totalOf(bar);
+      let cursor = 0;
       return (
         <g>
-          <text x="0" y={y - 7} font-size="12" font-weight="600" fill="var(--ink-2)" font-family="var(--sans)" letter-spacing="0.04em">{bar.title.toUpperCase()}</text>
+          <text
+            x="0" y={y - 10} font-size="10.5" fill="var(--ink-2)"
+            font-family="var(--mono)" letter-spacing="0.13em"
+          >{bar.title.toUpperCase()}</text>
+
           {bar.segments.map((s, si) => {
             const w = x(s.value);
-            const el = (
-              <rect x={cx + (si === 0 ? 0 : gap)} y={y} width={Math.max(0, w - (si === 0 ? 0 : gap))} height={barH}
-                fill={color(s.slot)} rx={si === bar.segments.length - 1 ? 4 : 0}>
-                <title>{s.label}: {fmt(s.value)}</title>
-              </rect>
+            const left = cursor + (si === 0 ? 0 : GAP);
+            const width = Math.max(0, w - (si === 0 ? 0 : GAP));
+            cursor += w;
+            const last = si === bar.segments.length - 1;
+            return (
+              <g>
+                <rect x={left} y={y} width={width} height={BAR_H} fill={color(s.slot)} rx={last ? 4 : 0}>
+                  <title>{s.label}: {fmt(s.value)}</title>
+                </rect>
+                {/* label inside the segment only when it comfortably fits */}
+                {width > 74 && (
+                  <text
+                    x={left + 9} y={y + BAR_H / 2 + 3.5} font-size="10.5"
+                    fill={s.slot === 'muted' ? 'var(--ink-2)' : 'rgba(255,255,255,0.94)'}
+                    font-family="var(--mono)" letter-spacing="0.03em"
+                  >{fmt(s.value)}</text>
+                )}
+              </g>
             );
-            cx += w;
-            return el;
           })}
-          <text x={x(total) + 8} y={y + barH / 2 + 4} font-size="13" font-weight="600" fill="var(--ink)" font-family="var(--sans)" style="font-variant-numeric: tabular-nums">{fmt(total)}</text>
+
+          <text
+            x={x(total) + 10} y={y + BAR_H / 2 + 4.5} font-size="13.5" font-weight="600"
+            fill="var(--ink)" font-family="var(--sans)" style="font-variant-numeric: tabular-nums"
+          >{fmt(total)}</text>
         </g>
       );
     })}
@@ -55,10 +83,10 @@ for (let t = 0; t <= max; t += step) ticks.push(t);
 
   <div class="legends">
     {bars.map((bar) => (
-      <ul class="legend" aria-hidden="true">
+      <ul class="legend">
         <li class="legend__title">{bar.title}</li>
         {bar.segments.map((s) => (
-          <li><span class="swatch" style={`background:${color(s.slot)}`}></span>{s.label}</li>
+          <li><span class="swatch" style={`background:${color(s.slot)}`} aria-hidden="true"></span>{s.label}</li>
         ))}
       </ul>
     ))}
@@ -66,25 +94,36 @@ for (let t = 0; t <= max; t += step) ticks.push(t);
 
   <details class="table-view">
     <summary>Table view</summary>
-    <table id={`${id}-table`}>
-      <thead><tr><th>Bar</th><th>Segment</th><th class="num">USD</th></tr></thead>
-      <tbody>
-        {bars.flatMap((b) => b.segments.map((s) => (
-          <tr><td>{b.title}</td><td>{s.label}</td><td class="num">{fmt(s.value)}</td></tr>
-        )))}
-      </tbody>
-    </table>
+    <div class="table-scroll">
+      <table id={`${id}-table`}>
+        <thead><tr><th scope="col">Bar</th><th scope="col">Segment</th><th scope="col" class="num">USD</th></tr></thead>
+        <tbody>
+          {bars.flatMap((b) => b.segments.map((s) => (
+            <tr><td>{b.title}</td><td>{s.label}</td><td class="num">{fmt(s.value)}</td></tr>
+          )))}
+        </tbody>
+      </table>
+    </div>
   </details>
 </figure>
 
 <style>
-  .stack { margin: 1.5rem 0; }
-  .legends { display: grid; gap: 0.35rem; margin-top: 0.25rem; }
-  .legend__title { font-weight: 600; color: var(--ink); }
-  .legend { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; font-size: 0.85rem; color: var(--ink-2); }
-  .legend li { display: inline-flex; align-items: center; gap: 0.45em; }
-  .swatch { width: 0.8em; height: 0.8em; border-radius: 2px; display: inline-block; }
-  .table-view { margin-top: 0.75rem; font-size: 0.9rem; }
-  .table-view summary { cursor: pointer; color: var(--ink-2); }
-  rect:hover { opacity: 0.85; }
+  .stack { margin: 1.75rem 0 0; }
+  .legends { display: grid; gap: 0.5rem; margin-top: 1rem; }
+  .legend {
+    list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap;
+    gap: 0.35rem 1.1rem; font-size: 0.82rem; color: var(--ink-2); align-items: center;
+  }
+  .legend li { display: inline-flex; align-items: center; gap: 0.45em; margin: 0; }
+  .legend__title {
+    font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-3); min-width: 9.5rem;
+  }
+  .swatch { width: 0.72em; height: 0.72em; border-radius: 2px; display: inline-block; flex: none; }
+  .table-view { margin-top: 1.25rem; font-size: 0.9rem; }
+  .table-view summary { cursor: pointer; color: var(--ink-2); font-size: 0.85rem; }
+  .table-view summary:hover { color: var(--torii); }
+  .table-view[open] summary { margin-bottom: 0.75rem; }
+  rect { transition: opacity 0.2s; }
+  rect:hover { opacity: 0.82; }
 </style>

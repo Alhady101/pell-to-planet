@@ -1,6 +1,199 @@
 ---
 import Base from '../layouts/Base.astro';
+import Money from '../components/Money.astro';
+import Chip from '../components/Chip.astro';
+import { AWARDS, TIERS, ORDER } from '../data/funding';
+
+const base = import.meta.env.BASE_URL;
+const byTier = (t: string) => AWARDS.filter((a) => a.tier === t);
 ---
-<Base title="funding" description="Coming soon.">
-  <section class="section section--flush"><div class="wrap wrap--narrow"><p class="eyebrow">Coming soon</p><h1>This page is being built.</h1></div></section>
+<Base
+  title="Funding"
+  description="Where study abroad money actually comes from: federal aid, campus awards and national scholarships, what each one requires, and the order to go after them in."
+>
+  <section class="section section--tight">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Chapter 03 · Funding</p>
+      <h1 data-reveal>Money comes in <em>layers</em>.<br />Work them in order.</h1>
+      <p class="lede" data-reveal>
+        Nobody hands you one scholarship that covers a program. You assemble it from
+        federal aid you already have, campus money almost nobody applies for, and one
+        or two national awards worth the essays.
+      </p>
+
+      <div class="fund-warn callout callout--box" data-reveal>
+        <p>
+          <strong>Amounts and deadlines are not printed here on purpose.</strong>
+          Published maxima and cycle dates change every year, and a stale figure on a
+          public page is worse than no figure. Each entry links to the official page
+          that holds the live number. Where I give a dollar amount, it is one I
+          personally received and can document.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- ORDER OF OPERATIONS ---------------- */}
+  <section class="section section--raised">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>The order that works</p>
+      <h2 class="order__h" data-reveal>Six steps, cheapest<br />effort first.</h2>
+      <ol class="order">
+        {ORDER.map((o, i) => (
+          <li data-reveal data-reveal-delay={i * 50}>
+            <span class="order__n">{o.n}</span>
+            <div>
+              <p class="order__head">{o.head}</p>
+              <p class="order__body">{o.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  {/* ---------------- DIRECTORY ---------------- */}
+  {TIERS.map((tier, ti) => (
+    <section class={`section ${ti % 2 === 1 ? '' : 'section--ruled'}`} id={tier.id}>
+      <div class="wrap">
+        <div class="tier-head">
+          <div>
+            <p class="eyebrow" data-reveal>{String(ti + 1).padStart(2, '0')} · {tier.label}</p>
+            <h2 data-reveal>{tier.id === 'federal' ? 'The base layer' : tier.id === 'campus' ? 'Your own campus' : 'The national awards'}</h2>
+          </div>
+          <p class="dek" data-reveal>{tier.dek}</p>
+        </div>
+
+        <div class="awards">
+          {byTier(tier.id).map((a, i) => (
+            <article class="award" data-reveal data-reveal-delay={i * 60}>
+              <div class="award__top">
+                <h3>{a.name}</h3>
+                {a.received && <span class="award__got"><Chip status="verified" /> I received <Money value={a.received.amountUSD} /></span>}
+              </div>
+
+              <p class="award__amount">{a.amount}</p>
+              {a.received && <p class="award__got-note">{a.received.note}</p>}
+
+              <dl class="award__meta">
+                <div>
+                  <dt>Who it is for</dt>
+                  <dd>{a.who}</dd>
+                </div>
+                <div>
+                  <dt>What it needs</dt>
+                  <dd>
+                    <ul>{a.requires.map((r) => <li>{r}</li>)}</ul>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Timing</dt>
+                  <dd>{a.timing}</dd>
+                </div>
+              </dl>
+
+              {a.note && <p class="award__note">{a.note}</p>}
+
+              <p class="award__link">
+                <a href={a.url} rel="noopener">{a.urlLabel} <span aria-hidden="true">↗</span></a>
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  {/* ---------------- WHAT I ACTUALLY GOT ---------------- */}
+  <section class="section section--raised">
+    <div class="wrap grid-2">
+      <div>
+        <p class="eyebrow" data-reveal>For reference</p>
+        <h2 data-reveal>What my own stack<br />looked like.</h2>
+        <div data-reveal>
+          <p>
+            Four awards, from three of the layers above. Two followed the trip and two
+            followed the term, which is the distinction that decides how much of the
+            money really paid for Japan.
+          </p>
+          <p class="cta-row">
+            <a class="button" href={`${base}my-numbers/`}>See the full breakdown<span class="arrow" aria-hidden="true">→</span></a>
+          </p>
+        </div>
+      </div>
+      <ul class="ledger" data-reveal>
+        {AWARDS.filter((a) => a.received).map((a) => (
+          <li>
+            <span class="label">{a.name} <Chip status="verified" /></span>
+            <span class="amount"><Money value={a.received!.amountUSD} /></span>
+            <p class="note">{a.received!.note}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {/* ---------------- NEXT ---------------- */}
+  <section class="section section--ruled">
+    <div class="wrap grid-2">
+      <div data-reveal>
+        <p class="eyebrow">One rule for all of it</p>
+        <h2>Report what you win.</h2>
+        <p>
+          Every outside scholarship has to be reported to your financial aid office, and
+          winning one can change the rest of your package. That is not a reason to skip
+          applying — it is a reason to ask what the combined picture looks like before
+          you count the money twice.
+        </p>
+      </div>
+      <div class="card" data-reveal>
+        <p class="eyebrow">Next</p>
+        <h3>The Gilman chapter</h3>
+        <p>The award that made my program possible: who is eligible, how the four essays work, and what I put in mine.</p>
+        <p><a class="button" href={`${base}gilman/`}>Read the Gilman guide<span class="arrow" aria-hidden="true">→</span></a></p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    h1 { max-width: 15ch; }
+    h1 em { color: var(--torii); font-style: italic; }
+    .fund-warn { margin-top: 2rem; max-width: 46rem; }
+
+    .order__h { margin-bottom: 2rem; }
+    .order { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+    @media (min-width: 56rem) { .order { grid-template-columns: repeat(3, 1fr); gap: 0 2.5rem; } }
+    .order li { display: grid; grid-template-columns: auto 1fr; gap: 1rem; padding: 1.15rem 0; border-top: 1px solid var(--hairline); margin: 0; max-width: none; }
+    .order__n { font-family: var(--mono); font-size: 0.7rem; color: var(--torii); letter-spacing: 0.1em; padding-top: 0.3rem; }
+    .order__head { font-weight: 600; margin: 0 0 0.2rem; }
+    .order__body { font-size: 0.89rem; color: var(--ink-2); margin: 0; }
+
+    .tier-head { display: grid; gap: 1.25rem; margin-bottom: 2.25rem; }
+    @media (min-width: 56rem) { .tier-head { grid-template-columns: 1fr 1.1fr; align-items: end; gap: 3rem; } }
+
+    .awards { display: grid; gap: 1.15rem; }
+    @media (min-width: 60rem) { .awards { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; } }
+    .award {
+      background: var(--surface-1); border: 1px solid var(--hairline); border-radius: var(--r-lg);
+      padding: clamp(1.25rem, 2.5vw, 1.75rem); display: flex; flex-direction: column;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .section--raised .award { background: var(--void); }
+    .award:hover { border-color: color-mix(in oklab, var(--torii) 40%, var(--hairline)); transform: translateY(-2px); }
+    .award__top { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: baseline; justify-content: space-between; margin-bottom: 0.6rem; }
+    .award h3 { font-size: 1.25rem; margin: 0; font-family: var(--sans); font-weight: 600; letter-spacing: -0.005em; }
+    .award__got { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: var(--ok); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .award__amount { font-size: 0.93rem; color: var(--ink-2); margin: 0 0 0.5rem; }
+    .award__got-note { font-size: 0.82rem; color: var(--ink-3); margin: 0 0 0.75rem; }
+
+    .award__meta { margin: 0.75rem 0 0; display: grid; gap: 0.9rem; }
+    .award__meta dt { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.3rem; }
+    .award__meta dd { margin: 0; font-size: 0.89rem; color: var(--ink-2); }
+    .award__meta ul { margin: 0; padding-left: 1.05rem; }
+    .award__meta li { margin-bottom: 0.3rem; font-size: 0.89rem; }
+    .award__note { font-size: 0.88rem; border-left: 2px solid var(--torii); padding-left: 0.9rem; margin: 1.15rem 0 0; color: var(--ink-2); }
+    .award__link { margin: 1.15rem 0 0; padding-top: 1rem; border-top: 1px solid var(--hairline); font-size: 0.88rem; margin-top: auto; }
+    .award__link a { color: var(--torii); text-decoration: none; font-weight: 500; }
+    .award__link a:hover { text-decoration: underline; }
+  </style>
 </Base>

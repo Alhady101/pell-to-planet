@@ -1,0 +1,74 @@
+---
+/**
+ * Drifting sakura petals. Purely decorative, so aria-hidden and removed
+ * entirely under prefers-reduced-motion. Transform/opacity only, so it stays
+ * on the compositor and never triggers layout.
+ */
+interface Props { count?: number; class?: string }
+const { count = 16, class: cls = '' } = Astro.props;
+
+// Deterministic pseudo-random so the markup is stable between builds.
+const rand = (seed: number) => {
+  const x = Math.sin(seed * 127.1) * 43758.5453;
+  return x - Math.floor(x);
+};
+const petals = Array.from({ length: count }, (_, i) => ({
+  left: rand(i + 1) * 100,
+  delay: -rand(i + 7) * 18,
+  duration: 13 + rand(i + 13) * 14,
+  scale: 0.5 + rand(i + 19) * 0.75,
+  drift: (rand(i + 23) - 0.5) * 22,
+  spin: rand(i + 29) > 0.5 ? 1 : -1,
+  hue: rand(i + 31),
+}));
+---
+<div class={`petals ${cls}`} aria-hidden="true">
+  {petals.map((p) => (
+    <span
+      class="petal"
+      style={`left:${p.left}%; animation-delay:${p.delay}s; animation-duration:${p.duration}s; --s:${p.scale}; --drift:${p.drift}vw; --spin:${p.spin}; --tone:${p.hue > 0.6 ? 'var(--petal-2)' : 'var(--petal-1)'}`}
+    >
+      <svg viewBox="0 0 20 20" width="14" height="14" focusable="false">
+        <path d="M10 1c3.6 1.1 6.3 4.1 6.3 7.6 0 4.2-3.3 7-6.3 10.4C7 15.6 3.7 12.8 3.7 8.6 3.7 5.1 6.4 2.1 10 1Z" />
+      </svg>
+    </span>
+  ))}
+</div>
+
+<style>
+  .petals {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+    --petal-1: #f6c6d0;
+    --petal-2: #fadfe4;
+  }
+  :root[data-theme='light'] .petals {
+    --petal-1: #e79db0;
+    --petal-2: #f0bfcb;
+  }
+  .petal {
+    position: absolute;
+    top: -8%;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation-name: petal-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  .petal svg { fill: var(--tone); filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.25)); }
+
+  @keyframes petal-fall {
+    0%   { transform: translate3d(0, -10vh, 0) rotate(0deg) scale(var(--s)); opacity: 0; }
+    8%   { opacity: 0.85; }
+    50%  { transform: translate3d(calc(var(--drift) * 1), 45vh, 0) rotate(calc(var(--spin) * 220deg)) scale(var(--s)); }
+    88%  { opacity: 0.7; }
+    100% { transform: translate3d(calc(var(--drift) * 1.9), 108vh, 0) rotate(calc(var(--spin) * 460deg)) scale(var(--s)); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .petals { display: none; }
+  }
+</style>

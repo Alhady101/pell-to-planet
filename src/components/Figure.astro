@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  caption?: string;
+  credit?: string;
+  ratio?: '4x3' | '3x4' | '16x9' | 'square' | 'free';
+  sizes?: string;
+  widths?: number[];
+  eager?: boolean;
+  class?: string;
+}
+const {
+  src, alt, caption, credit,
+  ratio = '4x3',
+  sizes = '(min-width: 64rem) 32rem, 92vw',
+  widths = [400, 700, 1100],
+  eager = false,
+  class: cls = '',
+} = Astro.props;
+---
+<figure class={`fig ${cls}`}>
+  <div class={`photo ${ratio === 'free' ? '' : `photo--${ratio}`}`}>
+    <Image src={src} alt={alt} widths={widths} sizes={sizes} loading={eager ? 'eager' : 'lazy'} decoding={eager ? 'sync' : 'async'} />
+  </div>
+  {(caption || credit) && (
+    <figcaption>
+      {caption}
+      {credit && <><br /><span class="fig__credit">{credit}</span></>}
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .fig { margin: 0; }
+  .photo { box-shadow: var(--shadow-1); }
+  .photo img { transition: transform 0.7s cubic-bezier(.2,.8,.3,1); }
+  .fig:hover .photo img { transform: scale(1.025); }
+  .fig__credit { color: var(--ink-3); font-size: 0.74rem; }
+  @media (prefers-reduced-motion: reduce) { .fig:hover .photo img { transform: none; } }
+</style>

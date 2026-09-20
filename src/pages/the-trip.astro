@@ -1,0 +1,332 @@
+---
+import Base from '../layouts/Base.astro';
+import Figure from '../components/Figure.astro';
+import Petals from '../components/Petals.astro';
+import { STOPS, CONNECTIONS, HONEST } from '../data/trip';
+import { program } from '../data/facts';
+
+import pTokyoTower from '../assets/photos/tokyo-tower-selfie.jpg';
+import pTokyoGroup from '../assets/photos/tokyo-tower-group.jpg';
+import pTokyoBus from '../assets/photos/tokyo-bus-tour-group.jpg';
+import pShibuya from '../assets/photos/tokyo-shibuya-night.jpg';
+import pCamii from '../assets/photos/tokyo-camii-interior.jpg';
+import pPalace from '../assets/photos/tokyo-palace-gate-selfie.jpg';
+
+import pFushimiSelfie from '../assets/photos/kyoto-fushimi-inari-selfie.jpg';
+import pFushimiGroup from '../assets/photos/kyoto-fushimi-group-selfie.jpg';
+
+import pOsakaUni from '../assets/photos/osaka-university-group-flag.jpg';
+import pYamahaGroup from '../assets/photos/yamaha-kakegawa-group-flag.jpg';
+import pYamahaEntrance from '../assets/photos/hamamatsu-yamaha-entrance.jpg';
+import pYamahaDrums from '../assets/photos/yamaha-drums-classmate.jpg';
+import pTeppan from '../assets/photos/hamamatsu-teppanyaki-table.jpg';
+import pOsakaArcade from '../assets/photos/osaka-arcade.jpg';
+
+import pMazda787 from '../assets/photos/hiroshima-mazda-787b-selfie.jpg';
+import pRxVision from '../assets/photos/hiroshima-mazda-rx-vision.jpg';
+import pHiroshimaGate from '../assets/photos/hiroshima-shrine-gate.jpg';
+import pHiroshimaRain from '../assets/photos/hiroshima-rain-classmates.jpg';
+import pHiroshimaDinner from '../assets/photos/hiroshima-group-dinner.jpg';
+import pHiroshimaMountain from '../assets/photos/hiroshima-mountain-night.jpg';
+
+const base = import.meta.env.BASE_URL;
+
+const photoSets: Record<string, { src: any; alt: string; caption: string; ratio: '4x3' | '3x4' | '16x9' }[]> = {
+  tokyo: [
+    { src: pTokyoBus, alt: 'A selfie from the top deck of an open-top tour bus in Tokyo, filled with Wayne State classmates.', caption: 'The open-top bus tour, day two.', ratio: '4x3' },
+    { src: pTokyoTower, alt: 'Gotibeh in sunglasses in a park below Tokyo Tower, the orange lattice tower rising behind the trees.', caption: 'Tokyo Tower.', ratio: '3x4' },
+    { src: pTokyoGroup, alt: 'Classmates crowded into a lift, faces lit from above, on the way up Tokyo Tower.', caption: 'On the way up.', ratio: '4x3' },
+    { src: pPalace, alt: 'Gotibeh in a teal shirt and sunglasses in front of a dark wooden gate at the Imperial Palace grounds.', caption: 'Imperial Palace grounds.', ratio: '4x3' },
+    { src: pShibuya, alt: 'A Tokyo street at night lit by pink and blue neon signs, with people walking under the shopfronts.', caption: 'Out in the city at night.', ratio: '3x4' },
+    { src: pCamii, alt: 'The interior dome of Tokyo Camii mosque, decorated with blue and gold geometric tilework and stained glass.', caption: 'Tokyo Camii.', ratio: '3x4' },
+  ],
+  kyoto: [
+    { src: pFushimiGroup, alt: 'The Wayne State group gathered for a selfie in front of the two-storey gate at Fushimi Inari, umbrellas up around them in the rain.', caption: 'The whole group at the gate.', ratio: '4x3' },
+    { src: pFushimiSelfie, alt: 'Gotibeh in a blue polo beside a tall vermilion torii pillar at Fushimi Inari, the shrine buildings behind him.', caption: 'Fushimi Inari, June 20.', ratio: '3x4' },
+  ],
+  osaka: [
+    { src: pOsakaUni, alt: 'Wayne State students and Japanese university students posed together holding a Wayne State flag outside a university building in Osaka.', caption: 'After the case study, Osaka.', ratio: '16x9' },
+    { src: pYamahaGroup, alt: 'The group holding a Wayne State flag in the Yamaha Kakegawa lobby beside a piano-shaped welcome board reading 2026 6 22.', caption: 'Yamaha Kakegawa, June 22.', ratio: '4x3' },
+    { src: pYamahaEntrance, alt: 'Gotibeh outside the glass and steel entrance of the Yamaha factory under a cloudy sky.', caption: 'Arriving at Yamaha.', ratio: '4x3' },
+    { src: pYamahaDrums, alt: 'A classmate grinning behind an electronic drum kit in the Yamaha showroom, sticks raised.', caption: 'The showroom afterwards.', ratio: '3x4' },
+    { src: pTeppan, alt: 'The group seated around a teppanyaki grill while a chef in white cooks in front of them.', caption: 'Team dinner.', ratio: '4x3' },
+    { src: pOsakaArcade, alt: 'A long covered shopping arcade in Osaka with a chequered floor and shopfronts receding into the distance.', caption: 'Osaka, on my own.', ratio: '3x4' },
+  ],
+  hiroshima: [
+    { src: pMazda787, alt: 'Gotibeh in a Wayne State Global Supply Chain polo at the Mazda Museum, the green and orange Mazda 787B Le Mans car behind him.', caption: 'Mazda Museum, June 25.', ratio: '4x3' },
+    { src: pRxVision, alt: 'A deep red Mazda RX-Vision concept car under spotlights in the Mazda design hall.', caption: 'Mazda design hall.', ratio: '4x3' },
+    { src: pHiroshimaGate, alt: 'A weathered stone torii gate framed by trees on a path in Hiroshima.', caption: 'On the way up the mountain.', ratio: '3x4' },
+    { src: pHiroshimaMountain, alt: 'Gotibeh at night on a dark hillside above Hiroshima with the city lights below.', caption: 'Above the city.', ratio: '4x3' },
+    { src: pHiroshimaRain, alt: 'Three classmates in clear plastic rain ponchos on a wet residential street in Hiroshima at dusk.', caption: 'The rain did not stop.', ratio: '4x3' },
+    { src: pHiroshimaDinner, alt: 'A group of classmates crowded together smiling in a small Korean restaurant in Hiroshima.', caption: 'Dinner, Hiroshima.', ratio: '4x3' },
+  ],
+};
+
+const srcLabel: Record<string, string> = {
+  ITIN: 'Program itinerary',
+  REFLECT: 'My post-trip reflection',
+  PHOTO: 'My photographs, dated',
+};
+---
+<Base
+  title="The trip"
+  description="Fourteen days in Japan with ten classmates: four cities, four factory floors, a case study with Japanese students, and the free evenings in between. What a faculty-led study abroad program is actually like."
+>
+  {/* ---------------- HERO ---------------- */}
+  <section class="trip-hero">
+    <Petals count={10} />
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Chapter 01 · The trip</p>
+      <h1 data-reveal>Fourteen days,<br />four cities,<br /><em>four factory floors.</em></h1>
+      <p class="lede" data-reveal>
+        This is what a short, faculty-led study abroad program actually looks like from
+        the inside — the scheduled half and the other half, which is where a lot of the
+        learning happened.
+      </p>
+
+      <ol class="route" data-reveal aria-label="Route">
+        {STOPS.map((s, i) => (
+          <li>
+            <a href={`#${s.id}`}>
+              <span class="route__kana" aria-hidden="true">{s.kana}</span>
+              <span class="route__city">{s.city}</span>
+              <span class="route__dates">{s.dates}</span>
+            </a>
+            {i < STOPS.length - 1 && <span class="route__link" aria-hidden="true"></span>}
+          </li>
+        ))}
+      </ol>
+
+      <dl class="trip-meta" data-reveal>
+        <div><dt>Program</dt><dd>{program.name}</dd></div>
+        <div><dt>Course</dt><dd>{program.course} · {program.credits} credits</dd></div>
+        <div><dt>Group</dt><dd>{program.students} students, led by {program.facultyLeader}</dd></div>
+        <div><dt>Dates</dt><dd>June 13 – 27, 2026</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  {/* ---------------- CITY CHAPTERS ---------------- */}
+  {STOPS.map((stop, idx) => (
+    <section class="stop" id={stop.id}>
+      <div class="wrap">
+        <header class="stop__head" data-reveal>
+          <span class="stop__kana" aria-hidden="true">{stop.kana}</span>
+          <div>
+            <p class="stop__n">{String(idx + 1).padStart(2, '0')} / {String(STOPS.length).padStart(2, '0')}</p>
+            <h2>{stop.city}</h2>
+            <p class="stop__dates">{stop.dates}, 2026</p>
+          </div>
+          <p class="stop__dek">{stop.dek}</p>
+        </header>
+
+        <div class="stop__body">
+          <div class="stop__cols">
+            <div class="col" data-reveal>
+              <h3 class="col__h"><span class="col__dot col__dot--a" aria-hidden="true"></span>On the programme</h3>
+              <ul class="entries">
+                {stop.academic.map((e) => (
+                  <li>
+                    <p class="entries__label">{e.label}</p>
+                    <p class="entries__detail">{e.detail}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="col" data-reveal data-reveal-delay="80">
+              <h3 class="col__h"><span class="col__dot col__dot--b" aria-hidden="true"></span>On my own time</h3>
+              <ul class="entries">
+                {stop.free.map((e) => (
+                  <li>
+                    <p class="entries__label">{e.label}</p>
+                    <p class="entries__detail">{e.detail}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div class="stop__take" data-reveal>
+            <p class="stop__take-label">What I took from it</p>
+            <p class="stop__take-body">{stop.takeaway}</p>
+          </div>
+        </div>
+
+        <div class="stop__photos">
+          {photoSets[stop.id]?.map((p, i) => (
+            <div data-reveal data-reveal-delay={i * 50}>
+              <Figure src={p.src} alt={p.alt} caption={p.caption} ratio={p.ratio} sizes="(min-width: 64rem) 24rem, (min-width: 40rem) 45vw, 92vw" widths={[380, 760]} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  {/* ---------------- THE CONNECTION ---------------- */}
+  <section class="section section--raised" id="connection">
+    <div class="wrap">
+      <div class="conn-head">
+        <div>
+          <p class="eyebrow" data-reveal>Why this program, for this degree</p>
+          <h2 data-reveal>Where the engineering<br />meets the supply chain.</h2>
+        </div>
+        <p class="dek" data-reveal>
+          I study mechanical engineering, with global supply chain management alongside
+          it. On paper those are two sets of courses. In Japan they were the same four
+          buildings, and this is what each one taught.
+        </p>
+      </div>
+
+      <div class="table-scroll" data-reveal>
+        <table class="conn-table">
+          <caption>Four industrial visits, and what each one demonstrated. Drawn from my post-trip reflection.</caption>
+          <thead>
+            <tr><th scope="col">Where</th><th scope="col">Discipline</th><th scope="col">What I saw</th><th scope="col">What it meant</th></tr>
+          </thead>
+          <tbody>
+            {CONNECTIONS.map((c) => (
+              <tr>
+                <th scope="row">{c.site}</th>
+                <td><span class="tag tag--term">{c.discipline}</span></td>
+                <td>{c.saw}</td>
+                <td>{c.meant}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="conn-note callout callout--box" data-reveal>
+        <p>
+          <strong>This is the part that goes on a resume.</strong> Not "went to Japan", but
+          "observed component manufacturing at two tier suppliers and final assembly at the
+          customer they feed, and worked with Japanese university students on a business
+          case." Describe what you actually did and what you saw. A site visit is not
+          employment, and you do not need it to be.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- HONEST ---------------- */}
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>The unvarnished part</p>
+      <h2 class="honest__h" data-reveal>Four things I would tell you<br />before you sign up.</h2>
+      <div class="grid-3 honest">
+        {HONEST.map((h, i) => (
+          <div class="card" data-reveal data-reveal-delay={i * 60}>
+            <div class="card__rule"></div>
+            <h3>{h.head}</h3>
+            <p>{h.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------- SOURCES + NEXT ---------------- */}
+  <section class="section section--ruled">
+    <div class="wrap grid-2">
+      <div data-reveal>
+        <p class="eyebrow">Where this account comes from</p>
+        <h2>Three sources, no reconstruction.</h2>
+        <ul class="src-list">
+          {Object.entries(srcLabel).map(([k, v]) => (
+            <li><span class="mono src-list__k">{k}</span><span>{v}</span></li>
+          ))}
+        </ul>
+        <p class="small">
+          Where my own records disagree — the itinerary and my reflection place the Yamaha
+          visit slightly differently — the site follows the photograph, which is dated
+          June 22, 2026. Nothing has been filled in from memory after the fact.
+        </p>
+      </div>
+      <div class="next-card card" data-reveal>
+        <p class="eyebrow">Next</p>
+        <h3>What all of this cost</h3>
+        <p>The program fee, the flight, the tuition share, the awards that covered it, and the dates the money moved.</p>
+        <p><a class="button" href={`${base}my-numbers/`}>My numbers<span class="arrow" aria-hidden="true">→</span></a></p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    /* ---- hero ---- */
+    .trip-hero { position: relative; overflow: hidden; padding-block: clamp(3.5rem, 10vh, 7rem) clamp(3rem, 7vh, 5rem); }
+    .trip-hero h1 { max-width: 14ch; margin-bottom: 1.25rem; }
+    .trip-hero h1 em { color: var(--torii); }
+    .trip-hero .lede { margin-bottom: 2.75rem; }
+
+    .route { list-style: none; margin: 0 0 2.75rem; padding: 0; display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; }
+    .route li { margin: 0; display: flex; align-items: stretch; }
+    .route a {
+      display: grid; gap: 0.1rem; text-decoration: none; padding: 0.85rem 1.1rem;
+      border: 1px solid var(--hairline); border-radius: var(--r); background: var(--surface-1);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .route a:hover { border-color: var(--torii); transform: translateY(-2px); color: inherit; }
+    .route__kana { font-size: 0.95rem; color: var(--torii); line-height: 1; }
+    .route__city { font-weight: 600; font-size: 1rem; }
+    .route__dates { font-family: var(--mono); font-size: 0.66rem; color: var(--ink-3); letter-spacing: 0.04em; }
+    .route__link { width: 1.5rem; align-self: center; height: 1px; background: var(--hairline-2); }
+    @media (max-width: 34rem) { .route__link { display: none; } .route { gap: 0.5rem; } }
+
+    .trip-meta { display: grid; gap: 1.25rem 2rem; margin: 0; padding-top: 1.75rem; border-top: 1px solid var(--hairline); }
+    @media (min-width: 40rem) { .trip-meta { grid-template-columns: repeat(4, auto); justify-content: start; gap: 3rem; } }
+    .trip-meta dt { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.25rem; }
+    .trip-meta dd { margin: 0; font-size: 0.93rem; }
+
+    /* ---- stop ---- */
+    .stop { padding-block: clamp(3rem, 8vw, 6rem); border-top: 1px solid var(--hairline); position: relative; }
+    .stop__head { display: grid; gap: 0.5rem 2rem; margin-bottom: 2.5rem; align-items: start; }
+    @media (min-width: 56rem) { .stop__head { grid-template-columns: auto 1fr 1.1fr; gap: 2.5rem; align-items: end; } }
+    .stop__kana {
+      font-family: var(--serif); font-size: clamp(3rem, 8vw, 5.5rem); line-height: 0.85;
+      color: var(--torii); opacity: 0.22; letter-spacing: 0.02em;
+    }
+    .stop__n { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; color: var(--ink-3); margin-bottom: 0.3rem; }
+    .stop h2 { margin-bottom: 0.2rem; }
+    .stop__dates { font-family: var(--mono); font-size: 0.74rem; color: var(--torii); letter-spacing: 0.06em; margin: 0; }
+    .stop__dek { color: var(--ink-2); font-size: 1.02rem; margin: 0; align-self: end; }
+
+    .stop__cols { display: grid; gap: 2rem; }
+    @media (min-width: 52rem) { .stop__cols { grid-template-columns: 1fr 1fr; gap: 3rem; } }
+    .col__h { display: flex; align-items: center; gap: 0.6rem; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 1.1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--hairline); }
+    .col__dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+    .col__dot--a { background: var(--torii); }
+    .col__dot--b { background: var(--sky); }
+    .entries { list-style: none; margin: 0; padding: 0; }
+    .entries li { margin-bottom: 1.35rem; max-width: 52ch; }
+    .entries__label { font-weight: 600; margin: 0 0 0.2rem; }
+    .entries__detail { color: var(--ink-2); font-size: 0.93rem; margin: 0; }
+
+    .stop__take { margin-top: 2.25rem; padding: 1.5rem 0 0; border-top: 1px solid var(--hairline); }
+    .stop__take-label { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--torii); margin-bottom: 0.7rem; }
+    .stop__take-body { font-family: var(--serif); font-size: clamp(1.2rem, 2.3vw, 1.6rem); line-height: 1.38; max-width: 48ch; color: var(--ink); margin: 0; }
+
+    /* Masonry via CSS columns: mixed portrait and landscape shots pack without
+       the ragged row gaps a grid would leave. */
+    .stop__photos { columns: 2; column-gap: 1rem; margin-top: 2.5rem; }
+    .stop__photos > div { break-inside: avoid; margin-bottom: 1rem; }
+    @media (min-width: 64rem) { .stop__photos { columns: 3; column-gap: 1.25rem; } .stop__photos > div { margin-bottom: 1.25rem; } }
+
+    /* ---- connection ---- */
+    .conn-head { display: grid; gap: 1.5rem; margin-bottom: 2.5rem; }
+    @media (min-width: 56rem) { .conn-head { grid-template-columns: 1.2fr 1fr; align-items: end; gap: 3rem; } }
+    .conn-table th[scope='row'] { font-weight: 600; white-space: nowrap; }
+    .conn-table td { color: var(--ink-2); min-width: 14rem; }
+    .conn-table td:first-of-type { min-width: 0; }
+    .conn-note { margin-top: 2rem; }
+
+    /* ---- honest ---- */
+    .honest__h { margin-bottom: 2.25rem; }
+
+    /* ---- sources ---- */
+    .src-list { list-style: none; padding: 0; margin: 1.25rem 0; }
+    .src-list li { display: flex; gap: 1rem; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid var(--hairline); }
+    .src-list__k { font-size: 0.68rem; letter-spacing: 0.1em; color: var(--torii); min-width: 4.5rem; }
+    .next-card { align-self: start; }
+  </style>
+</Base>
