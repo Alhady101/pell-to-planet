@@ -10,6 +10,9 @@ export const SOURCES = {
   aidSummary: 'WSU financial aid award summary 2025–26, screenshot kept by the author',
   author: 'Author\'s own record (Gotibeh Alhady)',
   transcript: 'WSU unofficial transcript, Spring/Summer 2026 term',
+  gilmanDeadlines: 'gilmanscholarship.org/applicants/deadlines-and-timeline/',
+  gilmanFaq: 'gilmanscholarship.org/applicants/applicants-faq-2/',
+  gilmanService: 'gilmanscholarship.org/current-recipients/service-project/',
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -125,10 +128,58 @@ export const payments: Payment[] = [
 /*  DEADLINES (snapshots, never live)                                  */
 /* ------------------------------------------------------------------ */
 export const deadlines: Deadline[] = [
-  { id: 'gilmanFall', label: 'Gilman fall cycle student deadline', date: null, status: 'todo', source: 'gilmanscholarship.org/applicants/deadlines-and-timeline/', verifiedOn: V,
-    note: 'TODO: verify current cycle dates on the official page before publishing.' },
-  { id: 'followOn', label: 'Gilman Follow-on Service Project due', date: null, status: 'todo', source: 'Gilman portal', verifiedOn: V,
-    note: 'Six months after return to the U.S. per the Terms and Conditions; confirm the exact date shown in the portal.' },
+  { id: 'gilmanFall2026', label: 'Gilman Fall 2026 cycle — student deadline', date: '2026-10-01', status: 'verified',
+    source: SOURCES.gilmanDeadlines, verifiedOn: V,
+    note: '11:59 p.m. Pacific. For programs starting between December 1, 2026 and October 31, 2027.' },
+  { id: 'gilmanFall2026Advisor', label: 'Gilman Fall 2026 cycle — advisor certification', date: '2026-10-08', status: 'verified',
+    source: SOURCES.gilmanDeadlines, verifiedOn: V,
+    note: 'A separate deadline one week after yours. Your advisors have to act too.' },
+  { id: 'gilmanSpring2027', label: 'Gilman Spring 2027 cycle — student deadline', date: '2027-02-25', status: 'verified',
+    source: SOURCES.gilmanDeadlines, verifiedOn: V,
+    note: '11:59 p.m. Pacific. For programs starting between May 1, 2027 and April 30, 2028.' },
+  { id: 'gilmanSpring2027Advisor', label: 'Gilman Spring 2027 cycle — advisor certification', date: '2027-03-04', status: 'verified',
+    source: SOURCES.gilmanDeadlines, verifiedOn: V },
+  { id: 'followOn', label: 'My Follow-on Service Project report', date: null, status: 'todo', source: 'Gilman portal', verifiedOn: V,
+    note: 'Due within six months of returning to the U.S. Confirm the exact date shown in the portal.' },
+];
+
+/** The application cycles, for the Gilman page. Verified against the official timeline. */
+export const GILMAN_CYCLES = [
+  {
+    name: 'Fall 2026',
+    studentDeadline: '2026-10-01',
+    studentDeadlineLabel: 'Thursday, October 1, 2026, 11:59 p.m. Pacific',
+    advisorDeadline: '2026-10-08',
+    advisorDeadlineLabel: 'Thursday, October 8, 2026',
+    programWindow: 'Programs starting December 1, 2026 – October 31, 2027',
+    notification: 'December 2026',
+  },
+  {
+    name: 'Spring 2027',
+    studentDeadline: '2027-02-25',
+    studentDeadlineLabel: 'Thursday, February 25, 2027, 11:59 p.m. Pacific',
+    advisorDeadline: '2027-03-04',
+    advisorDeadlineLabel: 'Thursday, March 4, 2027',
+    programWindow: 'Programs starting May 1, 2027 – April 30, 2028',
+    notification: 'May 2027',
+  },
+];
+
+/** Award ceilings, verified. Gilman publishes no average, so none is stated. */
+export const GILMAN_AWARDS = {
+  base: 5000,
+  stemSupplement: 1000,
+  criticalLanguageSupplement: 3000,
+  combinedMax: 9000,
+  criticalLanguages: ['Arabic', 'Bahasa Indonesian', 'Chinese (Mandarin)', 'Hindi', 'Japanese', 'Korean', 'Persian', 'Portuguese', 'Russian', 'Swahili', 'Turkish', 'Urdu'],
+};
+
+/** Program-scale facts, verified on the official statistics page. */
+export const GILMAN_STATS = [
+  { value: '3,100+', label: 'scholarships awarded annually' },
+  { value: '~50%', label: 'are first-generation college students' },
+  { value: '170+', label: 'countries' },
+  { value: 'None', label: 'minimum GPA required' },
 ];
 
 /* ------------------------------------------------------------------ */

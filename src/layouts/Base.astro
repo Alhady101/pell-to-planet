@@ -156,6 +156,7 @@ const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad`
         <div class="site-footer__bottom">
           <p class="small">Independent student resource. Not an official publication of Wayne State University, the U.S. Department of State, or the Gilman Program.</p>
           <p class="small">Every figure carries a source and a verified-on date. Rules, amounts and deadlines change — confirm with the official source before you apply or pay.</p>
+          <p class="small site-footer__credit">The Benjamin A. Gilman International Scholarship is a program of the U.S. Department of State with funding provided by the U.S. Government and supported in its implementation by the Institute of International Education.</p>
         </div>
       </div>
     </footer>
@@ -252,7 +253,9 @@ const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad`
       .site-footer nav a:hover { color: var(--torii); }
       .site-footer__bottom { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--hairline); display: grid; gap: 0.5rem; }
       @media (min-width: 48rem) { .site-footer__bottom { grid-template-columns: 1fr 1fr; gap: 2rem; } }
-      .site-footer__bottom .small { color: var(--ink-3); margin: 0; }
+      .site-footer__bottom .small { color: var(--ink-3); margin: 0 0 0.5rem; }
+      .site-footer__credit { border-top: 1px solid var(--hairline); padding-top: 0.85rem; margin-top: 0.35rem !important; }
+      @media (min-width: 48rem) { .site-footer__credit { grid-column: 1 / -1; } }
 
       /* ---- view transitions ---- */
       @media (prefers-reduced-motion: no-preference) {

@@ -5,8 +5,24 @@ import Chip from '../components/Chip.astro';
 import Figure from '../components/Figure.astro';
 import ToriiTunnel from '../components/ToriiTunnel.astro';
 import pYamahaGroup from '../assets/photos/yamaha-kakegawa-group-flag.jpg';
+import { GILMAN_CYCLES, GILMAN_AWARDS, GILMAN_STATS } from '../data/facts';
 
 const base = import.meta.env.BASE_URL;
+
+/**
+ * Which cycle is next, worked out at build time. The site rebuilds on every
+ * push, so this is accurate as of the stamped date and degrades safely: once
+ * every listed cycle has passed it simply stops claiming one is open.
+ */
+const today = new Date();
+const builtOn = today.toISOString().slice(0, 10);
+const upcoming = GILMAN_CYCLES.filter((c) => new Date(c.studentDeadline + 'T23:59:00') >= today);
+const nextCycle = upcoming[0] ?? null;
+const daysLeft = nextCycle
+  ? Math.ceil((new Date(nextCycle.studentDeadline + 'T23:59:00').getTime() - today.getTime()) / 86400000)
+  : null;
+const fmtDate = (d: string) =>
+  new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
 /** Straight from the program's published eligibility and the Terms and Conditions I signed. */
 const checks = [
@@ -141,44 +157,135 @@ const afterWin = [
 
   {/* ---------------- CYCLES ---------------- */}
   <section class="section" id="cycles">
-    <div class="wrap grid-2">
-      <div>
-        <p class="eyebrow" data-reveal>02 · Timing</p>
-        <h2 data-reveal>Match the cycle<br />to your program.</h2>
-        <div data-reveal>
-          <p>
-            Gilman runs in application cycles rather than one annual deadline, and this
-            is where good applications get disqualified. Each cycle has three dates that
-            matter:
+    <div class="wrap">
+      <div class="g-head">
+        <div>
+          <p class="eyebrow" data-reveal>02 &middot; Timing</p>
+          <h2 data-reveal>Match the cycle<br />to your program.</h2>
+        </div>
+        <p class="dek" data-reveal>
+          Gilman runs in application cycles rather than one annual deadline, and this is
+          where good applications get disqualified. Each cycle has three dates that matter,
+          and one of them is not yours.
+        </p>
+      </div>
+
+      {nextCycle && daysLeft !== null && (
+        <div class={`g-alert ${daysLeft <= 21 ? 'is-urgent' : ''}`} data-reveal>
+          <p class="g-alert__label">
+            {daysLeft <= 21 ? 'Closing soon' : 'Next deadline'} &middot; {nextCycle.name} cycle
           </p>
-          <ol class="g-cycle">
-            <li><strong>The student deadline.</strong> When your application is due.</li>
-            <li><strong>The advisor certification deadline.</strong> Usually a little after yours. Two people at your school have to certify you, so they need warning.</li>
-            <li><strong>The eligible program start window.</strong> Your program has to begin inside it. This is the one people miss.</li>
-          </ol>
-          <p>
-            Work backwards from your program dates to find the right cycle, not forwards
-            from whichever deadline is nearest.
+          <p class="g-alert__date">{nextCycle.studentDeadlineLabel}</p>
+          <p class="g-alert__days">
+            {daysLeft === 0
+              ? 'Today.'
+              : daysLeft === 1
+                ? '1 day from when this page was built.'
+                : daysLeft + ' days from when this page was built.'}
+          </p>
+          <p class="g-alert__sub">
+            Advisor certification is separately due {fmtDate(nextCycle.advisorDeadline)}.
+            {' '}{nextCycle.programWindow}.
+          </p>
+          <p class="cta-row">
+            <a class="button" href="https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/" rel="noopener">Confirm on the official timeline<span class="arrow" aria-hidden="true">&#8599;</span></a>
           </p>
         </div>
+      )}
+
+      <div class="grid-2" style="margin-top:2.5rem">
+        <div data-reveal>
+          <ol class="g-cycle">
+            <li><strong>The student deadline.</strong> When your application is due, to the minute, in Pacific time.</li>
+            <li><strong>The advisor certification deadline.</strong> About a week after yours. Two people at your school have to certify you, and they have other students. This is the one that catches people.</li>
+            <li><strong>The eligible program start window.</strong> Your program has to begin inside it. Work backwards from your program dates to find the right cycle, not forwards from whichever deadline is nearest.</li>
+          </ol>
+          <p class="small">
+            These dates were read from the official timeline on {builtOn} and are a
+            snapshot. <Chip status="verified" /> Confirm them before you rely on them.
+          </p>
+        </div>
+
+        <div class="table-scroll" data-reveal>
+          <table>
+            <caption>Published application cycles, verified {builtOn}.</caption>
+            <thead>
+              <tr><th scope="col">Cycle</th><th scope="col">You</th><th scope="col">Your advisors</th><th scope="col">Programs starting</th></tr>
+            </thead>
+            <tbody>
+              {GILMAN_CYCLES.map((c) => (
+                <tr>
+                  <th scope="row">{c.name}</th>
+                  <td>{fmtDate(c.studentDeadline)}<br /><span class="small">11:59 p.m. PT</span></td>
+                  <td>{fmtDate(c.advisorDeadline)}</td>
+                  <td>{c.programWindow.replace('Programs starting ', '')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="card g-dates" data-reveal>
-        <p class="eyebrow eyebrow--plain">Why no dates are printed here</p>
+    </div>
+  </section>
+
+  {/* ---------------- WHAT IT PAYS ---------------- */}
+  <section class="section section--raised" id="amounts">
+    <div class="wrap">
+      <div class="g-head">
+        <div>
+          <p class="eyebrow" data-reveal>03 &middot; What it pays</p>
+          <h2 data-reveal>Up to $5,000 &mdash;<br />and two supplements.</h2>
+        </div>
+        <p class="dek" data-reveal>
+          I received the base award. There are two supplemental awards applied for inside
+          the same application, and I did not know about either one when I applied.
+        </p>
+      </div>
+
+      <div class="g-amounts">
+        <div class="g-amount" data-reveal>
+          <p class="g-amount__k">Base award</p>
+          <p class="g-amount__v">up to <Money value={GILMAN_AWARDS.base} /></p>
+          <p class="g-amount__d">For up to one academic year of undergraduate study abroad.</p>
+        </div>
+        <div class="g-amount" data-reveal data-reveal-delay="70">
+          <p class="g-amount__k">STEM supplement</p>
+          <p class="g-amount__v">up to <Money value={GILMAN_AWARDS.stemSupplement} /></p>
+          <p class="g-amount__d">For STEM coursework or internships abroad. One extra 300-word essay.</p>
+        </div>
+        <div class="g-amount" data-reveal data-reveal-delay="140">
+          <p class="g-amount__k">Critical Need Language Award</p>
+          <p class="g-amount__v">up to <Money value={GILMAN_AWARDS.criticalLanguageSupplement} /></p>
+          <p class="g-amount__d">For studying a critical need language where it is predominantly spoken. One extra 300-word essay.</p>
+        </div>
+        <div class="g-amount g-amount--total" data-reveal data-reveal-delay="210">
+          <p class="g-amount__k">Combined ceiling</p>
+          <p class="g-amount__v"><Money value={GILMAN_AWARDS.combinedMax} /></p>
+          <p class="g-amount__d">Gilman publishes no average award, so this page does not state one.</p>
+        </div>
+      </div>
+
+      <div class="callout callout--box" data-reveal>
         <p>
-          Cycle dates move every year. Rather than publish a snapshot that will quietly
-          go stale and mislead somebody, this page sends you to the page that is always
-          current.
-        </p>
-        <p class="cta-row">
-          <a class="button" href="https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/" rel="noopener">Official deadlines and timeline<span class="arrow" aria-hidden="true">↗</span></a>
-        </p>
-        <hr />
-        <p class="small">
-          One thing that does not change: get your two certifying advisors lined up
-          early. Mine were in the study abroad office and in financial aid. Their
-          deadline is not your deadline, and they have other students.
+          <strong>Japanese is one of the twelve critical need languages.</strong> So are
+          Arabic, Chinese, Hindi, Korean, Persian, Portuguese, Russian, Swahili, Turkish,
+          Urdu and Bahasa Indonesian. If you are going somewhere one of those is spoken
+          and you will be studying it, that is potentially another <Money value={3000} /> for
+          one more short essay. Read the rules first: the award is for studying the
+          language, not simply for being in the country.
         </p>
       </div>
+
+      <ul class="g-stats" data-reveal>
+        {GILMAN_STATS.map((st) => (
+          <li><span class="g-stats__v">{st.value}</span><span class="g-stats__l">{st.label}</span></li>
+        ))}
+      </ul>
+      <p class="small" data-reveal>
+        Program figures from the official statistics page, verified {builtOn}. Applicants
+        who have not previously studied abroad, and veterans of military service, are given
+        preference when other factors are equivalent.
+      </p>
     </div>
   </section>
 
@@ -194,11 +301,11 @@ const afterWin = [
   </section>
 
   {/* ---------------- ESSAYS ---------------- */}
-  <section class="section" id="essays">
+  <section class="section section--ruled" id="essays">
     <div class="wrap">
       <div class="g-head">
         <div>
-          <p class="eyebrow" data-reveal>03 · The essays</p>
+          <p class="eyebrow" data-reveal>04 · The essays</p>
           <h2 data-reveal>Give each one<br />a separate job.</h2>
         </div>
         <p class="dek" data-reveal>
@@ -245,7 +352,7 @@ const afterWin = [
     <div class="wrap">
       <div class="g-head">
         <div>
-          <p class="eyebrow" data-reveal>04 · After you win</p>
+          <p class="eyebrow" data-reveal>05 · After you win</p>
           <h2 data-reveal>The part nobody<br />writes about.</h2>
         </div>
         <p class="dek" data-reveal>
@@ -280,7 +387,7 @@ const afterWin = [
   <section class="section" id="follow-on">
     <div class="wrap grid-2">
       <div data-reveal>
-        <p class="eyebrow">05 · The Follow-on Service Project</p>
+        <p class="eyebrow">06 · The Follow-on Service Project</p>
         <h2>You are looking at mine.</h2>
         <p>
           Every recipient commits to a service project in their application and has to
@@ -355,6 +462,33 @@ const afterWin = [
     }
     .elig__verdict.is-yes { border-left-color: var(--ok); color: var(--ink); }
     .elig__verdict.is-no { border-left-color: var(--warn); }
+
+    .g-alert {
+      border: 1px solid var(--hairline-2); border-left: 3px solid var(--ink-3);
+      border-radius: var(--r); padding: 1.35rem 1.5rem; background: var(--surface-1); max-width: 44rem;
+    }
+    .g-alert.is-urgent { border-left-color: var(--torii); background: color-mix(in oklab, var(--torii) 7%, var(--surface-1)); }
+    .g-alert__label { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.5rem; }
+    .g-alert.is-urgent .g-alert__label { color: var(--torii); }
+    .g-alert__date { font-family: var(--serif); font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.15; margin-bottom: 0.3rem; }
+    .g-alert__days { font-weight: 600; color: var(--torii); margin-bottom: 0.6rem; }
+    .g-alert__sub { font-size: 0.9rem; color: var(--ink-2); margin-bottom: 1rem; }
+
+    .g-amounts { display: grid; gap: 1rem; margin-bottom: 2rem; }
+    @media (min-width: 46rem) { .g-amounts { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 72rem) { .g-amounts { grid-template-columns: repeat(4, 1fr); } }
+    .g-amount { border-top: 1px solid var(--hairline-2); padding-top: 1rem; }
+    .g-amount--total { border-top-color: var(--torii); }
+    .g-amount__k { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.11em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.45rem; }
+    .g-amount__v { font-size: clamp(1.3rem, 2.6vw, 1.7rem); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .g-amount--total .g-amount__v { color: var(--torii); }
+    .g-amount__d { font-size: 0.85rem; color: var(--ink-2); margin: 0; }
+
+    .g-stats { list-style: none; padding: 0; margin: 2rem 0 1rem; display: grid; gap: 1.25rem; grid-template-columns: repeat(2, 1fr); }
+    @media (min-width: 56rem) { .g-stats { grid-template-columns: repeat(4, 1fr); } }
+    .g-stats li { margin: 0; display: grid; gap: 0.2rem; }
+    .g-stats__v { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 600; color: var(--torii); letter-spacing: -0.02em; }
+    .g-stats__l { font-size: 0.85rem; color: var(--ink-2); }
 
     .g-cycle { padding-left: 1.15rem; }
     .g-cycle li { margin-bottom: 0.65rem; }
