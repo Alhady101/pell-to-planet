@@ -142,9 +142,11 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       const y2 = vy * cp - z1 * sp;
       const z2 = vy * sp + z1 * cp;
 
-      const front = z2 > 0;
-      const depth = front ? z2 : -z2 * 0.34;
-      const b = Math.min(BUCKETS - 1, Math.max(0, Math.floor(depth * BUCKETS)));
+      // Back-face dots are dropped entirely. Letting them bleed through was
+      // what made the continents unreadable: the whole sphere filled with
+      // scatter and the coastlines stopped registering as coastlines.
+      if (z2 <= 0.01) continue;
+      const b = Math.min(BUCKETS - 1, Math.max(0, Math.floor(z2 * BUCKETS)));
       const n = bucketN[b]++;
       bucketX[b][n] = cx + x1 * R;
       bucketY[b][n] = cy - y2 * R;
@@ -155,8 +157,10 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     for (let b = 0; b < BUCKETS; b++) {
       const n = bucketN[b];
       if (!n) continue;
-      c.globalAlpha = 0.055 + (b / (BUCKETS - 1)) * 0.62;
-      const size = b >= BUCKETS - 2 ? 1.7 : 1.3;
+      // Near the limb the dots crowd together, so they are dimmed and shrunk
+      // to keep the edge from turning into a solid band.
+      c.globalAlpha = 0.28 + (b / (BUCKETS - 1)) * 0.62;
+      const size = b === 0 ? 1.1 : b === 1 ? 1.4 : 1.7;
       const xs = bucketX[b], ys = bucketY[b];
       for (let i = 0; i < n; i++) c.fillRect(xs[i] - size / 2, ys[i] - size / 2, size, size);
     }
@@ -167,7 +171,7 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     const c = ctx!;
     c.strokeStyle = COL.grid;
     c.lineWidth = 1;
-    c.globalAlpha = 0.5;
+    c.globalAlpha = 0.26;
     for (let lat = -60; lat <= 60; lat += 30) {
       c.beginPath();
       let started = false;
@@ -179,7 +183,7 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       }
       c.stroke();
     }
-    for (let lon = -180; lon < 180; lon += 30) {
+    for (let lon = -180; lon < 180; lon += 45) {
       c.beginPath();
       let started = false;
       for (let lat = -90; lat <= 90; lat += 3) {

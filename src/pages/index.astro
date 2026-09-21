@@ -137,7 +137,7 @@ const stats = [
 
   {/* ================= TORII MOMENT ================= */}
   <section class="torii-section">
-    <ToriiTunnel gates={7} />
+    <ToriiTunnel />
     <div class="wrap torii-section__inner">
       <p class="eyebrow centered" data-reveal>June 20 · Kyoto</p>
       <h2 class="torii-section__h" data-reveal>
@@ -377,7 +377,8 @@ const stats = [
     /* ---------------- torii ---------------- */
     .torii-section {
       position: relative; overflow: hidden;
-      padding-block: clamp(6rem, 18vh, 11rem);
+      padding-block: clamp(7rem, 22vh, 13rem);
+      min-height: min(78svh, 46rem);
       background: linear-gradient(180deg, var(--void), color-mix(in oklab, var(--torii) 5%, var(--void)) 50%, var(--void));
       border-block: 1px solid var(--hairline);
     }
@@ -385,7 +386,7 @@ const stats = [
        the words become decoration. */
     .torii-section::after {
       content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-      background: radial-gradient(ellipse 46% 30% at 50% 50%, color-mix(in oklab, var(--void) 72%, transparent) 0%, color-mix(in oklab, var(--void) 34%, transparent) 60%, transparent 85%);
+      background: radial-gradient(ellipse 40% 24% at 50% 48%, color-mix(in oklab, var(--void) 58%, transparent) 0%, color-mix(in oklab, var(--void) 22%, transparent) 62%, transparent 88%);
     }
     .torii-section__inner { position: relative; z-index: 2; text-align: center; max-width: 52rem; }
     .torii-section__h { font-size: clamp(2.2rem, 6vw, 4.2rem); margin-bottom: 1.5rem; text-shadow: 0 2px 24px var(--void), 0 1px 4px var(--void); }
