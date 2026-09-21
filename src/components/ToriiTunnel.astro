@@ -1,53 +1,155 @@
 ---
+import { Image } from 'astro:assets';
+import torii from '../assets/photos/fushimi-senbon-torii.jpg';
+
 /**
- * The senbon torii corridor of Fushimi Inari, which the group walked up on
- * June 20. Rendered as real 3D geometry on a canvas — see src/scripts/torii.ts
- * for the model and the renderer.
+ * The senbon torii corridor at Fushimi Inari, which the group walked up on
+ * June 20.
  *
- * Decorative, so the canvas is aria-hidden and never focusable. Under
- * prefers-reduced-motion the camera stops walking and it renders one still
- * frame of the corridor.
+ * An earlier version of this built the gates from scratch — first as flat SVG,
+ * then as a real 3D renderer with lit, depth-sorted geometry. The geometry was
+ * correct and it still looked like an untextured game asset, because what sells
+ * a shrine gate is weathered timber, painted kanji, wet stone and depth haze,
+ * none of which flat-shaded polygons give you. A photograph does.
+ *
+ * So the corridor is a photograph, and the code does the one thing code is
+ * better at: moving the camera. Scroll drives a dolly — the image scales about
+ * its vanishing point — so the gates genuinely approach as you read.
+ *
+ * Decorative, so aria-hidden. Under prefers-reduced-motion the dolly is fixed
+ * at a single framing.
  */
 interface Props { class?: string }
 const { class: cls = '' } = Astro.props;
 ---
-<div class={`torii-tunnel ${cls}`} aria-hidden="true">
-  <canvas data-torii></canvas>
+<div class={`torii ${cls}`} aria-hidden="true" data-torii>
+  <div class="torii__plate">
+    <Image
+      src={torii}
+      alt=""
+      widths={[800, 1200, 1800]}
+      sizes="100vw"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="torii__grade"></div>
+  <p class="torii__credit">
+    Fushimi Inari, Kyoto · Stefan&nbsp;K / Unsplash
+  </p>
 </div>
 
 <style>
-  .torii-tunnel {
+  .torii {
     position: absolute;
     inset: 0;
     overflow: hidden;
     pointer-events: none;
-    /* Fades the corridor into the section rather than cutting it off. */
-    mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent);
   }
-  .torii-tunnel canvas { width: 100%; height: 100%; display: block; }
-  :root[data-theme='light'] .torii-tunnel { opacity: 0.55; }
+
+  .torii__plate {
+    position: absolute;
+    inset: -4%;
+    /* The corridor's vanishing point, so the dolly pushes INTO the tunnel
+       rather than just enlarging the picture. */
+    transform-origin: 47% 54%;
+    transform: scale(var(--dolly, 1.04));
+    /* No CSS filter and no will-change here on purpose. Together with a
+       2400px source at a 2.5x device pixel ratio they forced a ~45 MB
+       composited layer, which Chrome simply declined to paint — the photo
+       was in the DOM, loaded, and invisible. The brightness and saturation
+       lift is baked into the file instead, and the source is capped at
+       1800px. */
+  }
+  .torii__plate img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 47% 54%;
+  }
+
+  /* Grading: darken for legibility, keep the vermilion, close the edges down
+     so the corridor reads as the only lit thing in the frame. */
+  .torii__grade {
+    position: absolute;
+    inset: 0;
+    background:
+      /* a soft band behind the copy, so the words hold without dimming the
+         top and bottom of the corridor */
+      linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 18%, rgb(var(--void-rgb) / 0.58) 34%, rgb(var(--void-rgb) / 0.58) 70%, rgb(var(--void-rgb) / 0) 86%),
+      radial-gradient(ellipse 78% 70% at 47% 52%, rgb(var(--void-rgb) / 0) 0%, rgb(var(--void-rgb) / 0.26) 64%, rgb(var(--void-rgb) / 0.84) 100%),
+      linear-gradient(to bottom, rgb(var(--void-rgb) / 1) 0%, rgb(var(--void-rgb) / 0) 13%, rgb(var(--void-rgb) / 0) 85%, rgb(var(--void-rgb) / 1) 100%);
+  }
+
+  .torii__credit {
+    position: absolute;
+    right: clamp(0.75rem, 2vw, 1.5rem);
+    bottom: clamp(0.6rem, 1.6vw, 1.1rem);
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    opacity: 0.7;
+  }
+
+  :root[data-theme='light'] .torii__plate { opacity: 0.82; }
+  :root[data-theme='light'] .torii__grade {
+    background:
+      linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 18%, rgb(var(--void-rgb) / 0.66) 34%, rgb(var(--void-rgb) / 0.66) 70%, rgb(var(--void-rgb) / 0) 86%),
+      radial-gradient(ellipse 78% 70% at 47% 52%, rgb(var(--void-rgb) / 0) 0%, rgb(var(--void-rgb) / 0.34) 64%, rgb(var(--void-rgb) / 0.88) 100%),
+      linear-gradient(to bottom, rgb(var(--void-rgb) / 1) 0%, rgb(var(--void-rgb) / 0) 13%, rgb(var(--void-rgb) / 0) 85%, rgb(var(--void-rgb) / 1) 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .torii__plate { transform: scale(1.06) !important; }
+  }
 </style>
 
 <script>
-  import { initTorii } from '../scripts/torii';
+  /**
+   * Drives the dolly from scroll. Deliberately does NOT depend on an
+   * animation loop: the transform is written straight to the element, so it
+   * keeps working in a background tab, at any refresh rate, and if anything
+   * else on the page stalls.
+   */
+  function setup() {
+    const els = Array.from(document.querySelectorAll<HTMLElement>('[data-torii]'));
+    if (!els.length) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const mounted = new WeakMap<HTMLCanvasElement, () => void>();
+    const NEAR = 1.02; // framing as the section enters
+    const FAR = 1.34;  // framing as it leaves — the walk forward
 
-  function mount() {
-    document.querySelectorAll<HTMLCanvasElement>('[data-torii]').forEach((c) => {
-      if (mounted.has(c)) return;
-      mounted.set(c, initTorii(c));
-    });
+    let ticking = false;
+    const paint = () => {
+      ticking = false;
+      for (const el of els) {
+        const plate = el.querySelector<HTMLElement>('.torii__plate');
+        if (!plate) continue;
+        if (still) { plate.style.setProperty('--dolly', '1.06'); continue; }
+
+        const r = el.getBoundingClientRect();
+        if (r.bottom < -300 || r.top > window.innerHeight + 300) continue;
+        // 0 as the section enters from below, 1 as it leaves at the top
+        const t = 1 - (r.top + r.height) / (window.innerHeight + r.height);
+        const clamped = Math.min(1, Math.max(0, t));
+        plate.style.setProperty('--dolly', String(NEAR + (FAR - NEAR) * clamped));
+      }
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(paint);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    document.addEventListener('visibilitychange', paint);
+    paint();
   }
-  function unmountAll() {
-    document.querySelectorAll<HTMLCanvasElement>('[data-torii]').forEach((c) => {
-      const teardown = mounted.get(c);
-      if (teardown) { teardown(); mounted.delete(c); }
-    });
-  }
 
-  mount();
-  document.addEventListener('astro:page-load', mount);
-  document.addEventListener('astro:before-swap', unmountAll);
+  setup();
+  document.addEventListener('astro:page-load', setup);
 </script>

@@ -379,18 +379,13 @@ const stats = [
       position: relative; overflow: hidden;
       padding-block: clamp(7rem, 22vh, 13rem);
       min-height: min(78svh, 46rem);
-      background: linear-gradient(180deg, var(--void), color-mix(in oklab, var(--torii) 5%, var(--void)) 50%, var(--void));
+      background: var(--void);
       border-block: 1px solid var(--hairline);
-    }
-    /* A scrim between the gates and the copy. Without it the tunnel wins and
-       the words become decoration. */
-    .torii-section::after {
-      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-      background: radial-gradient(ellipse 40% 24% at 50% 48%, color-mix(in oklab, var(--void) 58%, transparent) 0%, color-mix(in oklab, var(--void) 22%, transparent) 62%, transparent 88%);
     }
     .torii-section__inner { position: relative; z-index: 2; text-align: center; max-width: 52rem; }
     .torii-section__h { font-size: clamp(2.2rem, 6vw, 4.2rem); margin-bottom: 1.5rem; text-shadow: 0 2px 24px var(--void), 0 1px 4px var(--void); }
-    .torii-section .lede, .torii-section .eyebrow { text-shadow: 0 1px 14px var(--void), 0 1px 3px var(--void); }
+    .torii-section .lede, .torii-section .eyebrow { text-shadow: 0 2px 18px var(--void), 0 1px 4px var(--void); }
+    .torii-section .lede { color: var(--ink); }
     .torii-section .lede { margin-inline: auto; max-width: 44ch; }
 
     /* ---------------- mosaic ---------------- */

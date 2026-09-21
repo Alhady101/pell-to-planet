@@ -14,6 +14,10 @@
   color-scheme: dark;
 
   --void: #08090d;
+  /* Same colour as an RGB triplet. Overlays must use rgb(var(--void-rgb) / a):
+     color-mix(in oklab, X, transparent) interpolates toward black as it fades,
+     so a nominally 26% scrim renders nearly opaque. */
+  --void-rgb: 8 9 13;
   --surface-1: #0f1117;
   --surface-2: #161923;
   --surface-3: #1f2430;
@@ -61,6 +65,7 @@
   color-scheme: light;
 
   --void: #f7f4ee;
+  --void-rgb: 247 244 238;
   --surface-1: #fffdf8;
   --surface-2: #f2ede4;
   --surface-3: #e8e1d5;
