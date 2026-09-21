@@ -1,6 +1,14 @@
 # Handoff
 
-**Read this file completely before changing anything.**
+**What this file is.** Working notes kept as a backup, written by Claude
+after building this site. It records what was tried, what broke, and why
+things are the way they are.
+
+It is reference material, not a set of orders. Anyone else picking this
+project up is free to work however they work best. The only items here that
+bind are the ones in section 0 and in the do-not-publish table, because
+those come from Gotibeh and from the scholarship program, not from
+engineering preference.
 
 This is *Pell to Planet*, Gotibeh Alhady's Gilman Follow-on Service Project.
 It is public, carries his name, and reports to a U.S. Department of State
@@ -82,127 +90,67 @@ the one. It is written to be self-contained.
 
 Whoever picks it up runs `npm install` then `npm run dev`. Nothing else.
 
-### The prompt to paste into the next model
+### The prompt Gotibeh pastes into the next model
 
-Copy everything between the lines. It is written for a model that has
-access to this machine.
+This is his brief, in his words, carrying his requirements and nothing
+else. It deliberately does not tell another model how to think or work.
 
 ---
 
-I'm handing you an in-progress project. Read this whole message before you
-do anything.
-
-**What it is.** "Pell to Planet," my Gilman Follow-on Service Project. I'm a
+This is my Gilman Follow-on Service Project, called "Pell to Planet." I am a
 mechanical engineering student at Wayne State. I went to Japan on a
-faculty-led summer program in June 2026 and paid for it with the Benjamin A.
-Gilman International Scholarship, a U.S. Department of State program. The
-site is the honest financial and personal record of how I funded it, written
-so the next student can copy the method. It is public, it carries my name,
-and it reports to a federal scholarship program.
+faculty-led study abroad program in June 2026 and paid for it with the
+Benjamin A. Gilman International Scholarship, which is a U.S. Department of
+State program. The site tells other students how I funded it so they can do
+it too.
 
-**Where it is.**
+It is already built and I want you to take it further. It is on my computer
+at `C:\Users\alhad\OneDrive - Wayne State University\Documents\pell-to-planet`.
+One heads up: "Documents" on my machine redirects to OneDrive, so
+`C:\Users\alhad\Documents` is not where things are. Node is at
+`C:\Program Files\nodejs`.
 
-```
-C:\Users\alhad\OneDrive - Wayne State University\Documents\pell-to-planet
-```
+**What I want.** Make it a masterpiece. This has to impress sponsors,
+engineers, students, faculty, universities and companies. It is a portfolio
+piece as much as a scholarship project, so do not give me a half-built
+simple website.
 
-Note that "Documents" on this machine redirects to OneDrive. The literal
-path `C:\Users\alhad\Documents` is not where anything lives.
+Get creative with the animation. I want it to feel alive and high-tech.
+There is a globe, a shrine gate and falling cherry blossom petals in there
+already. Push them further, or do something better.
 
-Node.js is at `C:\Program Files\nodejs`. For Python use
-`C:\Users\alhad\anaconda3\python.exe`, because the bare Python on PATH has
-no packages installed.
+I also want it to show what traveling with school and classmates is actually
+like, both the free time and the educational parts, and the cultural
+immersion. It should show the connection between manufacturing and
+industrial engineering on one side and business and global supply chain on
+the other, because that is my field. And my travel wishlist countries should
+be on the globe, so sponsors can see where I want to go next.
 
-**First action: read `HANDOFF.md` in the project root, completely.** It has
-the full architecture, the bug history, and the file map. Everything below
-is a summary. That file is the authority.
+**My one hard rule.** Never invent cost figures, award amounts, deadlines,
+statistics or quotes. This is public and attached to my name and a federal
+scholarship. If you need a number I have not given you, leave a clear TODO
+and ask me. Do not estimate and do not use placeholders.
 
-**The rule that overrides everything else.** Never invent or estimate a cost
-figure, award amount, deadline, statistic, or quote. Not as a placeholder,
-not as an illustration, not "roughly." Every number on the site is either
-something I personally paid and can document, or a figure published by a
-named institution on a named date. If a number is missing it stays a TODO
-and renders as a visible gap. That is correct behavior, not a bug to fix.
+Some numbers are missing on purpose right now: four program payment amounts,
+an airport transfer fare, and about a $1,000 discrepancy on my summer
+statement. Those stay as TODOs until I get them.
 
-The build enforces this. `src/data/schema.ts` is a Zod schema requiring a
-source and a verification date on every figure, so an unsourced number fails
-`npm run build`. Do not weaken that schema to make a number easier to add.
+**What stays off the site.** My classmates' names, because I approved using
+their photos and not their names. My personal flight route, which is in a
+PDF in my Study abroad folder. Anything in my family, immigration, legal or
+resume folders, because none of it is related.
 
-**Your job is craft, not facts.** Animation, motion polish, visual design,
-layout, typography, interaction feel, accessibility, performance: all
-welcome, be ambitious. Do not add, change, or estimate any dollar amount,
-date, statistic, or quote, and do not touch `src/data/` unless I hand you a
-number directly.
+**What stays on the site.** Lori Sisk, the faculty leader, credited by name.
+And the Gilman attribution in the footer, which the program requires: "The
+Benjamin A. Gilman International Scholarship is a program of the U.S.
+Department of State with funding provided by the U.S. Government and
+supported in its implementation by the Institute of International
+Education."
 
-**Five things already fixed. Do not undo them.**
+There is a HANDOFF.md file in the project with technical notes from the
+model that built it. Read it or do not, your call.
 
-1. The original was a document, not an argument. Every page now leads with
-   its conclusion and then supports it.
-2. Term aid was counted wrongly in my favor. The trip was 3 credits inside a
-   13-credit term, so only 3/13 of term aid honestly applies. Fixing it
-   raised my out-of-pocket figure. Keep it raised.
-3. Two funding entries misled students. Scholarship Universe has an
-   exclusion making it inapplicable. An endowed award is not publicly listed
-   at all, and that fact became the funding page's best lesson: databases do
-   not list everything, so talk to your advisor.
-4. The itinerary was structurally wrong. Kyoto was a day trip out of Osaka,
-   not an overnight stop, and Hamamatsu was a base for the Yamaha factory
-   visit. Five stops, four overnight bases.
-5. A hand-built 3D shrine gate was rebuilt three times and still looked like
-   an untextured game asset. It is now a licensed photograph with a visible
-   credit, and the code only moves the camera on scroll. Do not try to
-   rebuild it in code.
-
-**Traps that already cost real debugging time.**
-
-- `color-mix(in oklab, X, transparent)` interpolates toward **black** as
-  alpha falls, so a nominally 26% scrim renders nearly opaque. Use
-  `rgb(var(--void-rgb) / 0.58)` instead.
-- A CSS `filter` plus `will-change` on a large image produced a roughly
-  45 MB GPU layer that Chrome silently declined to paint. The image was
-  loaded and invisible with no error anywhere. Do not add a filter to
-  `ToriiTunnel.astro`.
-- Never make user interaction depend on a `requestAnimationFrame` loop.
-  Drag, scroll and hover must paint synchronously. This caused three
-  separate bugs where the page felt dead because the loop had stopped.
-- Scroll reveals must fail **visible**. The hidden state is scoped to `.js`
-  so a script failure cannot blank the site.
-- A backgrounded browser tab pauses rAF. Test motion in a foreground tab or
-  you will get false readings.
-
-**Never publish these, in whole or in part.**
-
-- `Study abroad\Japan June 2026 Gotibeh Alhady hf7179.pdf`, which is my
-  personal airfare routing. It looks like useful travel detail. It is not.
-- The program itinerary spreadsheet, which lists twelve classmates by name.
-  I approved their photographs, never their names.
-- Anything under `Dad Immigration files`, `Dad_Immigration`, `Dads files`,
-  `Family Legal`, or `Family Documents`. Private and unrelated.
-- Resume and scholarship-application folders. Unrelated.
-
-The trip content on the site is the **program only**, June 14 to June 27,
-not my personal travel around it.
-
-**Verify after every change.**
-
-```bash
-npm run build   # must pass; validates every figure against the schema
-npm run dev     # preview at /pell-to-planet/
-```
-
-A green build proves the facts are intact. It does not prove the site looks
-right. In a foreground tab, confirm the globe still drags after it stops
-spinning, the shrine gate approaches as you scroll, and every photo caption
-matches its photograph.
-
-**Before you change anything, confirm back to me in your own words:** the
-one rule you must never break, three of the traps above, and what you plan
-to change first. Then wait for my go-ahead.
-
----
-
-The confirmation step is not ceremony. It is a cheap way to find out whether
-the model read the constraints before it started editing.
+Work however you work best.
 
 ---
 
