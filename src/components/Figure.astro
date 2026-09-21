@@ -37,8 +37,12 @@ const {
 <style>
   .fig { margin: 0; }
   .photo { box-shadow: var(--shadow-1); }
-  .photo img { transition: transform 0.7s cubic-bezier(.2,.8,.3,1); }
-  .fig:hover .photo img { transform: scale(1.025); }
+  /* 200ms, not 700: a hover is read in a glance and a long curve reads as lag.
+     Gated to real pointers so a tap on a phone does not trigger it. */
+  .photo img { transition: transform var(--dur-hover) var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) {
+    .fig:hover .photo img { transform: scale(1.025); }
+  }
   .fig__credit { color: var(--ink-3); font-size: 0.74rem; }
   @media (prefers-reduced-motion: reduce) { .fig:hover .photo img { transform: none; } }
 </style>

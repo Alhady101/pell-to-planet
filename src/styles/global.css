@@ -56,6 +56,16 @@
   --r: 6px;
   --r-lg: 14px;
 
+  /* Motion tokens. Six near-identical hand-typed curves were consolidated to
+     these three. Entering/exiting uses --ease-out; movement across the screen
+     uses --ease-in-out. ease-in is deliberately absent: it starts slow, which
+     delays the exact moment the eye is on the element. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-press: 140ms;
+  --dur-hover: 200ms;
+  --dur-reveal: 640ms;
+
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.7);
   --shadow-2: 0 2px 6px rgb(0 0 0 / 0.45), 0 24px 60px -24px rgb(0 0 0 / 0.85);
 }
@@ -230,11 +240,16 @@ tfoot td { border-top: 1px solid var(--hairline-2); border-bottom: 0; font-weigh
   background: var(--torii); color: #fff; text-decoration: none;
   padding: 0.82em 1.35em; border-radius: var(--r); font-weight: 600; font-size: 0.95rem;
   border: 1px solid var(--torii); cursor: pointer; line-height: 1.2;
-  transition: transform 0.16s cubic-bezier(.2,.8,.3,1), box-shadow 0.2s, background 0.2s;
+  transition: transform var(--dur-press) var(--ease-out), box-shadow var(--dur-hover), background var(--dur-hover);
   box-shadow: 0 0 0 0 rgb(var(--glow) / 0.45);
 }
-.button:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 8px 26px -8px rgb(var(--glow) / 0.65); }
-.button:active { transform: translateY(0); }
+/* Touch devices fire a false hover on tap, so lift only on a real pointer. */
+@media (hover: hover) and (pointer: fine) {
+  .button:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 8px 26px -8px rgb(var(--glow) / 0.65); }
+}
+.button:hover { color: #fff; box-shadow: 0 8px 26px -8px rgb(var(--glow) / 0.65); }
+/* Press feedback: nothing in the real world moves without being pushed. */
+.button:active { transform: scale(0.97); }
 .button .arrow { transition: transform 0.2s; }
 .button:hover .arrow { transform: translateX(3px); }
 .button--ghost { background: transparent; color: var(--ink); border-color: var(--hairline-2); box-shadow: none; }
@@ -246,9 +261,11 @@ tfoot td { border-top: 1px solid var(--hairline-2); border-bottom: 0; font-weigh
 .card {
   background: var(--surface-1); border: 1px solid var(--hairline); border-radius: var(--r-lg);
   padding: clamp(1.25rem, 2.6vw, 1.9rem); position: relative; overflow: hidden;
-  transition: border-color 0.25s, transform 0.25s cubic-bezier(.2,.8,.3,1), box-shadow 0.25s;
+  transition: border-color 0.25s, transform 0.25s var(--ease-out), box-shadow 0.25s;
 }
-.card--hover:hover { border-color: color-mix(in oklab, var(--torii) 45%, var(--hairline)); transform: translateY(-3px); box-shadow: var(--shadow-2); }
+@media (hover: hover) and (pointer: fine) {
+  .card--hover:hover { border-color: color-mix(in oklab, var(--torii) 45%, var(--hairline)); transform: translateY(-3px); box-shadow: var(--shadow-2); }
+}
 .card__rule { height: 2px; width: 2.5rem; background: var(--torii); border-radius: 2px; margin-bottom: 1rem; }
 .card h3 { margin-bottom: 0.4rem; }
 .card p:last-child { margin-bottom: 0; }
@@ -304,7 +321,7 @@ figcaption { font-size: 0.8rem; color: var(--ink-3); margin-top: 0.6rem; line-he
    the element is not being composited, which is exactly what happened here.
    -------------------------------------------------------------------------- */
 .js [data-reveal] { opacity: 0; }
-.js [data-reveal].is-in { animation: reveal 0.7s cubic-bezier(.2, .7, .3, 1) forwards; }
+.js [data-reveal].is-in { animation: reveal 0.7s var(--ease-out) forwards; }
 /* Hard override used by the safety net. CSS animations are frozen in a
    background tab, so a page opened in one must not be left blank. */
 .js [data-reveal].reveal-done { opacity: 1 !important; transform: none !important; animation: none !important; }

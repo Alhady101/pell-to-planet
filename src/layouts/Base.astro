@@ -164,7 +164,9 @@ const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad`
     <style>
       /* ---- scroll progress ---- */
       .scroll-progress { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 120; pointer-events: none; background: transparent; }
-      .scroll-progress i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--torii), var(--gold)); transition: width 0.08s linear; }
+      /* scaleX, not width: this updates on every scroll frame, and width forces
+         layout and paint on each one. transform stays on the compositor. */
+      .scroll-progress i { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: 0 50%; background: linear-gradient(90deg, var(--torii), var(--gold)); transition: transform 0.08s linear; }
 
       /* ---- header ---- */
       .site-header {
@@ -225,10 +227,14 @@ const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad`
         background: color-mix(in oklab, var(--void) 96%, transparent);
         backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
         padding: 2rem var(--gutter) 3rem; overflow-y: auto;
-        animation: menu-in 0.32s cubic-bezier(.2,.8,.3,1);
+        transition: opacity 0.24s var(--ease-out), transform 0.24s var(--ease-out);
       }
+      /* A transition, not keyframes: the menu can be tapped open and shut
+         faster than the animation runs, and transitions retarget from the
+         current state where keyframes restart from zero. */
       .mobile-nav[hidden] { display: none; }
-      @keyframes menu-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+      .mobile-nav { opacity: 1; transform: none; }
+      @starting-style { .mobile-nav { opacity: 0; transform: translateY(-8px); } }
       .mobile-nav ul { list-style: none; margin: 0; padding: 0; }
       .mobile-nav li { margin: 0; }
       .mobile-nav a {
@@ -259,8 +265,11 @@ const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad`
 
       /* ---- view transitions ---- */
       @media (prefers-reduced-motion: no-preference) {
-        ::view-transition-old(root) { animation: vt-out 0.22s cubic-bezier(.4,0,1,1) both; }
-        ::view-transition-new(root) { animation: vt-in 0.34s cubic-bezier(0,0,.2,1) both; }
+        /* ease-out on both halves. The outgoing page used an ease-in curve,
+           which starts slow and holds the old page on screen at exactly the
+           moment the reader has already committed to leaving it. */
+        ::view-transition-old(root) { animation: vt-out 0.2s var(--ease-out) both; }
+        ::view-transition-new(root) { animation: vt-in 0.32s var(--ease-out) both; }
       }
       @keyframes vt-out { to { opacity: 0; transform: translateY(-6px); } }
       @keyframes vt-in { from { opacity: 0; transform: translateY(10px); } }
@@ -314,7 +323,7 @@ const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad`
           requestAnimationFrame(() => {
             ticking = false;
             const max = document.documentElement.scrollHeight - window.innerHeight;
-            if (bar) bar.style.width = `${max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0}%`;
+            if (bar) bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
             header?.classList.toggle('is-stuck', window.scrollY > 12);
           });
         };

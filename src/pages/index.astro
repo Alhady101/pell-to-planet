@@ -115,13 +115,13 @@ const stats = [
       <div class="stat-strip">
         <div class="stat stat--lead" data-reveal>
           <span class="stat__label">The award that opened the door</span>
-          <span class="stat__value stat__value--hero"><Money value={2500} /></span>
+          <span class="stat__value stat__value--hero" data-countup><Money value={2500} /></span>
           <span class="stat__sub">Benjamin A. Gilman International Scholarship, U.S. Department of State</span>
         </div>
         <div class="stat-strip__rest">
           {stats.map((s, i) => (
             <div class="stat" data-reveal data-reveal-delay={i * 70}>
-              <span class="stat__value">{s.value}</span>
+              <span class="stat__value" data-countup>{s.value}</span>
               <span class="stat__label">{s.label}</span>
               <span class="stat__sub">{s.sub}</span>
             </div>
@@ -304,6 +304,68 @@ const stats = [
       </p>
     </div>
   </section>
+
+  <script>
+    /**
+     * Counts the headline figures up the first time they are seen.
+     *
+     * This is the one place on the site where motion is purely for delight,
+     * and it is allowed here because it happens once per visit on a number
+     * the reader has arrived to see. Everything frequent on this site does
+     * not animate at all.
+     *
+     * Reduced motion skips straight to the final value. Digits are held in
+     * tabular figures only while counting, so the number does not jitter in
+     * width, then released so the resting state keeps proportional figures.
+     */
+    function initCountUp() {
+      const els = Array.from(document.querySelectorAll<HTMLElement>('[data-countup]'));
+      if (!els.length) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const DURATION = 1100;
+      // strong ease-out, matching --ease-out
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+      const run = (el: HTMLElement) => {
+        const final = (el.textContent ?? '').trim();
+        // split into what comes before the number, the number, and what follows
+        const parts = final.match(/^([^0-9]*)([0-9][0-9,]*)(.*)$/);
+        if (!parts) return;
+        const [, prefix, numStr, suffix] = parts;
+        const target = Number(numStr.replace(/,/g, ''));
+        if (!Number.isFinite(target) || target === 0) return;
+        const grouped = numStr.includes(',');
+
+        el.style.fontVariantNumeric = 'tabular-nums';
+        const start = performance.now();
+        const step = (now: number) => {
+          const t = Math.min(1, (now - start) / DURATION);
+          const v = Math.round(target * easeOut(t));
+          el.textContent = prefix + (grouped ? v.toLocaleString('en-US') : String(v)) + suffix;
+          if (t < 1) requestAnimationFrame(step);
+          else { el.textContent = final; el.style.fontVariantNumeric = ''; }
+        };
+        requestAnimationFrame(step);
+      };
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            io.unobserve(e.target);
+            // let the reveal settle first so the two do not compete
+            window.setTimeout(() => run(e.target as HTMLElement), 220);
+          }
+        },
+        { threshold: 0.6 },
+      );
+      els.forEach((el) => io.observe(el));
+    }
+
+    initCountUp();
+    document.addEventListener('astro:page-load', initCountUp);
+  </script>
 
   <style>
     /* ---------------- hero ---------------- */
