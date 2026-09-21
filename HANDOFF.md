@@ -399,3 +399,84 @@ looks right. Also check, in a foreground tab:
 
 That attribution is a program requirement. It is not optional and not
 editorial.
+
+---
+
+## Appendix: where everything lives on Gotibeh's machine
+
+For a model with filesystem access. Read section 0 and section 5 before
+you touch any of this.
+
+### The quirk that will trip you first
+
+"This PC, then Documents" on this machine **redirects to OneDrive**. The
+literal path `C:\Users\alhad\Documents` is not where the files are. Use:
+
+```
+C:\Users\alhad\OneDrive - Wayne State University\Documents\
+```
+
+### The project
+
+```
+...\Documents\pell-to-planet\          the site, a git repo
+  src/data/                            the facts, the only place numbers live
+  src/assets/photos/                   56 photographs, imported and optimized
+  docs/                                project notes
+```
+
+Node.js is at `C:\Program Files\nodejs`. Run `npm install` then `npm run dev`.
+
+Two Python interpreters exist and they are not interchangeable. The bare
+3.13 on PATH has no packages. Anaconda at
+`C:\Users\alhad\anaconda3\python.exe` has numpy, scipy, matplotlib, pypdf.
+Use the Anaconda one for anything that imports a library.
+
+### Source documents, which are the only valid origin for new facts
+
+```
+...\Documents\Study abroad\
+  Gilman acceptance Letter.pdf
+  Gilman Award Letter Instructions - March 2026 Deadline.pdf
+  Gilman_Recipient_Terms_and_Conditions_04_2026.pdf     <- the attribution rule
+  FAFSA Submission Summary 2026-27 ... .pdf
+  Money Matters.docx
+  Gilman Short Essay 1-4 ...                            <- his own words, quotable
+  Staying Connected Phone and Internet.pdf
+  Japan 2026 Study Abroad letter.jpeg
+
+...\Documents\japan flicks\            60 images, and the Gilman essay finals
+...\Documents\Claude chats\            JapanStudyAbroad.md and the scholarship export
+```
+
+**There are 60 images in `japan flicks` and 56 on the site**, so roughly
+four are unused. You cannot find out which by comparing bytes or filenames.
+The originals are iPhone HEIC files with camera-roll or UUID names, and the
+site copies were converted to JPEG and renamed by subject, for example
+`hiroshima-shrine-gate.jpg`. Nothing matches by hash and nothing matches by
+name. Identifying the unused ones requires actually looking at them.
+
+Two photographs were once swapped during exactly this kind of import, and a
+teppanyaki dinner shipped labeled as a Mazda museum shot. If you import
+more, open each one and confirm the caption describes the image.
+
+### Files that must NOT be published, in whole or in part
+
+This list is not advisory. Each entry was excluded on purpose.
+
+| File | Why |
+| --- | --- |
+| `Study abroad\Japan June 2026 Gotibeh Alhady hf7179.pdf` | His personal airfare routing, Detroit through Halifax, Barcelona, Cairo, Addis Ababa and Abu Dhabi to Tokyo. He asked explicitly that his personal route stay off the site. It is also family-travel context, not program content. |
+| The program itinerary spreadsheet | Lists twelve classmates by name in rooming pairs. His approval covered their photographs, never their names. |
+| Anything under `Dad Immigration files`, `Dad_Immigration`, `Dads files`, `Family Legal`, `Family Documents` | Unrelated, private, and sensitive. Nothing here belongs anywhere near a public site. |
+| Resume and scholarship-application folders | Unrelated work product. |
+
+A model browsing this filesystem will find travel details and think they are
+useful color for a travel site. They are not. The trip content on the site
+is the **program**, June 14 to June 27, not his personal travel around it.
+
+### Still-missing facts, and where they are not
+
+The four program payment amounts and the airport transfer fare are still
+unknown. They are **not** in the PDF above, which was checked. Ask Gotibeh,
+or find a Wayne State billing statement. Do not estimate them.
