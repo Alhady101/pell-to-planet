@@ -84,23 +84,125 @@ Whoever picks it up runs `npm install` then `npm run dev`. Nothing else.
 
 ### The prompt to paste into the next model
 
+Copy everything between the lines. It is written for a model that has
+access to this machine.
+
+---
+
+I'm handing you an in-progress project. Read this whole message before you
+do anything.
+
+**What it is.** "Pell to Planet," my Gilman Follow-on Service Project. I'm a
+mechanical engineering student at Wayne State. I went to Japan on a
+faculty-led summer program in June 2026 and paid for it with the Benjamin A.
+Gilman International Scholarship, a U.S. Department of State program. The
+site is the honest financial and personal record of how I funded it, written
+so the next student can copy the method. It is public, it carries my name,
+and it reports to a federal scholarship program.
+
+**Where it is.**
+
 ```
-This is an Astro static site: my Gilman Follow-on Service Project, which is
-public and attached to my name and a federal scholarship.
-
-Read HANDOFF.md first and completely, then confirm back to me two things:
-the one rule you must never break, and the three traps in section 5.
-
-Your job is craft, not facts. Make the motion and the visual polish more
-alive. Do not add, change, or estimate any dollar amount, date, statistic,
-or quote. If a number is missing it stays a TODO.
-
-Run `npm run build` after every change. It validates every figure against a
-schema, so a green build is your proof you did not break the factual layer.
+C:\Users\alhad\OneDrive - Wayne State University\Documents\pell-to-planet
 ```
+
+Note that "Documents" on this machine redirects to OneDrive. The literal
+path `C:\Users\alhad\Documents` is not where anything lives.
+
+Node.js is at `C:\Program Files\nodejs`. For Python use
+`C:\Users\alhad\anaconda3\python.exe`, because the bare Python on PATH has
+no packages installed.
+
+**First action: read `HANDOFF.md` in the project root, completely.** It has
+the full architecture, the bug history, and the file map. Everything below
+is a summary. That file is the authority.
+
+**The rule that overrides everything else.** Never invent or estimate a cost
+figure, award amount, deadline, statistic, or quote. Not as a placeholder,
+not as an illustration, not "roughly." Every number on the site is either
+something I personally paid and can document, or a figure published by a
+named institution on a named date. If a number is missing it stays a TODO
+and renders as a visible gap. That is correct behavior, not a bug to fix.
+
+The build enforces this. `src/data/schema.ts` is a Zod schema requiring a
+source and a verification date on every figure, so an unsourced number fails
+`npm run build`. Do not weaken that schema to make a number easier to add.
+
+**Your job is craft, not facts.** Animation, motion polish, visual design,
+layout, typography, interaction feel, accessibility, performance: all
+welcome, be ambitious. Do not add, change, or estimate any dollar amount,
+date, statistic, or quote, and do not touch `src/data/` unless I hand you a
+number directly.
+
+**Five things already fixed. Do not undo them.**
+
+1. The original was a document, not an argument. Every page now leads with
+   its conclusion and then supports it.
+2. Term aid was counted wrongly in my favor. The trip was 3 credits inside a
+   13-credit term, so only 3/13 of term aid honestly applies. Fixing it
+   raised my out-of-pocket figure. Keep it raised.
+3. Two funding entries misled students. Scholarship Universe has an
+   exclusion making it inapplicable. An endowed award is not publicly listed
+   at all, and that fact became the funding page's best lesson: databases do
+   not list everything, so talk to your advisor.
+4. The itinerary was structurally wrong. Kyoto was a day trip out of Osaka,
+   not an overnight stop, and Hamamatsu was a base for the Yamaha factory
+   visit. Five stops, four overnight bases.
+5. A hand-built 3D shrine gate was rebuilt three times and still looked like
+   an untextured game asset. It is now a licensed photograph with a visible
+   credit, and the code only moves the camera on scroll. Do not try to
+   rebuild it in code.
+
+**Traps that already cost real debugging time.**
+
+- `color-mix(in oklab, X, transparent)` interpolates toward **black** as
+  alpha falls, so a nominally 26% scrim renders nearly opaque. Use
+  `rgb(var(--void-rgb) / 0.58)` instead.
+- A CSS `filter` plus `will-change` on a large image produced a roughly
+  45 MB GPU layer that Chrome silently declined to paint. The image was
+  loaded and invisible with no error anywhere. Do not add a filter to
+  `ToriiTunnel.astro`.
+- Never make user interaction depend on a `requestAnimationFrame` loop.
+  Drag, scroll and hover must paint synchronously. This caused three
+  separate bugs where the page felt dead because the loop had stopped.
+- Scroll reveals must fail **visible**. The hidden state is scoped to `.js`
+  so a script failure cannot blank the site.
+- A backgrounded browser tab pauses rAF. Test motion in a foreground tab or
+  you will get false readings.
+
+**Never publish these, in whole or in part.**
+
+- `Study abroad\Japan June 2026 Gotibeh Alhady hf7179.pdf`, which is my
+  personal airfare routing. It looks like useful travel detail. It is not.
+- The program itinerary spreadsheet, which lists twelve classmates by name.
+  I approved their photographs, never their names.
+- Anything under `Dad Immigration files`, `Dad_Immigration`, `Dads files`,
+  `Family Legal`, or `Family Documents`. Private and unrelated.
+- Resume and scholarship-application folders. Unrelated.
+
+The trip content on the site is the **program only**, June 14 to June 27,
+not my personal travel around it.
+
+**Verify after every change.**
+
+```bash
+npm run build   # must pass; validates every figure against the schema
+npm run dev     # preview at /pell-to-planet/
+```
+
+A green build proves the facts are intact. It does not prove the site looks
+right. In a foreground tab, confirm the globe still drags after it stops
+spinning, the shrine gate approaches as you scroll, and every photo caption
+matches its photograph.
+
+**Before you change anything, confirm back to me in your own words:** the
+one rule you must never break, three of the traps above, and what you plan
+to change first. Then wait for my go-ahead.
+
+---
 
 The confirmation step is not ceremony. It is a cheap way to find out whether
-the model actually read the constraints before it starts editing.
+the model read the constraints before it started editing.
 
 ---
 
