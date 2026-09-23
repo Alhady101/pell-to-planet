@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "preview:local": "node scripts/preview-local.mjs",
     "check": "astro check"
   },
   "dependencies": {

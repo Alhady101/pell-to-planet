@@ -58,7 +58,10 @@ const petals = Array.from({ length: count }, (_, i) => ({
     animation-timing-function: linear;
     animation-iteration-count: infinite;
   }
-  .petal svg { fill: var(--tone); filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.25)); }
+  .petal svg { fill: var(--tone); filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.25)); animation: flutter 4.5s ease-in-out infinite alternate; }
+  .petal:nth-child(3n) svg { animation-duration: 6.4s; }
+  .petal:nth-child(2n) svg { animation-delay: -2s; }
+  @keyframes flutter { from { transform: translateX(-12px) rotateY(-55deg) rotateZ(-20deg); } to { transform: translateX(18px) rotateY(60deg) rotateZ(35deg); } }
 
   @keyframes petal-fall {
     0%   { transform: translate3d(0, -10vh, 0) rotate(0deg) scale(var(--s)); opacity: 0; }

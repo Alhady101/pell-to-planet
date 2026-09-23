@@ -1,5 +1,11 @@
 # Pell to Planet
 
+## Preview the current build
+
+Run `npm run build` followed by `npm run preview:local`, then open
+`http://127.0.0.1:4335/pell-to-planet/`. The local preview serves the same
+static files that are published; changes to source files require another build.
+
 A Wayne State student's guide to funding short-term study abroad, built as the
 Follow-on Service Project for a Benjamin A. Gilman International Scholarship.
 

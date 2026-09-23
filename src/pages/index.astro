@@ -5,7 +5,8 @@ import Petals from '../components/Petals.astro';
 import ToriiTunnel from '../components/ToriiTunnel.astro';
 import Figure from '../components/Figure.astro';
 import Money from '../components/Money.astro';
-import { totals, program } from '../data/facts';
+import FieldNotes from '../components/FieldNotes.astro';
+import { totals } from '../data/facts';
 import { DESTINATIONS, REGIONS } from '../data/destinations';
 
 import pKyotoGroup from '../assets/photos/kyoto-fushimi-group-selfie.jpg';
@@ -18,17 +19,17 @@ import pRain from '../assets/photos/hiroshima-rain-classmates.jpg';
 const base = import.meta.env.BASE_URL;
 
 const chapters = [
-  { n: '01', href: 'the-trip/', title: 'The trip', dek: 'Fourteen days, five cities, four factory floors — and the evenings in between. What travelling with your school and a group of classmates is actually like.' },
-  { n: '02', href: 'my-numbers/', title: 'My numbers', dek: 'Every dollar the program cost me, every award that covered it, and the dates the money actually moved. Nothing rounded up to look good.' },
-  { n: '03', href: 'funding/', title: 'Funding', dek: 'Where the money comes from: federal aid, campus awards, national scholarships. What each one requires and who to ask.' },
-  { n: '04', href: 'gilman/', title: 'Gilman', dek: 'The scholarship that made mine possible. Eligibility, the four essays, the deadlines, and how I approached my application.' },
-  { n: '05', href: 'tools/', title: 'Tools', dek: 'A gap calculator and a backward-planning timeline you can fill in and take to your advisor.' },
+  { n: '01', href: 'the-trip/', title: 'The trip', dek: 'Travel with classmates through Japan: industrial visits, a shared classroom, cultural immersion, and time to explore independently.' },
+  { n: '02', href: 'my-numbers/', title: 'My numbers', dek: 'An itemized account of the costs I can document, the awards I received, and the expenses I am still reconciling.' },
+  { n: '03', href: 'funding/', title: 'Funding', dek: 'The scholarships and campus resources I used, with eligibility details and questions to bring to an advisor.' },
+  { n: '04', href: 'gilman/', title: 'Gilman', dek: 'How the scholarship works, what the application asks, and how I approached my essays.' },
+  { n: '05', href: 'tools/', title: 'Tools', dek: 'Plan a personal budget and map out the steps before the program payment is due.' },
 ];
 
 const stats = [
   { value: '14', label: 'Days in Japan', sub: 'June 13–27, 2026' },
   { value: '4', label: 'Factory floors', sub: 'Yamaha, KEYLEX, DELTA, Mazda' },
-  { value: '10', label: 'Students on the trip', sub: 'One faculty leader' },
+  { value: 'WSU', label: 'Faculty-led learning', sub: 'Led by Lori Sisk' },
   { value: '3', label: 'Credits earned', sub: 'GSC 4991, toward my degree' },
 ];
 ---
@@ -45,13 +46,13 @@ const stats = [
       <div class="hero__copy">
         <p class="hero__kicker"><span class="dot" aria-hidden="true"></span>Detroit <span aria-hidden="true">→</span><span class="visually-hidden">to</span> Tokyo · June 2026</p>
         <h1>
-          <span class="l1">Study abroad</span>
-          <span class="l2">on a <em>Pell</em> budget.</span>
+          <span class="l1">An education</span>
+          <span class="l2">beyond <em>borders.</em></span>
         </h1>
         <p class="lede">
-          I'm a mechanical engineering student from Detroit. I assumed a program like this
-          was for other people's budgets. This is the whole map of how I paid for mine —
-          the real numbers, the awards, and the parts nobody puts on the brochure.
+          From Wayne State to Japan: a mechanical engineering student's perspective on
+          manufacturing, global supply chains, and life beyond the classroom.
+          Made possible in part by the Gilman Scholarship. Documented so the next student can take the first step.
         </p>
         <div class="cta-row">
           <a class="button" href={`${base}my-numbers/`}>See every dollar<span class="arrow" aria-hidden="true">→</span></a>
@@ -67,35 +68,50 @@ const stats = [
       </div>
     </div>
 
-    <a class="scroll-cue" href="#start" aria-label="Scroll to the introduction">
+    <a class="scroll-cue" href="#japan" aria-label="Enter the Japan experience">
       <span aria-hidden="true">scroll</span>
       <i aria-hidden="true"></i>
     </a>
   </section>
+
+  <section class="torii-section torii-section--arrival" id="japan">
+    <div class="torii-stage">
+      <ToriiTunnel />
+      <Petals count={18} />
+      <div class="wrap torii-section__inner">
+        <p class="eyebrow centered">Japan · June 2026</p>
+        <h2 class="torii-section__h">A different place.<br />A wider perspective.</h2>
+        <p class="lede centered">Factory floors. Shared classrooms. Conversations over dinner.
+          An education shaped by the people and places between each stop.</p>
+        <a class="button button--ghost" href={`${base}the-trip/`}>Explore the Japan journal</a>
+      </div>
+    </div>
+  </section>
+
+  <FieldNotes />
 
   {/* ================= THE BARRIER ================= */}
   <section class="section section--ruled" id="start">
     <div class="wrap grid-2">
       <div>
         <p class="eyebrow" data-reveal>Why this exists</p>
-        <h2 data-reveal>The price tag is the first thing that stops you.</h2>
+        <h2 data-reveal>Access starts with understanding the cost.</h2>
       </div>
       <div data-reveal>
         <p>
-          When I found the Japan program in my department, I did what I think most
-          Pell-eligible students do. I looked at the program fee, added a plane ticket
-          in my head, decided it was not realistic, and closed the tab.
+          International experience belongs in an engineering education. For students
+          managing a limited budget, the challenge is understanding how to pay for it.
+          Pell to Planet makes that process visible through my own experience.
         </p>
         <p>
-          What changed was learning that the sticker price is not one number — it is a
-          stack of them, and each layer has its own way of being paid. Some of it is
-          covered before you ever see a bill. Some of it is money you have to go and ask
-          for. And some of it is yours, which is worth knowing early rather than in April.
+          Program fees, travel, and tuition need to be considered together. Scholarships
+          and financial aid have different conditions and payment schedules. This guide
+          separates those pieces so students can prepare informed questions for their advisors.
         </p>
         <p>
-          I went. I came back with three credits, four factory floors in my notes, and a
-          much clearer sense of how the money worked. This site is that, written down, for
-          the next student in my position.
+          My faculty-led program connected industrial visits with cultural immersion
+          and learning alongside Japanese students. This project shares both the value
+          of that experience and the financial planning behind it.
         </p>
         <div class="callout">
           <p>
@@ -136,17 +152,17 @@ const stats = [
   </section>
 
   {/* ================= TORII MOMENT ================= */}
-  <section class="torii-section">
-    <ToriiTunnel />
+  <section class="section section--raised">
     <div class="wrap torii-section__inner">
       <p class="eyebrow centered" data-reveal>June 20 · Kyoto</p>
       <h2 class="torii-section__h" data-reveal>
-        You do not get this<br />from a slide deck.
+        Culture gives<br />industry its context.
       </h2>
       <p class="lede centered" data-reveal>
-        Our class walked up through the gates at Fushimi Inari in the rain. Two days
-        earlier we were in a university classroom in Osaka arguing about stakeholders
-        with Japanese students. Two days later we were watching pianos being built.
+        Our class walked the Fushimi Inari path in the rain. In Osaka, we had worked
+        through a business case with Japanese students. At Yamaha, we observed how
+        careful manufacturing decisions shaped an instrument. Each place added context
+        to the next.
       </p>
     </div>
   </section>
@@ -157,33 +173,33 @@ const stats = [
       <div class="mosaic-head">
         <div>
           <p class="eyebrow" data-reveal>What going with your school looks like</p>
-          <h2 data-reveal>One flag, four hotels,<br />and a very full two weeks.</h2>
+          <h2 data-reveal>Shared learning.<br />Lasting connections.</h2>
         </div>
         <p class="dek" data-reveal>
-          Faculty-led programs are the short, structured way in. You travel as a group,
-          the itinerary is built for you, and the academic and the social happen in the
-          same fortnight.
+          A faculty-led program provides an academic itinerary and a group to share it
+          with. Between site visits and coursework, there is room to explore, adapt,
+          and build friendships in unfamiliar places.
         </p>
       </div>
 
       <div class="mosaic">
         <div class="mosaic__a" data-reveal>
-          <Figure src={pYamahaGroup} alt="The Wayne State group holding a university flag in the lobby of the Yamaha Kakegawa piano factory, beside a piano-shaped welcome sign dated June 22, 2026." caption="Yamaha Kakegawa factory, June 22." ratio="16x9" sizes="(min-width: 64rem) 46rem, 92vw" widths={[500, 900, 1400]} />
+          <Figure src={pYamahaGroup} alt="The Wayne State group holding a university flag in the lobby of the Yamaha Kakegawa piano factory, beside a piano-shaped welcome sign dated June 22, 2026." caption="Our group at Yamaha Kakegawa after the manufacturing visit, June 22." ratio="16x9" sizes="(min-width: 64rem) 46rem, 92vw" widths={[500, 900, 1400]} />
         </div>
         <div class="mosaic__b" data-reveal data-reveal-delay="60">
-          <Figure src={pKyotoGroup} alt="A group selfie of the Wayne State students in front of the main gate at Fushimi Inari shrine in Kyoto, with umbrellas up in the rain." caption="Fushimi Inari, Kyoto." ratio="3x4" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
+          <Figure src={pKyotoGroup} alt="A group selfie of the Wayne State students in front of the main gate at Fushimi Inari shrine in Kyoto, with umbrellas up in the rain." caption="A rainy day trip to Fushimi Inari with classmates." ratio="3x4" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
         </div>
         <div class="mosaic__c" data-reveal data-reveal-delay="120">
-          <Figure src={pOsakaUni} alt="The Wayne State group and Japanese students posed together with a Wayne State flag outside a university building in Osaka." caption="Case study with Japanese students, Osaka." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
+          <Figure src={pOsakaUni} alt="The Wayne State group and Japanese students posed together with a Wayne State flag outside a university building in Osaka." caption="With Japanese students after a business case discussion in Osaka." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
         </div>
         <div class="mosaic__d" data-reveal data-reveal-delay="180">
-          <Figure src={pTeppan} alt="The group seated around a teppanyaki grill in Hamamatsu while a chef in white cooks in front of them." caption="Team dinner, Hamamatsu." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
+          <Figure src={pTeppan} alt="The group seated around a teppanyaki grill in Hamamatsu while a chef in white cooks in front of them." caption="Dinner together after the day’s activities in Hamamatsu." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
         </div>
         <div class="mosaic__e" data-reveal data-reveal-delay="240">
-          <Figure src={pMazda} alt="Gotibeh in a Wayne State polo at the Mazda Museum in Hiroshima with the green and orange Mazda 787B Le Mans car behind him." caption="Mazda Museum, Hiroshima." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
+          <Figure src={pMazda} alt="Gotibeh in a Wayne State polo at the Mazda Museum in Hiroshima with the green and orange Mazda 787B Le Mans car behind him." caption="At the Mazda Museum, tracing the company’s engineering history." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
         </div>
         <div class="mosaic__f" data-reveal data-reveal-delay="300">
-          <Figure src={pRain} alt="Three classmates in clear plastic rain ponchos standing on a wet residential street in Hiroshima at dusk." caption="Hiroshima, in the rain." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
+          <Figure src={pRain} alt="Three classmates in clear plastic rain ponchos standing on a wet residential street in Hiroshima at dusk." caption="Classmates navigating a rainy evening in Hiroshima." ratio="4x3" sizes="(min-width: 64rem) 22rem, 46vw" widths={[350, 700]} />
         </div>
       </div>
 
@@ -197,7 +213,7 @@ const stats = [
   <section class="section section--ruled">
     <div class="wrap">
       <p class="eyebrow" data-reveal>What's inside</p>
-      <h2 class="chapters__h" data-reveal>Five things I wish someone<br />had written down for me.</h2>
+      <h2 class="chapters__h" data-reveal>Your starting point<br />for studying abroad.</h2>
 
       <ol class="chapters">
         {chapters.map((c, i) => (
@@ -221,7 +237,7 @@ const stats = [
     <div class="wrap grid-2">
       <div>
         <p class="eyebrow" data-reveal>Who this is for</p>
-        <h2 data-reveal>If you have ever closed the tab, this is for you.</h2>
+        <h2 data-reveal>A practical resource.<br />A broader invitation.</h2>
         <p class="dek" data-reveal>
           I wrote it with Wayne State engineering and business students in mind, because
           that is who I am and those are the offices I can name. But the method — take the
@@ -255,7 +271,7 @@ const stats = [
       <div class="next-head">
         <div>
           <p class="eyebrow" data-reveal>Where I go from here</p>
-          <h2 data-reveal>Japan was the first one.<br />It is not meant to be the last.</h2>
+          <h2 data-reveal>The next chapter<br />has a global outlook.</h2>
         </div>
         <p class="dek" data-reveal>
           Two weeks changed what I think is possible. I am working toward a graduate
@@ -444,6 +460,20 @@ const stats = [
       background: var(--void);
       border-block: 1px solid var(--hairline);
     }
+    .torii-section--arrival { padding: 0; height: 175svh; overflow: clip; background: #071025; }
+    .torii-stage { position: sticky; top: 0; height: 100svh; min-height: 40rem; display: flex; align-items: end; padding-bottom: 8vh; overflow: hidden; }
+    .torii-section--arrival .torii-section__inner { color: #fff4ed; }
+    .torii-section--arrival .lede { color: #e4e7f1; font-size: clamp(.95rem,1.5vw,1.15rem); }
+    .torii-section--arrival .torii-section__h { font-size: clamp(2.7rem,6vw,5rem); }
+    .torii-section--arrival .button { color: #fff4ed; border-color: #c4cadd; background: #07102599; }
+    @media (max-width: 40rem) {
+      .torii-section--arrival { height: 155svh; }
+      .torii-stage { min-height: 0; padding-bottom: 11vh; }
+      .torii-section--arrival .torii-section__h { font-size: clamp(2.2rem, 9vw, 3.3rem); }
+    }
+    .hero__bg::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, #a5c3ef 1px, transparent 1.4px); background-size: 97px 113px; opacity: .22; animation: stars-breathe 8s ease-in-out infinite alternate; }
+    @keyframes stars-breathe { to { opacity: .48; transform: translate3d(8px,-10px,0); } }
+    @media (prefers-reduced-motion: reduce) { .hero__bg::after { animation: none; } .torii-section--arrival { height: 100svh; } }
     .torii-section__inner { position: relative; z-index: 2; text-align: center; max-width: 52rem; }
     .torii-section__h { font-size: clamp(2.2rem, 6vw, 4.2rem); margin-bottom: 1.5rem; text-shadow: 0 2px 24px var(--void), 0 1px 4px var(--void); }
     .torii-section .lede, .torii-section .eyebrow { text-shadow: 0 2px 18px var(--void), 0 1px 4px var(--void); }

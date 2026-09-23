@@ -42,40 +42,40 @@ const base = import.meta.env.BASE_URL;
 type Shot = { src: any; alt: string; caption: string; ratio: '4x3' | '3x4' | '16x9' };
 const photoSets: Record<string, Shot[]> = {
   tokyo: [
-    { src: pTokyoBus, alt: 'Classmates filling the open upper deck of a Tokyo tour bus, throwing peace signs, with office towers and trees behind them.', caption: 'The open-top bus tour, June 15.', ratio: '4x3' },
-    { src: pTokyoTower, alt: 'Gotibeh in sunglasses in a park below Tokyo Tower, the orange lattice tower rising behind the trees.', caption: 'Tokyo Tower.', ratio: '3x4' },
-    { src: pTokyoGroup, alt: 'Classmates crowded into a lift, faces lit from above, on the way up Tokyo Tower.', caption: 'On the way up.', ratio: '4x3' },
-    { src: pPalace, alt: 'Gotibeh in a teal jacket and sunglasses in front of a dark wooden gate at the Imperial Palace grounds.', caption: 'Imperial Palace grounds.', ratio: '4x3' },
-    { src: pDisney, alt: 'Gotibeh standing on the waterfront promenade at Tokyo DisneySea with the volcano of Mysterious Island rising behind him.', caption: 'Tokyo DisneySea, June 16.', ratio: '3x4' },
-    { src: pShibuya, alt: 'A Tokyo street at night lit by pink and blue neon signs, with people walking under the shopfronts.', caption: 'Out in the city at night.', ratio: '3x4' },
-    { src: pCamii, alt: 'The interior dome of Tokyo Camii mosque, decorated with blue and gold geometric tilework and stained glass.', caption: 'Tokyo Camii.', ratio: '3x4' },
+    { src: pTokyoBus, alt: 'Classmates filling the open upper deck of a Tokyo tour bus, throwing peace signs, with office towers and trees behind them.', caption: 'Tokyo orientation with classmates, June 15.', ratio: '4x3' },
+    { src: pTokyoTower, alt: 'Gotibeh in sunglasses in a park below Tokyo Tower, the orange lattice tower rising behind the trees.', caption: 'Tokyo Tower: a landmark within the city’s changing skyline.', ratio: '3x4' },
+    { src: pTokyoGroup, alt: 'Classmates crowded into a lift, faces lit from above, on the way up Tokyo Tower.', caption: 'Together on the ascent of Tokyo Tower.', ratio: '4x3' },
+    { src: pPalace, alt: 'Gotibeh in a teal jacket and sunglasses in front of a dark wooden gate at the Imperial Palace grounds.', caption: 'Imperial Palace grounds, where historic architecture meets the modern capital.', ratio: '4x3' },
+    { src: pDisney, alt: 'Gotibeh standing on the waterfront promenade at Tokyo DisneySea with the volcano of Mysterious Island rising behind him.', caption: 'Tokyo DisneySea, part of the program’s Tokyo itinerary.', ratio: '3x4' },
+    { src: pShibuya, alt: 'A Tokyo street at night lit by pink and blue neon signs, with people walking under the shopfronts.', caption: 'Exploring Tokyo after the scheduled activities.', ratio: '3x4' },
+    { src: pCamii, alt: 'The interior dome of Tokyo Camii mosque, decorated with blue and gold geometric tilework and stained glass.', caption: 'Tokyo Camii: a different perspective on the city’s cultural landscape.', ratio: '3x4' },
   ],
   osaka: [
-    { src: pOsakaUni, alt: 'Wayne State students and Japanese university students posed together holding a Wayne State flag outside a university building in Osaka.', caption: 'After the case study, Osaka.', ratio: '16x9' },
-    { src: pDinnerOut, alt: 'The group crowded around a table in a small restaurant with graffiti-covered walls and round porthole windows, plates and drinks in front of them.', caption: 'Dinner out with the group.', ratio: '4x3' },
-    { src: pOsakaArcade, alt: 'A long covered shopping arcade in Osaka with a chequered floor and shopfronts receding into the distance.', caption: 'Osaka, on my own.', ratio: '3x4' },
+    { src: pOsakaUni, alt: 'Wayne State students and Japanese university students posed together holding a Wayne State flag outside a university building in Osaka.', caption: 'Wayne State and Japanese students following the business case discussion in Osaka.', ratio: '16x9' },
+    { src: pDinnerOut, alt: 'The group crowded around a table in a small restaurant with graffiti-covered walls and round porthole windows, plates and drinks in front of them.', caption: 'Shared meals made time for conversation beyond the classroom.', ratio: '4x3' },
+    { src: pOsakaArcade, alt: 'A long covered shopping arcade in Osaka with a chequered floor and shopfronts receding into the distance.', caption: 'Independent exploration through Osaka’s covered shopping streets.', ratio: '3x4' },
   ],
   kyoto: [
-    { src: pFushimiGroup, alt: 'The Wayne State group gathered for a selfie in front of the two-storey gate at Fushimi Inari, umbrellas up around them in the rain.', caption: 'The whole group at the gate.', ratio: '4x3' },
-    { src: pKyotoTorii, alt: 'A path at Fushimi Inari running under vermilion torii gates, with weathered stone shrine markers and miniature gates stacked along the side.', caption: 'Up the mountain path.', ratio: '3x4' },
-    { src: pFushimiSelfie, alt: 'Gotibeh in a blue polo beside a tall vermilion torii pillar at Fushimi Inari, the shrine buildings behind him.', caption: 'Fushimi Inari, June 20.', ratio: '3x4' },
+    { src: pFushimiGroup, alt: 'The Wayne State group gathered for a selfie in front of the two-storey gate at Fushimi Inari, umbrellas up around them in the rain.', caption: 'Classmates at Fushimi Inari, Kyoto, during a rainy day trip from Osaka.', ratio: '4x3' },
+    { src: pKyotoTorii, alt: 'A path at Fushimi Inari running under vermilion torii gates, with weathered stone shrine markers and miniature gates stacked along the side.', caption: 'Vermilion gates and stone shrines along the Fushimi Inari mountain path.', ratio: '3x4' },
+    { src: pFushimiSelfie, alt: 'Gotibeh in a blue polo beside a tall vermilion torii pillar at Fushimi Inari, the shrine buildings behind him.', caption: 'At Fushimi Inari during the program’s Kyoto visit, June 20.', ratio: '3x4' },
   ],
   hamamatsu: [
-    { src: pYamahaGroup, alt: 'The group holding a Wayne State flag in the Yamaha Kakegawa lobby beside a piano-shaped welcome board reading 2026 6 22.', caption: 'Yamaha Kakegawa, June 22.', ratio: '4x3' },
-    { src: pYamahaEntrance, alt: 'Gotibeh outside the glass and steel entrance of the Yamaha factory under a cloudy sky.', caption: 'Arriving at Yamaha.', ratio: '4x3' },
-    { src: pYamahaDrums, alt: 'A classmate grinning behind an electronic drum kit in the Yamaha showroom, sticks raised.', caption: 'The showroom afterwards.', ratio: '3x4' },
-    { src: pTeppanTable, alt: 'The group seated along both sides of a long teppanyaki counter while a chef in white works the griddle at the far end.', caption: 'Team dinner, Hamamatsu.', ratio: '4x3' },
-    { src: pTeppanGroup, alt: 'The group standing together in aprons behind the teppanyaki griddle at the end of the meal.', caption: 'The same dinner, standing up.', ratio: '4x3' },
+    { src: pYamahaGroup, alt: 'The group holding a Wayne State flag in the Yamaha Kakegawa lobby beside a piano-shaped welcome board reading 2026 6 22.', caption: 'Wayne State at Yamaha Kakegawa for the piano manufacturing visit, June 22.', ratio: '4x3' },
+    { src: pYamahaEntrance, alt: 'Gotibeh outside the glass and steel entrance of the Yamaha factory under a cloudy sky.', caption: 'At Yamaha, connecting precision manufacturing with musical craftsmanship.', ratio: '4x3' },
+    { src: pYamahaDrums, alt: 'A classmate grinning behind an electronic drum kit in the Yamaha showroom, sticks raised.', caption: 'Exploring Yamaha’s instruments after the manufacturing visit.', ratio: '3x4' },
+    { src: pTeppanTable, alt: 'The group seated along both sides of a long teppanyaki counter while a chef in white works the griddle at the far end.', caption: 'A teppanyaki dinner with classmates in Hamamatsu.', ratio: '4x3' },
+    { src: pTeppanGroup, alt: 'The group standing together in aprons behind the teppanyaki griddle at the end of the meal.', caption: 'A group photograph at the end of our teppanyaki dinner.', ratio: '4x3' },
   ],
   hiroshima: [
-    { src: pDelta, alt: 'Wayne State students and DELTA staff posed together holding a Wayne State flag in front of the DELTA company sign in the lobby.', caption: 'DELTA headquarters, June 26.', ratio: '16x9' },
-    { src: pMazda787, alt: 'Gotibeh in a Wayne State Global Supply Chain polo at the Mazda Museum, the green and orange Mazda 787B Le Mans car behind him.', caption: 'Mazda Museum, June 25.', ratio: '4x3' },
-    { src: pRxVision, alt: 'A deep red Mazda RX-Vision concept car under spotlights in the Mazda design hall.', caption: 'Mazda design hall.', ratio: '4x3' },
-    { src: pDome, alt: 'Classmates and a Japanese host standing under umbrellas in front of the ruined shell of the Atomic Bomb Dome in Hiroshima.', caption: 'The Atomic Bomb Dome.', ratio: '3x4' },
-    { src: pRainHosts, alt: 'The group walking in ponchos and under umbrellas along a wet street in Hiroshima, following the yellow tactile paving.', caption: 'It rained most of the week.', ratio: '3x4' },
-    { src: pHostDinner, alt: 'A large group of students and Japanese hosts packed together for a photo at the end of a dinner in a small restaurant.', caption: 'Dinner with our hosts, June 24.', ratio: '4x3' },
-    { src: pHiroshimaGate, alt: 'A weathered stone torii gate framed by trees on a path in Hiroshima.', caption: 'On the way up the mountain.', ratio: '3x4' },
-    { src: pHiroshimaMountain, alt: 'Gotibeh at night on a dark hillside above Hiroshima with the city lights below.', caption: 'Above the city.', ratio: '4x3' },
+    { src: pDelta, alt: 'Wayne State students and DELTA staff posed together holding a Wayne State flag in front of the DELTA company sign in the lobby.', caption: 'Wayne State students and DELTA hosts during the supplier visit, June 26.', ratio: '16x9' },
+    { src: pMazda787, alt: 'Gotibeh in a Wayne State Global Supply Chain polo at the Mazda Museum, the green and orange Mazda 787B Le Mans car behind him.', caption: 'At the Mazda Museum with the 787B racing car, June 25.', ratio: '4x3' },
+    { src: pRxVision, alt: 'A deep red Mazda RX-Vision concept car under spotlights in the Mazda design hall.', caption: 'The Mazda RX-Vision concept: an expression of the company’s design direction.', ratio: '4x3' },
+    { src: pDome, alt: 'Classmates and a Japanese host standing under umbrellas in front of the ruined shell of the Atomic Bomb Dome in Hiroshima.', caption: 'Visiting Hiroshima’s Atomic Bomb Dome with classmates and a local host.', ratio: '3x4' },
+    { src: pRainHosts, alt: 'The group walking in ponchos and under umbrellas along a wet street in Hiroshima, following the yellow tactile paving.', caption: 'Navigating Hiroshima together in the rain.', ratio: '3x4' },
+    { src: pHostDinner, alt: 'A large group of students and Japanese hosts packed together for a photo at the end of a dinner in a small restaurant.', caption: 'An evening meal with Japanese hosts in Hiroshima, June 24.', ratio: '4x3' },
+    { src: pHiroshimaGate, alt: 'A weathered stone torii gate framed by trees on a path in Hiroshima.', caption: 'A stone torii gate along a wooded path in Hiroshima.', ratio: '3x4' },
+    { src: pHiroshimaMountain, alt: 'Gotibeh at night on a dark hillside above Hiroshima with the city lights below.', caption: 'A nighttime view over Hiroshima after exploring beyond the program.', ratio: '4x3' },
   ],
 };
 
@@ -95,11 +95,11 @@ const srcLabel: Record<string, string> = {
     <Petals count={10} />
     <div class="wrap">
       <p class="eyebrow" data-reveal>Chapter 01 &middot; The trip</p>
-      <h1 data-reveal>Fourteen days,<br />five cities,<br /><em>four factory floors.</em></h1>
+      <h1 data-reveal>Japan, through<br />an engineer’s<br /><em>eyes.</em></h1>
       <p class="lede" data-reveal>
-        This is what a short, faculty-led study abroad program actually looks like from
-        the inside — the scheduled half and the other half, which is where a lot of the
-        learning happened.
+        Industrial visits, classroom exchange, and daily life with classmates.
+        A journal of how learning abroad connected my technical education
+        with a deeper understanding of people, culture, and business.
       </p>
 
       <ol class="route" data-reveal aria-label="Route">
@@ -122,7 +122,7 @@ const srcLabel: Record<string, string> = {
       <dl class="trip-meta" data-reveal>
         <div><dt>Program</dt><dd>{program.name}</dd></div>
         <div><dt>Course</dt><dd>{program.course} &middot; {program.credits} credits</dd></div>
-        <div><dt>Group</dt><dd>{program.students} students, led by {program.facultyLeader}</dd></div>
+        <div><dt>Faculty leader</dt><dd>{program.facultyLeader}</dd></div>
         <div><dt>Dates</dt><dd>June 13 &ndash; 27, 2026</dd></div>
       </dl>
     </div>
@@ -197,9 +197,10 @@ const srcLabel: Record<string, string> = {
           <h2 data-reveal>Where the engineering<br />meets the supply chain.</h2>
         </div>
         <p class="dek" data-reveal>
-          I study mechanical engineering, with global supply chain management alongside
-          it. On paper those are two sets of courses. In Japan they were the same four
-          buildings, and this is what each one taught.
+          Mechanical engineering asks how a product works. Industrial engineering
+          examines how it is made. Business and supply chain management connect those
+          decisions to suppliers, operations, and customers. The visits made those
+          relationships visible within the same production system.
         </p>
       </div>
 
@@ -224,12 +225,10 @@ const srcLabel: Record<string, string> = {
 
       <div class="conn-note callout callout--box" data-reveal>
         <p>
-          <strong>This is the part that goes on a resume.</strong> Not "went to Japan", but
-          "observed component manufacturing at two tier suppliers and final assembly at the
-          customer they feed, took part in a supply chain question-and-answer session with
-          the assembler, and worked with Japanese university students on a business case."
-          Describe what you actually did and what you saw. A site visit is not employment,
-          and it does not need to be.
+          <strong>A connected view of industry.</strong> Observing suppliers and an
+          assembler within the same program helped connect component production with
+          final assembly. Discussions about supply chains and a business case with
+          Japanese students extended that perspective beyond the factory floor.
         </p>
       </div>
     </div>

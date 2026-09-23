@@ -1,0 +1,45 @@
+---
+import { Image } from 'astro:assets';
+import mazda from '../assets/photos/hiroshima-mazda-rx-vision-front.jpg';
+import students from '../assets/photos/osaka-university-group-flag.jpg';
+import dinner from '../assets/photos/hamamatsu-teppanyaki-table.jpg';
+const base = import.meta.env.BASE_URL;
+const chapters = [
+  { title: 'From component to customer.', image: mazda, alt: 'Mazda RX-Vision concept car viewed from the front at the Mazda Museum.', label: 'Engineering & global supply chains', body: 'A product connects design decisions to materials, production processes, suppliers, and customers. Visiting Yamaha, KEYLEX, DELTA, and Mazda brought those relationships into view.', link: 'what-i-gained/', action: 'Explore the industrial perspective' },
+  { title: 'A shared problem. New perspectives.', image: students, alt: 'Wayne State and Japanese university students together after their academic exchange in Osaka.', label: 'Learning across cultures', body: 'Working through a business case with Japanese students made collaboration an everyday practice: listening carefully, explaining a position, and finding a way forward together.', link: 'the-trip/#osaka', action: 'Inside the classroom exchange' },
+  { title: 'The moments between the itinerary.', image: dinner, alt: 'Classmates sharing a meal around a teppanyaki counter in Hamamatsu.', label: 'Life with classmates', body: 'Shared meals, train journeys, rainy walks, and evenings in unfamiliar cities made the program personal. The academic experience and the experience of living abroad developed together.', link: 'the-trip/', action: 'Meet the experience beyond class' },
+];
+---
+<section class="field-notes" aria-label="Perspectives from Japan">
+  {chapters.map((chapter, i) => (
+    <article class="field-note">
+      <div class="field-note__image">
+        <Image src={chapter.image} alt={chapter.alt} widths={[640, 1100, 1600]} sizes="(min-width: 56rem) 56vw, 100vw" loading="lazy" />
+        <span aria-hidden="true">{['工学', '交流', '日常'][i]}</span>
+      </div>
+      <div class="field-note__copy">
+        <p class="field-note__label">{chapter.label}</p>
+        <h2>{chapter.title}</h2>
+        <p>{chapter.body}</p>
+        <a href={`${base}${chapter.link}`}>{chapter.action}</a>
+      </div>
+    </article>
+  ))}
+</section>
+<style>
+  .field-notes { padding-block: 5rem; }
+  .field-note { display: grid; align-items: center; gap: clamp(2rem,6vw,7rem); padding: 3rem var(--gutter); max-width: 100rem; margin: auto; }
+  .field-note__image { position: relative; overflow: hidden; border-radius: 4px; }
+  .field-note__image img { display: block; width: 100%; height: 100%; aspect-ratio: 5/4; object-fit: cover; }
+  .field-note__image span { position: absolute; bottom: .6rem; right: 1.4rem; font-size: clamp(3rem,7vw,7rem); color: white; text-shadow: 0 2px 20px #0009; opacity: .7; }
+  .field-note__copy { max-width: 32rem; }
+  .field-note__label { color: var(--torii); font-size: .82rem; }
+  .field-note__copy h2 { margin-bottom: 1.2rem; }
+  .field-note__copy > p:not(:first-child) { color: var(--ink-2); }
+  .field-note__copy a { display: inline-block; margin-top: .5rem; text-underline-offset: .4em; }
+  @media (min-width: 56rem) { .field-note { grid-template-columns: 1.15fr 1fr; min-height: 80vh; } .field-note:nth-child(2) .field-note__image { order: 2; } }
+  @supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {
+    .field-note__image img { animation: field-drift linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
+    @keyframes field-drift { from { transform: scale(1.12) translateY(-2%); } to { transform: scale(1.02) translateY(0); } }
+  } }
+</style>

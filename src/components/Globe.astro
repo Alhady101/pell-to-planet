@@ -4,21 +4,33 @@
  * adjacent copy), so it is aria-hidden and given a text alternative below.
  */
 interface Props { class?: string }
+import { DESTINATIONS } from '../data/destinations';
 const { class: cls = '' } = Astro.props;
 ---
 <div class={`globe ${cls}`}>
   <canvas data-globe aria-hidden="true"></canvas>
   <p class="visually-hidden">
-    An illustrated globe. A line traces the flight from Detroit, Michigan to Tokyo, Japan.
+    An illustrated globe connecting Detroit, Michigan and Tokyo, Japan. The arc is a visual connection, not a flight itinerary.
     Smaller markers show the countries the author is working toward next, which are
     listed in full further down this page.
   </p>
-  <p class="globe__hint" aria-hidden="true"><span>drag to spin</span></p>
+  <div class="globe__controls">
+    <label for="globe-destination">Explore the globe</label>
+    <select id="globe-destination" aria-label="Focus globe on a destination">
+      <option value="home">Detroit & Japan</option>
+      {DESTINATIONS.map(d => <option value={d.name}>{d.name}</option>)}
+    </select>
+    <p>Drag to explore · Hover over a blue marker</p>
+  </div>
 </div>
 
 <style>
   .globe { position: relative; width: 100%; aspect-ratio: 1; max-width: 42rem; margin-inline: auto; }
   .globe canvas { width: 100%; height: 100%; }
+  .globe__controls { position: relative; margin-top: -1rem; text-align: center; }
+  .globe__controls label { display: block; font-size: .78rem; color: var(--ink-2); margin-bottom: .4rem; }
+  .globe__controls select { max-width: 100%; padding: .6rem 1rem; color: var(--ink); background: var(--surface-1); border: 1px solid var(--hairline-2); border-radius: 2rem; font: inherit; font-size: .85rem; }
+  .globe__controls p { margin: .5rem 0 0; font-size: .7rem; color: var(--ink-3); }
   .globe__hint {
     position: absolute; left: 50%; bottom: -0.25rem; translate: -50% 0; margin: 0;
     font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;

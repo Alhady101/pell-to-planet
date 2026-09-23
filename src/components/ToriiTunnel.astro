@@ -1,155 +1,53 @@
 ---
 import { Image } from 'astro:assets';
-import torii from '../assets/photos/fushimi-senbon-torii.jpg';
-
-/**
- * The senbon torii corridor at Fushimi Inari, which the group walked up on
- * June 20.
- *
- * An earlier version of this built the gates from scratch — first as flat SVG,
- * then as a real 3D renderer with lit, depth-sorted geometry. The geometry was
- * correct and it still looked like an untextured game asset, because what sells
- * a shrine gate is weathered timber, painted kanji, wet stone and depth haze,
- * none of which flat-shaded polygons give you. A photograph does.
- *
- * So the corridor is a photograph, and the code does the one thing code is
- * better at: moving the camera. Scroll drives a dolly — the image scales about
- * its vanishing point — so the gates genuinely approach as you read.
- *
- * Decorative, so aria-hidden. Under prefers-reduced-motion the dolly is fixed
- * at a single framing.
- */
-interface Props { class?: string }
-const { class: cls = '' } = Astro.props;
+import torii from '../assets/photos/torii-higgsfield-frontal.png';
 ---
-<div class={`torii ${cls}`} aria-hidden="true" data-torii>
-  <div class="torii__plate">
-    <Image
-      src={torii}
-      alt=""
-      widths={[800, 1200, 1800]}
-      sizes="100vw"
-      loading="lazy"
-      decoding="async"
-    />
-  </div>
+<div class="torii" aria-hidden="true" data-torii>
+  <div class="torii__plate"><Image src={torii} alt="" widths={[900, 1400, 1672]} sizes="100vw" loading="eager" /></div>
+  <div class="torii__stars"></div>
+  <div class="torii__mist"></div>
   <div class="torii__grade"></div>
-  <p class="torii__credit">
-    Fushimi Inari, Kyoto · Stefan&nbsp;K / Unsplash
-  </p>
+  <p class="torii__credit">Atmospheric artwork · Higgsfield original, AI-assisted adaptation</p>
 </div>
-
 <style>
-  .torii {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
+  .torii { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: #071025; }
+  .torii__plate { position: absolute; inset: 0; transform-origin: 50% 44%; transform: scale(var(--dolly,1)); }
+  .torii__plate img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; }
+  @media (max-width: 40rem) {
+    .torii__plate img { position: absolute; width: 160vw; max-width: none; left: 50%; transform: translateX(-50%); object-fit: contain; }
   }
-
-  .torii__plate {
-    position: absolute;
-    inset: -4%;
-    /* The corridor's vanishing point, so the dolly pushes INTO the tunnel
-       rather than just enlarging the picture. */
-    transform-origin: 47% 54%;
-    transform: scale(var(--dolly, 1.04));
-    /* No CSS filter and no will-change here on purpose. Together with a
-       2400px source at a 2.5x device pixel ratio they forced a ~45 MB
-       composited layer, which Chrome simply declined to paint — the photo
-       was in the DOM, loaded, and invisible. The brightness and saturation
-       lift is baked into the file instead, and the source is capped at
-       1800px. */
-  }
-  .torii__plate img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 47% 54%;
-  }
-
-  /* Grading: darken for legibility, keep the vermilion, close the edges down
-     so the corridor reads as the only lit thing in the frame. */
-  .torii__grade {
-    position: absolute;
-    inset: 0;
-    background:
-      /* a soft band behind the copy, so the words hold without dimming the
-         top and bottom of the corridor */
-      linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 18%, rgb(var(--void-rgb) / 0.58) 34%, rgb(var(--void-rgb) / 0.58) 70%, rgb(var(--void-rgb) / 0) 86%),
-      radial-gradient(ellipse 78% 70% at 47% 52%, rgb(var(--void-rgb) / 0) 0%, rgb(var(--void-rgb) / 0.26) 64%, rgb(var(--void-rgb) / 0.84) 100%),
-      linear-gradient(to bottom, rgb(var(--void-rgb) / 1) 0%, rgb(var(--void-rgb) / 0) 13%, rgb(var(--void-rgb) / 0) 85%, rgb(var(--void-rgb) / 1) 100%);
-  }
-
-  .torii__credit {
-    position: absolute;
-    right: clamp(0.75rem, 2vw, 1.5rem);
-    bottom: clamp(0.6rem, 1.6vw, 1.1rem);
-    margin: 0;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    opacity: 0.7;
-  }
-
-  :root[data-theme='light'] .torii__plate { opacity: 0.82; }
-  :root[data-theme='light'] .torii__grade {
-    background:
-      linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 18%, rgb(var(--void-rgb) / 0.66) 34%, rgb(var(--void-rgb) / 0.66) 70%, rgb(var(--void-rgb) / 0) 86%),
-      radial-gradient(ellipse 78% 70% at 47% 52%, rgb(var(--void-rgb) / 0) 0%, rgb(var(--void-rgb) / 0.34) 64%, rgb(var(--void-rgb) / 0.88) 100%),
-      linear-gradient(to bottom, rgb(var(--void-rgb) / 1) 0%, rgb(var(--void-rgb) / 0) 13%, rgb(var(--void-rgb) / 0) 85%, rgb(var(--void-rgb) / 1) 100%);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .torii__plate { transform: scale(1.06) !important; }
-  }
+  .torii__grade { position: absolute; inset: 0; background: linear-gradient(180deg,#07102522 0%,transparent 35%,#07102555 55%,#071025ed 100%); }
+  .torii__stars { position: absolute; inset: 0 0 42%; background-image: radial-gradient(circle,#e1ebff 1px,transparent 2px),radial-gradient(circle,#ffdca5 1px,transparent 1.8px); background-size: 173px 127px,233px 197px; background-position: 23px 44px,104px 70px; opacity: .35; animation: shimmer 6s ease-in-out infinite alternate; }
+  .torii__mist { position: absolute; inset: 45% -20% 0; opacity: .35; background: radial-gradient(ellipse at 28% 35%,#cbd8f43d,transparent 55%),radial-gradient(ellipse at 75% 55%,#cfbddd44,transparent 45%); animation: mist 12s ease-in-out infinite alternate; }
+  .torii__credit { position: absolute; bottom: .65rem; right: 1rem; left: 1rem; text-align: right; font: .62rem var(--sans); color: #b9c7de; margin: 0; z-index: 3; }
+  @keyframes shimmer { to { opacity: .75; transform: translateY(5px); } }
+  @keyframes mist { to { transform: translate3d(6%,-3%,0) scale(1.06); opacity: .6; } }
+  @media (prefers-reduced-motion: reduce) { .torii__plate { transform: none; } .torii__stars,.torii__mist { animation: none; } }
 </style>
-
 <script>
-  /**
-   * Drives the dolly from scroll. Deliberately does NOT depend on an
-   * animation loop: the transform is written straight to the element, so it
-   * keeps working in a background tab, at any refresh rate, and if anything
-   * else on the page stalls.
-   */
+  let dispose: (() => void) | undefined;
   function setup() {
-    const els = Array.from(document.querySelectorAll<HTMLElement>('[data-torii]'));
-    if (!els.length) return;
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const NEAR = 1.02; // framing as the section enters
-    const FAR = 1.34;  // framing as it leaves — the walk forward
-
-    let ticking = false;
+    dispose?.();
+    const el = document.querySelector<HTMLElement>('[data-torii]');
+    const section = el?.closest<HTMLElement>('.torii-section');
+    if (!el || !section) return;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
     const paint = () => {
-      ticking = false;
-      for (const el of els) {
-        const plate = el.querySelector<HTMLElement>('.torii__plate');
-        if (!plate) continue;
-        if (still) { plate.style.setProperty('--dolly', '1.06'); continue; }
-
-        const r = el.getBoundingClientRect();
-        if (r.bottom < -300 || r.top > window.innerHeight + 300) continue;
-        // 0 as the section enters from below, 1 as it leaves at the top
-        const t = 1 - (r.top + r.height) / (window.innerHeight + r.height);
-        const clamped = Math.min(1, Math.max(0, t));
-        plate.style.setProperty('--dolly', String(NEAR + (FAR - NEAR) * clamped));
-      }
+      frame = 0;
+      const rect = section.getBoundingClientRect();
+      const travel = Math.max(1, section.offsetHeight - innerHeight);
+      const progress = Math.max(0,Math.min(1,-rect.top / travel));
+      el.style.setProperty('--dolly', String(reduced.matches ? 1 : 1 + progress * .6));
     };
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(paint);
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    document.addEventListener('visibilitychange', paint);
+    const update = () => { if (!frame) frame = requestAnimationFrame(paint); };
+    addEventListener('scroll',update,{passive:true});
+    addEventListener('resize',update);
+    reduced.addEventListener('change',paint);
     paint();
+    dispose = () => { cancelAnimationFrame(frame); removeEventListener('scroll',update); removeEventListener('resize',update); reduced.removeEventListener('change',paint); };
   }
-
   setup();
-  document.addEventListener('astro:page-load', setup);
+  document.addEventListener('astro:page-load',setup);
+  document.addEventListener('astro:before-swap',()=>dispose?.());
 </script>

@@ -305,7 +305,7 @@ const pageTitle = title === SITE ? `${SITE} — funding short-term study abroad`
           menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
           document.body.style.overflow = open ? 'hidden' : '';
         };
-        menuBtn?.addEventListener('click', () => setMenu(menu?.hidden ?? true));
+        menuBtn?.addEventListener('click', () => setMenu(Boolean(menu?.hidden ?? true)));
         menu?.addEventListener('click', (e) => {
           if ((e.target as HTMLElement).closest('a')) setMenu(false);
         });
