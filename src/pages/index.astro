@@ -460,20 +460,20 @@ const stats = [
       background: var(--void);
       border-block: 1px solid var(--hairline);
     }
-    .torii-section--arrival { padding: 0; height: 175svh; overflow: clip; background: #071025; }
+    .torii-section--arrival { padding: 0; height: 220svh; overflow: clip; background: #071025; }
     .torii-stage { position: sticky; top: 0; height: 100svh; min-height: 40rem; display: flex; align-items: end; padding-bottom: 8vh; overflow: hidden; }
-    .torii-section--arrival .torii-section__inner { color: #fff4ed; }
+    .torii-section--arrival .torii-section__inner { color: #fff4ed; opacity: 0; }
     .torii-section--arrival .lede { color: #e4e7f1; font-size: clamp(.95rem,1.5vw,1.15rem); }
     .torii-section--arrival .torii-section__h { font-size: clamp(2.7rem,6vw,5rem); }
     .torii-section--arrival .button { color: #fff4ed; border-color: #c4cadd; background: #07102599; }
     @media (max-width: 40rem) {
-      .torii-section--arrival { height: 155svh; }
+      .torii-section--arrival { height: 215svh; }
       .torii-stage { min-height: 0; padding-bottom: 11vh; }
       .torii-section--arrival .torii-section__h { font-size: clamp(2.2rem, 9vw, 3.3rem); }
     }
     .hero__bg::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, #a5c3ef 1px, transparent 1.4px); background-size: 97px 113px; opacity: .22; animation: stars-breathe 8s ease-in-out infinite alternate; }
     @keyframes stars-breathe { to { opacity: .48; transform: translate3d(8px,-10px,0); } }
-    @media (prefers-reduced-motion: reduce) { .hero__bg::after { animation: none; } .torii-section--arrival { height: 100svh; } }
+    @media (prefers-reduced-motion: reduce) { .hero__bg::after { animation: none; } .torii-section--arrival { height: 100svh; } .torii-section--arrival .torii-section__inner { opacity: 1; } }
     .torii-section__inner { position: relative; z-index: 2; text-align: center; max-width: 52rem; }
     .torii-section__h { font-size: clamp(2.2rem, 6vw, 4.2rem); margin-bottom: 1.5rem; text-shadow: 0 2px 24px var(--void), 0 1px 4px var(--void); }
     .torii-section .lede, .torii-section .eyebrow { text-shadow: 0 2px 18px var(--void), 0 1px 4px var(--void); }
