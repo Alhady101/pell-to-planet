@@ -2,7 +2,7 @@
  * Holographic dot-matrix globe — Canvas 2D, no dependencies.
  *
  * Land coordinates come from `src/data/land.ts`, generated at build time from
- * Natural Earth 1:110m public-domain polygons. Rendering is orthographic:
+ * Natural Earth 1:50m public-domain polygons. Rendering is orthographic:
  * lat/lon -> unit vector -> yaw/pitch rotation -> drop the z axis.
  *
  * Two layers of markers: a visual connection between Detroit and Tokyo (not
@@ -13,6 +13,7 @@
  * off-screen pause, browser throttling — dragging silently did nothing.
  */
 import { LAND } from '../data/land';
+import { BORDERS } from '../data/borders';
 import { DESTINATIONS } from '../data/destinations';
 
 const DEG = Math.PI / 180;
@@ -76,13 +77,16 @@ export function initGlobe(canvas: HTMLCanvasElement) {
   const homeYaw = -242 * DEG;
   let yaw = homeYaw;
   let pitch = 0.9;
+  let roll = 0;
   let hovered = '';
   let userMoved = false;
   const hits: { x: number; y: number; label: string }[] = [];
   let dragging = false;
   let activePointer: number | null = null;
   let lastX = 0;
+  let lastY = 0;
   let velocity = 0;
+  let pitchVelocity = 0;
   let running = false;
   let raf = 0;
   let t0 = 0;
@@ -118,7 +122,9 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     const x1 = v[0] * cyaw + v[2] * syaw;
     const z1 = -v[0] * syaw + v[2] * cyaw;
     const cp = Math.cos(pitch), sp = Math.sin(pitch);
-    return [-x1, v[1] * cp - z1 * sp, v[1] * sp + z1 * cp];
+    const y2 = v[1] * cp - z1 * sp;
+    const cr = Math.cos(roll), sr = Math.sin(roll);
+    return [-x1 * cr - y2 * sr, -x1 * sr + y2 * cr, v[1] * sp + z1 * cp];
   }
 
   /** Dots are bucketed by depth so we set globalAlpha six times, not 3,600. */
@@ -131,6 +137,7 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     bucketN.fill(0);
     const cyaw = Math.cos(yaw), syaw = Math.sin(yaw);
     const cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const cr = Math.cos(roll), sr = Math.sin(roll);
 
     for (let i = 0; i < LAND.length; i += 2) {
       const lat = LAND[i] / 100;
@@ -150,8 +157,8 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       if (z2 <= 0.01) continue;
       const b = Math.min(BUCKETS - 1, Math.max(0, Math.floor(z2 * BUCKETS)));
       const n = bucketN[b]++;
-      bucketX[b][n] = cx - x1 * R;
-      bucketY[b][n] = cy - y2 * R;
+      bucketX[b][n] = cx + (-x1 * cr - y2 * sr) * R;
+      bucketY[b][n] = cy - (-x1 * sr + y2 * cr) * R;
     }
 
     const c = ctx!;
@@ -166,6 +173,26 @@ export function initGlobe(canvas: HTMLCanvasElement) {
       const xs = bucketX[b], ys = bucketY[b];
       for (let i = 0; i < n; i++) c.fillRect(xs[i] - size / 2, ys[i] - size / 2, size, size);
     }
+    c.globalAlpha = 1;
+  }
+
+  function drawBorders() {
+    const c = ctx!;
+    c.strokeStyle = COL.gold;
+    c.lineWidth = Math.max(0.65, Math.min(1.1, R / 230));
+    c.globalAlpha = 0.64;
+    c.beginPath();
+    let previous: Vec3 | null = null;
+    for (let i = 0; i < BORDERS.length; i += 2) {
+      if (BORDERS[i] === 32767) { previous = null; continue; }
+      const p = rotate(toVec(BORDERS[i] / 100, BORDERS[i + 1] / 100));
+      if (p[2] > 0 && previous && previous[2] > 0) {
+        c.moveTo(cx + previous[0] * R, cy - previous[1] * R);
+        c.lineTo(cx + p[0] * R, cy - p[1] * R);
+      }
+      previous = p;
+    }
+    c.stroke();
     c.globalAlpha = 1;
   }
 
@@ -352,6 +379,7 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     drawSphereBody();
     drawLand();
     drawGraticule();
+    drawBorders();
     drawRim();
     drawDestinations();
     drawArc();
@@ -364,9 +392,12 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     t0 = now;
 
     if (!dragging) {
-      if (!userMoved) yaw = homeYaw + Math.sin(now / 7000) * 0.045;
-      else yaw += velocity * dt;
+      yaw += (userMoved ? 0.00012 : 0.00017) * dt + velocity * dt;
+      pitch = Math.max(-1.28, Math.min(1.28, pitch + pitchVelocity * dt));
+      if (!userMoved) pitch = 0.9 + Math.sin(now / 5100) * 0.14;
+      roll = Math.sin(now / 6200) * 0.085;
       velocity *= 0.94;
+      pitchVelocity *= 0.94;
       if (Math.abs(velocity) < 1e-6) velocity = 0;
     }
     arcPhase = (arcPhase + dt / 6200) % 1;
@@ -403,7 +434,9 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     userMoved = true;
     activePointer = e.pointerId;
     lastX = e.clientX;
+    lastY = e.clientY;
     velocity = 0;
+    pitchVelocity = 0;
     try { canvas.setPointerCapture(e.pointerId); } catch {}
     canvas.style.cursor = 'grabbing';
     start();
@@ -424,9 +457,13 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     // A mouse with no buttons held means we missed the pointerup somewhere.
     if (e.pointerType === 'mouse' && e.buttons === 0) { endDrag(e.pointerId); return; }
     const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
     lastX = e.clientX;
+    lastY = e.clientY;
     yaw -= dx * 0.006;
+    pitch = Math.max(-1.28, Math.min(1.28, pitch + dy * 0.006));
     velocity = -dx * 0.00035;
+    pitchVelocity = dy * 0.00035;
     render(performance.now());
   };
 
@@ -436,12 +473,13 @@ export function initGlobe(canvas: HTMLCanvasElement) {
     const el = e.target as HTMLSelectElement;
     const destination = DESTINATIONS.find(d => d.name === el.value);
     velocity = 0;
+    pitchVelocity = 0;
     if (destination) {
       yaw = (destination.lon - 90) * DEG;
       pitch = destination.lat * DEG;
       hovered = destination.name;
       userMoved = true;
-    } else { yaw = homeYaw; pitch = 0.9; hovered = ''; userMoved = false; }
+    } else { yaw = homeYaw; pitch = 0.9; roll = 0; hovered = ''; userMoved = false; }
     render(performance.now());
   };
   root?.querySelector('select')?.addEventListener('change', onSelect);
