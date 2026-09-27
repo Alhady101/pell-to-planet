@@ -14,7 +14,7 @@
 import { Image } from 'astro:assets';
 import tokyo from '../assets/photos/tokyo-shibuya-night.jpg';
 import osaka from '../assets/photos/osaka-street.jpg';
-import kyoto from '../assets/photos/kyoto-red-car.jpg';
+import kyoto from '../assets/photos/kyoto-torii-path.jpg';
 import hama from '../assets/photos/hamamatsu-yamaha-entrance.jpg';
 import hiro from '../assets/photos/hiroshima-atomic-dome-group.jpg';
 
@@ -105,10 +105,11 @@ const cars = [
     border: 1px solid #2b3142;
     box-shadow: inset 0 0 0 6px #0d1017, inset 0 0 40px -14px #000, 0 30px 70px -40px #000; }
   .car__win :global(img) { width: 100%; height: 100%; object-fit: cover;
-    filter: saturate(.86) contrast(1.04) blur(calc(var(--vel, 0) * 2.4px)); }
+    filter: saturate(.94) contrast(1.02); }
+  /* glass, not blur: a faint reflection sheen across the window */
   .car__blur { position: absolute; inset: 0; pointer-events: none;
-    opacity: calc(var(--vel, 0) * .85);
-    background: repeating-linear-gradient(90deg, transparent 0 14px, rgb(255 255 255 / .05) 14px 15px); }
+    opacity: calc(.18 + var(--vel, 0) * .22);
+    background: linear-gradient(104deg, transparent 38%, rgb(255 255 255 / .07) 46%, transparent 54%); }
 
   .car__no { font: 700 11px/1 var(--mono); letter-spacing: .28em;
     color: var(--torii); margin: 0 0 14px; }
