@@ -178,7 +178,7 @@ export const AWARDS: Award[] = [
     id: 'campusScholarships',
     name: 'General university scholarships',
     tier: 'campus',
-    amount: 'Varies. Several of mine ran from a few hundred to a few thousand dollars per semester.',
+    amount: 'Varies, from a few hundred dollars to a few thousand.',
     who: 'Enrolled students, by all sorts of criteria.',
     requires: [
       'A scholarship-matching portal account, for general awards',

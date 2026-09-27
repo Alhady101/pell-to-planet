@@ -7,7 +7,7 @@ export const SOURCES = {
   wsuProgramPage: 'Wayne State Study Abroad program listing, Japan: Automotive Supply Chain (abroad.wayne.edu)',
   ssStatement: 'WSU Spring/Summer 2026 student account statement (Transact), exported by the author',
   gilmanLetter: 'U.S. Department of State Gilman award letter, April 30, 2026',
-  aidSummary: 'WSU financial aid award summary 2025–26, screenshot kept by the author',
+  aidSummary: 'WSU financial aid award detail for the Spring/Summer 2026 term, screenshot kept by the author',
   author: 'Author\'s own record (Gotibeh Alhady)',
   transcript: 'WSU unofficial transcript, Spring/Summer 2026 term',
   gilmanDeadlines: 'gilmanscholarship.org/applicants/deadlines-and-timeline/',
