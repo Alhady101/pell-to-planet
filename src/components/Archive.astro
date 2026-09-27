@@ -1,0 +1,148 @@
+---
+/**
+ * Archive. The photographs added after the first build, with the Keylex visit
+ * pulled out as a feature because it is the clearest supply-chain evidence on
+ * the trip: a tier supplier that built a whole vehicle.
+ *
+ * Every AZ-1 figure below is read off the specification placard standing in
+ * the author's own photograph. Nothing here is recalled or looked up.
+ */
+import { Image } from 'astro:assets';
+
+import keylex from '../assets/photos/keylex-group.jpg';
+import kyotoGroup from '../assets/photos/kyoto-group.jpg';
+import kyotoGates from '../assets/photos/kyoto-shrine-gates.jpg';
+import tokyoTowers from '../assets/photos/tokyo-towers.jpg';
+import tokyoBus from '../assets/photos/tokyo-bus-ride.jpg';
+import tokyoKaraoke from '../assets/photos/tokyo-karaoke-group.jpg';
+import hiroHills from '../assets/photos/hiroshima-hills.jpg';
+import hiroDelta from '../assets/photos/hiroshima-delta.jpg';
+import hiroWalk from '../assets/photos/hiroshima-walk.jpg';
+import hiroDinner from '../assets/photos/hiroshima-mazda-dinner.jpg';
+import hiroKorean from '../assets/photos/hiroshima-korean-restaurant.jpg';
+
+/* Read from the placard in the photograph. */
+const AZ1 = [
+  { k: '全長', en: 'Length', v: '3,295 mm' },
+  { k: '車両重量', en: 'Kerb weight', v: '720 kg' },
+  { k: '総排気量', en: 'Displacement', v: '657 cc' },
+  { k: '最高出力', en: 'Power', v: '64 PS' },
+];
+
+const shots = [
+  { img: kyotoGroup,   cap: 'Kyoto, on the day trip out of Osaka.',      w: 'tall' },
+  { img: tokyoTowers,  cap: 'Tokyo.',                                     w: 'wide' },
+  { img: hiroHills,    cap: 'The hills above Hiroshima.',                 w: 'wide' },
+  { img: kyotoGates,   cap: 'Shrine gates, Kyoto.',                       w: 'tall' },
+  { img: tokyoBus,     cap: 'The tour bus, Tokyo.',                       w: 'wide' },
+  { img: hiroDelta,    cap: 'The Hiroshima delta.',                       w: 'wide' },
+  { img: tokyoKaraoke, cap: 'Karaoke with the group, Tokyo.',             w: 'tall' },
+  { img: hiroWalk,     cap: 'Walking Hiroshima.',                         w: 'wide' },
+  { img: hiroDinner,   cap: 'Dinner in Hiroshima, after the Mazda visit.', w: 'wide' },
+  { img: hiroKorean,   cap: 'A Korean restaurant in Hiroshima.',          w: 'tall' },
+];
+---
+
+<section class="arch" aria-labelledby="arch-title">
+  <div class="arch__wrap">
+
+    <h2 class="arch__h2" id="arch-title">A supplier that builds the whole car.</h2>
+
+    <figure class="feat">
+      <div class="feat__img">
+        <Image src={keylex} alt="Students and a Keylex host beside a red Mazda AZ-1 with its gullwing door raised" widths={[720, 1200, 1800]} sizes="(max-width: 60rem) 100vw, 58vw" loading="lazy" />
+      </div>
+      <figcaption class="feat__body">
+        <p class="feat__kicker">Keylex, Yano plant</p>
+        <p class="feat__lede">
+          Keylex press body parts for Mazda. They also built this car outright: the
+          Mazda AZ-1, assembled at their Yano plant from October 1992 to October 1994.
+          A gullwing kei car weighing less than most motorcycles carry in passengers.
+        </p>
+        <dl class="feat__spec">
+          {AZ1.map((s) => (
+            <div>
+              <dt>{s.k}<span>{s.en}</span></dt>
+              <dd>{s.v}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="feat__src">Specifications read from the placard beside the car in this photograph.</p>
+      </figcaption>
+    </figure>
+
+    <ul class="grid">
+      {shots.map((s) => (
+        <li class={`grid__i grid__i--${s.w}`}>
+          <figure>
+            <Image src={s.img} alt={s.cap} widths={[420, 760, 1100]} sizes="(max-width: 48rem) 100vw, 32vw" loading="lazy" />
+            <figcaption>{s.cap}</figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</section>
+
+<style>
+  .arch { padding: clamp(70px, 11vh, 140px) 0; border-top: 1px solid var(--hairline); }
+  .arch__wrap { max-width: 1240px; margin-inline: auto; padding-inline: clamp(20px, 5vw, 56px); }
+  .arch__h2 { font: 400 clamp(1.8rem, 4.2vw, 3.1rem)/1.05 var(--serif);
+    letter-spacing: -.02em; margin: 0 0 clamp(34px, 5vh, 58px); max-width: 18ch; }
+
+  /* ---- feature ---- */
+  .feat { margin: 0 0 clamp(40px, 6vh, 72px); display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(20px, 3.2vw, 46px); align-items: center; }
+  .feat__img { border-radius: 4px; overflow: hidden; background: var(--surface-1); }
+  .feat__img :global(img) { width: 100%; height: auto; display: block; }
+  .feat__body { margin: 0; }
+  .feat__kicker { font: 400 11px/1 var(--mono); letter-spacing: .24em;
+    text-transform: uppercase; color: var(--torii); margin: 0 0 16px; }
+  .feat__lede { color: var(--ink-2); margin: 0 0 26px; max-width: 46ch; }
+
+  .feat__spec { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; margin: 0 0 22px; }
+  .feat__spec dt { font: 400 15px/1.2 var(--serif); color: var(--ink-3); margin: 0 0 4px; }
+  .feat__spec dt span { display: block; font: 400 9.5px/1 var(--mono);
+    letter-spacing: .16em; text-transform: uppercase; margin-top: 5px; }
+  .feat__spec dd { margin: 0; font: 800 clamp(1.1rem, 2.4vw, 1.6rem)/1 var(--mono);
+    color: var(--ink); letter-spacing: -.02em; }
+  .feat__src { font-size: 12.5px; color: var(--ink-3); margin: 0;
+    padding-top: 14px; border-top: 1px solid var(--hairline); }
+
+  /* ---- grid ---- */
+  .grid { list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: clamp(10px, 1.4vw, 18px); }
+  .grid__i--wide { grid-column: span 3; }
+  .grid__i--tall { grid-column: span 2; }
+  .grid figure { margin: 0; position: relative; overflow: hidden;
+    border-radius: 3px; background: var(--surface-1); height: 100%; }
+  .grid :global(img) { width: 100%; height: 100%; object-fit: cover;
+    transition: transform 1s cubic-bezier(.16, 1, .3, 1); }
+  .grid figure:hover :global(img) { transform: scale(1.04); }
+  .grid figcaption { position: absolute; inset: auto 0 0; padding: 26px 14px 12px;
+    font-size: 12.5px; color: var(--ink);
+    background: linear-gradient(to top, rgb(8 9 13 / .92), transparent);
+    opacity: 0; transform: translateY(6px); transition: opacity .35s, transform .35s; }
+  .grid figure:hover figcaption, .grid figure:focus-within figcaption {
+    opacity: 1; transform: none; }
+  .grid__i--wide figure { aspect-ratio: 4 / 3; }
+  .grid__i--tall figure { aspect-ratio: 3 / 4; }
+
+  @media (max-width: 60rem) {
+    .feat { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .grid__i--wide, .grid__i--tall { grid-column: span 1; }
+  }
+  @media (max-width: 34rem) {
+    .grid { grid-template-columns: 1fr; }
+    .feat__spec { grid-template-columns: 1fr 1fr; }
+    /* captions cannot rely on hover on touch */
+    .grid figcaption { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .grid :global(img), .grid figcaption { transition: none; }
+    .grid figure:hover :global(img) { transform: none; }
+  }
+</style>
