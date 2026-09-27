@@ -1,0 +1,181 @@
+---
+/**
+ * TrainMap. A side elevation of the train, drawn as SVG, that doubles as the
+ * navigation for the ride below. Each car is a real link: click it and you
+ * land on that city.
+ *
+ * Original artwork. The livery borrows the shape language of a long-nose
+ * shinkansen without copying any operator's markings.
+ */
+const cars = [
+  { n: 1, city: 'Tokyo', jp: '東京' },
+  { n: 2, city: 'Osaka', jp: '大阪' },
+  { n: 3, city: 'Kyoto', jp: '京都' },
+  { n: 4, city: 'Hamamatsu', jp: '浜松' },
+  { n: 5, city: 'Hiroshima', jp: '広島' },
+];
+
+const NOSE = 236;      // long-nose beak: the shape that reads as shinkansen
+const CAR_W = 186;     // body length of one car
+const GAP = 10;        // coupling gap, filled by a gangway bellows
+const BODY_Y = 30;     // top of the body
+const BODY_H = 66;     // body height
+const STRIPE_H = 10;   // side stripe
+const STRIPE_Y = BODY_Y + BODY_H - 21;
+const W = NOSE + cars.length * (CAR_W + GAP) + 26;
+const H = 150;
+
+const carX = (i: number) => NOSE + i * (CAR_W + GAP);
+---
+
+<figure class="tm">
+  <svg viewBox={`0 0 ${W} ${H}`} class="tm__svg" role="img"
+       aria-labelledby="tm-title" preserveAspectRatio="xMidYMid meet">
+    <title id="tm-title">The five cars of the trip, from Tokyo to Hiroshima. Each car links to that city.</title>
+
+    <defs>
+      <linearGradient id="tm-body" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f7f5ef" />
+        <stop offset=".46" stop-color="#dcd9d1" />
+        <stop offset=".47" stop-color="#c9c5bc" />
+        <stop offset="1" stop-color="#9b978e" />
+      </linearGradient>
+      <linearGradient id="tm-glass" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1d2735" />
+        <stop offset="1" stop-color="#0b1119" />
+      </linearGradient>
+      <linearGradient id="tm-rail" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="transparent" />
+        <stop offset=".08" stop-color="#2a3040" />
+        <stop offset=".92" stop-color="#2a3040" />
+        <stop offset="1" stop-color="transparent" />
+      </linearGradient>
+    </defs>
+
+    <!-- rail -->
+    <rect x="0" y={BODY_Y + BODY_H + 20} width={W} height="2.5" fill="url(#tm-rail)" />
+
+    <!-- nose cone: a long, low beak, the shape that says shinkansen -->
+    <path
+      d={`M ${NOSE + 4} ${BODY_Y}
+          C ${NOSE - 74} ${BODY_Y + 1}, ${120} ${BODY_Y + 14}, ${44} ${BODY_Y + 38}
+          C ${22} ${BODY_Y + 46}, ${10} ${BODY_Y + 54}, ${5} ${BODY_Y + BODY_H - 4}
+          L ${5} ${BODY_Y + BODY_H}
+          L ${NOSE + 4} ${BODY_Y + BODY_H} Z`}
+      fill="url(#tm-body)" />
+    <!-- nose stripe, rising from the tip to meet the body stripe -->
+    <path
+      d={`M ${NOSE + 4} ${STRIPE_Y}
+          C ${150} ${STRIPE_Y + 3}, ${72} ${STRIPE_Y + 9}, ${8} ${BODY_Y + BODY_H - 6}
+          L ${5} ${BODY_Y + BODY_H}
+          L ${NOSE + 4} ${BODY_Y + BODY_H} Z`}
+      fill="var(--torii, #ff5f3f)" />
+    <!-- skirt shadow under the beak -->
+    <path
+      d={`M ${NOSE + 4} ${BODY_Y + BODY_H}
+          L ${5} ${BODY_Y + BODY_H}
+          L ${5} ${BODY_Y + BODY_H + 3}
+          L ${NOSE + 4} ${BODY_Y + BODY_H + 3} Z`}
+      fill="#20242f" opacity=".8" />
+    <!-- cab windscreen: raked, sitting on the shoulder of the nose -->
+    <path
+      d={`M ${NOSE - 14} ${BODY_Y + 7}
+          C ${NOSE - 56} ${BODY_Y + 9}, ${NOSE - 96} ${BODY_Y + 17}, ${NOSE - 124} ${BODY_Y + 29}
+          L ${NOSE - 62} ${BODY_Y + 29}
+          L ${NOSE - 14} ${BODY_Y + 24} Z`}
+      fill="url(#tm-glass)" />
+    <!-- headlight -->
+    <ellipse cx={NOSE - 140} cy={BODY_Y + 38} rx="7" ry="4.2" fill="#fff6e2" opacity=".9" />
+    <ellipse cx={NOSE - 140} cy={BODY_Y + 38} rx="13" ry="8" fill="#fff6e2" opacity=".13" />
+
+    {cars.map((c, i) => (
+      <a class="tm__car" href={`#car-${c.n}`} aria-label={`${c.city}, car ${c.n}`}>
+        <g>
+          {/* gangway bellows, so the coupling reads as a join and not a gap */}
+          {i > 0 && (
+            <rect x={carX(i) - GAP - 1} y={BODY_Y + 6} width={GAP + 2} height={BODY_H - 12}
+                  fill="#3a3f4c" />
+          )}
+          {/* body */}
+          <rect x={carX(i)} y={BODY_Y} width={CAR_W} height={BODY_H} rx="3" fill="url(#tm-body)" />
+          {/* side stripe */}
+          <rect x={carX(i)} y={STRIPE_Y} width={CAR_W} height={STRIPE_H}
+                fill="var(--torii, #ff5f3f)" />
+          {/* skirt */}
+          <rect x={carX(i)} y={BODY_Y + BODY_H} width={CAR_W} height="3" fill="#20242f" opacity=".8" />
+          {/* window band */}
+          <rect x={carX(i) + 12} y={BODY_Y + 13} width={CAR_W - 24} height="21" rx="3"
+                fill="url(#tm-glass)" />
+          {/* window mullions */}
+          {[0, 1, 2, 3].map((k) => (
+            <rect x={carX(i) + 12 + ((CAR_W - 24) / 4) * (k + 1) - 1.2}
+                  y={BODY_Y + 13} width="2.4" height="21" fill="#9b978e" opacity=".55" />
+          ))}
+          {/* door */}
+          <rect x={carX(i) + CAR_W - 34} y={BODY_Y + 8} width="20" height={BODY_H - 18}
+                rx="2" fill="none" stroke="#8d8a82" stroke-width="1.1" opacity=".7" />
+          {/* bogies */}
+          <rect x={carX(i) + 22} y={BODY_Y + BODY_H} width="34" height="9" rx="2" fill="#20242f" />
+          <rect x={carX(i) + CAR_W - 56} y={BODY_Y + BODY_H} width="34" height="9" rx="2" fill="#20242f" />
+          <circle cx={carX(i) + 31} cy={BODY_Y + BODY_H + 11} r="4.6" fill="#333a49" />
+          <circle cx={carX(i) + 47} cy={BODY_Y + BODY_H + 11} r="4.6" fill="#333a49" />
+          <circle cx={carX(i) + CAR_W - 47} cy={BODY_Y + BODY_H + 11} r="4.6" fill="#333a49" />
+          <circle cx={carX(i) + CAR_W - 31} cy={BODY_Y + BODY_H + 11} r="4.6" fill="#333a49" />
+
+          {/* car number on the body */}
+          <text class="tm__num" x={carX(i) + 14} y={BODY_Y + BODY_H - 20}
+                font-size="9" fill="#6f6b63" font-family="var(--mono)"
+                letter-spacing="1.4">{String(c.n).padStart(2, '0')}</text>
+
+          {/* label below */}
+          <text class="tm__city" x={carX(i) + CAR_W / 2} y={H - 16} text-anchor="middle"
+                font-size="13" font-family="var(--sans)" fill="var(--ink-2)">{c.city}</text>
+          <text class="tm__jp" x={carX(i) + CAR_W / 2} y={H - 2} text-anchor="middle"
+                font-size="10.5" font-family="var(--sans)" fill="var(--ink-3)">{c.jp}</text>
+
+          {/* hit area */}
+          <rect class="tm__hit" x={carX(i)} y={BODY_Y - 8} width={CAR_W} height={H - BODY_Y} fill="transparent" />
+        </g>
+      </a>
+    ))}
+  </svg>
+  <figcaption class="tm__cap">Pick a car.</figcaption>
+</figure>
+
+<style>
+  .tm { margin: 0; width: 100%; }
+  .tm__svg { width: 100%; height: auto; overflow: visible;
+    filter: drop-shadow(0 30px 44px rgb(0 0 0 / .55)); }
+
+  .tm__car { cursor: pointer; }
+  .tm__car g { transition: transform .45s cubic-bezier(.16, 1, .3, 1), opacity .3s; }
+  .tm__car:hover g, .tm__car:focus-visible g { transform: translateY(-7px); }
+  .tm__car:focus-visible { outline: none; }
+  .tm__car:focus-visible g { filter: drop-shadow(0 0 10px var(--torii, #ff5f3f)); }
+
+  .tm__city { transition: fill .3s; }
+  .tm__car:hover .tm__city, .tm__car:focus-visible .tm__city { fill: var(--ink); }
+  .tm__car:hover .tm__num, .tm__car:focus-visible .tm__num { fill: var(--torii, #ff5f3f); }
+
+  /* the train eases in once, left to right, like it is pulling in */
+  .tm__svg { animation: pullin 1.1s cubic-bezier(.16, 1, .3, 1) both; }
+  @keyframes pullin {
+    from { transform: translateX(-4%); opacity: 0 }
+    to   { transform: none; opacity: 1 }
+  }
+
+  .tm__cap { font: 400 11px/1 var(--mono); letter-spacing: .22em;
+    text-transform: uppercase; color: var(--ink-3); margin-top: 22px; }
+
+  @media (max-width: 52rem) {
+    /* let it scroll sideways rather than shrink into illegibility */
+    .tm { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+    .tm__svg { width: 820px; max-width: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tm__svg { animation: none; }
+    .tm__car g { transition: none; }
+    .tm__car:hover g, .tm__car:focus-visible g { transform: none; }
+  }
+</style>

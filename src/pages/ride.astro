@@ -1,0 +1,95 @@
+---
+import Base from '../layouts/Base.astro';
+import Carriages from '../components/Carriages.astro';
+import Arcade from '../components/Arcade.astro';
+import Archive from '../components/Archive.astro';
+import TrainMap from '../components/TrainMap.astro';
+import Petals from '../components/Petals.astro';
+import { program } from '../data/facts';
+---
+
+<Base
+  title="The ride"
+  description="The route from Tokyo to Hiroshima, car by car, on the JR Pass that came with the program fee."
+  transparentHeader
+>
+  <section class="intro">
+    <Petals count={14} />
+    <p class="intro__kicker">{program.name}</p>
+    <h1 class="intro__h1">Walk the train.</h1>
+    <p class="intro__lede">
+      Five cities in fourteen days, on a rail pass the program fee already covered.
+    </p>
+    <TrainMap />
+  </section>
+
+  <Carriages />
+
+  <Arcade />
+
+  <Archive />
+
+  <section class="after">
+    <h2>What the pass was worth</h2>
+    <p>
+      The JR Pass was included in the program fee, so Kyoto cost nothing extra to
+      add. That is the kind of detail a budget spreadsheet hides and a student
+      planning their own trip needs to know.
+    </p>
+    <a class="after__cta" href={`${import.meta.env.BASE_URL}my-numbers/`}>See every dollar</a>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    min-height: 74vh;
+    display: grid;
+    align-content: center;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding: 0 clamp(20px, 5vw, 64px);
+  }
+  .intro__kicker {
+    font: 400 11px/1 var(--mono);
+    letter-spacing: .26em;
+    text-transform: uppercase;
+    color: var(--torii);
+    margin: 0 0 20px;
+  }
+  .intro__h1 {
+    font: 400 clamp(2.8rem, 8vw, 6rem)/1 var(--serif);
+    letter-spacing: -.025em;
+    margin: 0 0 20px;
+  }
+  .intro__lede {
+    color: var(--ink-2);
+    max-width: 46ch;
+    margin: 0;
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+  }
+
+  .after {
+    max-width: 680px;
+    margin-inline: auto;
+    padding: clamp(70px, 12vh, 140px) clamp(20px, 5vw, 64px);
+  }
+  .after h2 {
+    font: 400 clamp(1.6rem, 3.4vw, 2.4rem)/1.1 var(--serif);
+    letter-spacing: -.015em;
+    margin: 0 0 16px;
+  }
+  .after p { color: var(--ink-2); margin: 0 0 26px; }
+  .after__cta {
+    display: inline-flex;
+    padding: 14px 26px;
+    background: var(--torii);
+    color: #160502;
+    font-weight: 700;
+    font-size: 14.5px;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background .25s, transform .12s;
+  }
+  .after__cta:hover { background: #ff8168; }
+  .after__cta:active { transform: translateY(-1px) scale(.985); }
+</style>

@@ -25,8 +25,14 @@ export const program = {
   credits: 3,
   term: 'Spring/Summer 2026',
   termCode: '202606',
+  /* The faculty-led programme itself. Everyone was on this window. */
   inCountry: { start: '2026-06-14', end: '2026-06-27' },
-  travel: { depart: '2026-06-13', return: '2026-06-27' },
+  /* The author's own travel. He stayed on after the group flew home and
+     came back on July 3, so his trip is longer than the programme.
+     These are deliberately two separate facts: costs attributable to the
+     programme end on June 27, and the days after that are his own. */
+  travel: { depart: '2026-06-13', return: '2026-07-03' },
+  soloExtension: { start: '2026-06-28', end: '2026-07-03', days: 6 },
   cities: [
     { name: 'Tokyo', from: '2026-06-14', to: '2026-06-18', hotel: 'The Knot Tokyo Shinjuku' },
     { name: 'Osaka', from: '2026-06-18', to: '2026-06-21', hotel: 'Villa Fontaine Grand Osaka-Umeda' },
@@ -78,7 +84,7 @@ export const costs: Fact[] = [
   { id: 'airfare', label: 'Round-trip airfare', amountUSD: 1800, status: 'stated', source: SOURCES.author, verifiedOn: V,
     note: 'What I paid. Detroit to Tokyo fares vary a lot by booking date.' },
   { id: 'food', label: 'Food beyond what the fee covered', amountUSD: 30 * 14, status: 'estimate', source: SOURCES.author, verifiedOn: V,
-    method: 'About $30 a day for 14 days. Breakfast came with the hotel and several dinners were group meals.' },
+    method: 'About $30 a day for the 14 programme days. Breakfast came with the hotel and several dinners were group meals. The six days after the programme are counted separately below.' },
   { id: 'localTransit', label: 'Subway and local transit', amountUSD: 30, status: 'estimate', source: SOURCES.author, verifiedOn: V,
     method: 'Roughly ¥1,000 every three to four days on IC-card rides. The JR Pass was in the program fee.' },
   { id: 'airportTransfer', label: 'Airport transfers', amountUSD: null, status: 'todo', source: SOURCES.author, verifiedOn: V,
@@ -88,6 +94,8 @@ export const costs: Fact[] = [
   { id: 'scooter', label: 'LUUP e-scooter subscription', amountUSD: 7, status: 'stated', source: SOURCES.author, verifiedOn: V },
   { id: 'suitcase', label: 'Replacement suitcase', amountUSD: 120, status: 'stated', source: SOURCES.author, verifiedOn: V,
     note: 'Mine broke on a city-transfer day. Budget for one surprise.' },
+  { id: 'soloDays', label: 'The six days after the programme ended', amountUSD: null, status: 'todo', source: SOURCES.author, verifiedOn: V,
+    note: 'TODO: lodging, food and transit for June 28 to July 3. The group flew home on the 27th; I stayed on to see the country by myself and flew back on the 3rd. None of this was covered by the programme fee or by any award, so it belongs in the out-of-pocket column once the amounts are confirmed.' },
 ];
 
 /* ------------------------------------------------------------------ */
