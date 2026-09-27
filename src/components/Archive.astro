@@ -29,18 +29,20 @@ const AZ1 = [
   { k: '最高出力', en: 'Power', v: '64 PS' },
 ];
 
+/* Orientation is read off each file rather than assigned by hand, so a
+   portrait photograph is never squeezed into a landscape tile and cropped. */
 const shots = [
-  { img: kyotoGroup,   cap: 'Kyoto, on the day trip out of Osaka.',      w: 'tall' },
-  { img: tokyoTowers,  cap: 'Tokyo.',                                     w: 'wide' },
-  { img: hiroHills,    cap: 'The hills above Hiroshima.',                 w: 'wide' },
-  { img: kyotoGates,   cap: 'Shrine gates, Kyoto.',                       w: 'tall' },
-  { img: tokyoBus,     cap: 'The tour bus, Tokyo.',                       w: 'wide' },
-  { img: hiroDelta,    cap: 'The Hiroshima delta.',                       w: 'wide' },
-  { img: tokyoKaraoke, cap: 'Karaoke with the group, Tokyo.',             w: 'tall' },
-  { img: hiroWalk,     cap: 'Walking Hiroshima.',                         w: 'wide' },
-  { img: hiroDinner,   cap: 'Dinner in Hiroshima, after the Mazda visit.', w: 'wide' },
-  { img: hiroKorean,   cap: 'A Korean restaurant in Hiroshima.',          w: 'tall' },
-];
+  { img: kyotoGroup,   cap: 'Kyoto, on the day trip out of Osaka.' },
+  { img: tokyoTowers,  cap: 'Tokyo.' },
+  { img: hiroHills,    cap: 'The hills above Hiroshima.' },
+  { img: kyotoGates,   cap: 'Shrine gates, Kyoto.' },
+  { img: tokyoBus,     cap: 'The tour bus, Tokyo.' },
+  { img: hiroDelta,    cap: 'The Hiroshima delta.' },
+  { img: tokyoKaraoke, cap: 'Karaoke with the group, Tokyo.' },
+  { img: hiroWalk,     cap: 'Walking Hiroshima.' },
+  { img: hiroDinner,   cap: 'Dinner in Hiroshima, after the Mazda visit.' },
+  { img: hiroKorean,   cap: 'A Korean restaurant in Hiroshima.' },
+].map((s) => ({ ...s, w: s.img.height > s.img.width ? 'tall' : 'wide' }));
 ---
 
 <section class="arch" aria-labelledby="arch-title">
@@ -73,8 +75,8 @@ const shots = [
 
     <ul class="grid">
       {shots.map((s) => (
-        <li class={`grid__i grid__i--${s.w}`}>
-          <figure>
+        <li class="grid__i">
+          <figure style={`aspect-ratio:${s.img.width} / ${s.img.height}`}>
             <Image src={s.img} alt={s.cap} widths={[420, 760, 1100]} sizes="(max-width: 48rem) 100vw, 32vw" loading="lazy" />
             <figcaption>{s.cap}</figcaption>
           </figure>
@@ -111,13 +113,16 @@ const shots = [
   .feat__src { font-size: 12.5px; color: var(--ink-3); margin: 0;
     padding-top: 14px; border-top: 1px solid var(--hairline); }
 
-  /* ---- grid ---- */
+  /* ---- masonry ----
+     Columns rather than a grid of fixed tiles. Every photograph keeps its own
+     aspect ratio, so nothing is cropped: the panoramic delta shot and the very
+     tall street shot were each losing a quarter of the frame to a tile that
+     did not fit them. */
   .grid { list-style: none; margin: 0; padding: 0;
-    display: grid; grid-template-columns: repeat(6, 1fr); gap: clamp(10px, 1.4vw, 18px); }
-  .grid__i--wide { grid-column: span 3; }
-  .grid__i--tall { grid-column: span 2; }
+    columns: 3; column-gap: clamp(10px, 1.4vw, 18px); }
+  .grid__i { break-inside: avoid; margin-bottom: clamp(10px, 1.4vw, 18px); }
   .grid figure { margin: 0; position: relative; overflow: hidden;
-    border-radius: 3px; background: var(--surface-1); height: 100%; }
+    border-radius: 3px; background: var(--surface-1); }
   .grid :global(img) { width: 100%; height: 100%; object-fit: cover;
     transition: transform 1s cubic-bezier(.16, 1, .3, 1); }
   .grid figure:hover :global(img) { transform: scale(1.04); }
@@ -127,16 +132,13 @@ const shots = [
     opacity: 0; transform: translateY(6px); transition: opacity .35s, transform .35s; }
   .grid figure:hover figcaption, .grid figure:focus-within figcaption {
     opacity: 1; transform: none; }
-  .grid__i--wide figure { aspect-ratio: 4 / 3; }
-  .grid__i--tall figure { aspect-ratio: 3 / 4; }
 
   @media (max-width: 60rem) {
     .feat { grid-template-columns: 1fr; }
-    .grid { grid-template-columns: repeat(2, 1fr); }
-    .grid__i--wide, .grid__i--tall { grid-column: span 1; }
+    .grid { columns: 2; }
   }
   @media (max-width: 34rem) {
-    .grid { grid-template-columns: 1fr; }
+    .grid { columns: 1; }
     .feat__spec { grid-template-columns: 1fr 1fr; }
     /* captions cannot rely on hover on touch */
     .grid figcaption { opacity: 1; transform: none; }

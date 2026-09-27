@@ -56,7 +56,10 @@ const cars = [
               which fights the transform and pushes the track off-screen.
               Navigation is handled in script instead. */}
           <article class="car" data-car={c.n}>
-            <div class="car__win">
+            {/* The window takes its shape from the photograph. A portrait shot
+                forced into a landscape frame loses its top, which on the Kyoto
+                picture is the whole Romon gate. */}
+            <div class:list={['car__win', { 'car__win--tall': c.img.height > c.img.width }]}>
               <Image src={c.img} alt={`${c.city}, seen on the trip`} widths={[520, 900]} sizes="42vw" loading={i < 2 ? 'eager' : 'lazy'} />
               <span class="car__blur"></span>
             </div>
@@ -108,6 +111,11 @@ const cars = [
     overflow: hidden; background: #0a0c12;
     border: 1px solid #2b3142;
     box-shadow: inset 0 0 0 6px #0d1017, inset 0 0 40px -14px #000, 0 30px 70px -40px #000; }
+  /* Portrait shots get a portrait window. Height is capped against the
+     viewport and the width follows from the ratio, so a tall photograph
+     never pushes the car out of the screen. */
+  .car__win--tall { aspect-ratio: 3 / 4; max-height: 68dvh; width: auto;
+    justify-self: start; }
   .car__win :global(img) { width: 100%; height: 100%; object-fit: cover;
     filter: saturate(.94) contrast(1.02); }
   /* glass, not blur: a faint reflection sheen across the window */
