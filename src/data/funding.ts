@@ -87,7 +87,10 @@ export const AWARDS: Award[] = [
     name: 'Federal SEOG',
     tier: 'federal',
     amount: 'From $100 up to about $4,000 for a full academic year — but a school may award as much as $4,400 to a student on a study abroad program.',
-    received: { amountUSD: 1000, note: 'Awarded per semester in my 2025–26 package.' },
+    /* No `received` here on purpose. SEOG did not come through for the
+       Spring/Summer 2026 term, so nothing in this entry is a personal claim.
+       It stays in the directory because the study abroad ceiling below is
+       worth knowing whether or not it was awarded to this author. */
     who: 'Undergraduates with exceptional financial need. First priority goes to the lowest-SAI students who are also receiving Pell.',
     requires: [
       'A FAFSA on file, filed early',
