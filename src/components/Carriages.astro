@@ -51,7 +51,11 @@ const cars = [
               <span class="vest__sign">{String(c.n).padStart(2, '0')}</span>
             </div>
           )}
-          <article class="car">
+          {/* deliberately no id: an anchor target inside an overflow:hidden
+              sticky makes the browser scroll that container to reveal it,
+              which fights the transform and pushes the track off-screen.
+              Navigation is handled in script instead. */}
+          <article class="car" data-car={c.n}>
             <div class="car__win">
               <Image src={c.img} alt={`${c.city}, seen on the trip`} widths={[520, 900]} sizes="42vw" loading={i < 2 ? 'eager' : 'lazy'} />
               <span class="car__blur"></span>
@@ -197,21 +201,36 @@ const cars = [
     const vests = [...ride.querySelectorAll<HTMLElement>('.vest')];
     const cars = [...ride.querySelectorAll<HTMLElement>('.car')];
 
-    let frame = 0;
-    let lastX = 0;
-    let lastT = performance.now();
+    const sticky = ride.querySelector<HTMLElement>('.ride__sticky');
 
-    const paint = () => {
-      frame = 0;
-      const rect = ride.getBoundingClientRect();
-      const travel = Math.max(1, ride.offsetHeight - innerHeight);
-      const p = Math.min(1, Math.max(0, -rect.top / travel));
+    /* Geometry is measured on load and resize only. The scroll path below
+       then reads nothing from layout, which means it can run synchronously
+       on every scroll event instead of waiting for a frame.
+       That matters: requestAnimationFrame is suspended entirely in a hidden
+       tab, and anything that depends on it renders an empty section until
+       the first frame lands. */
+    let rideTop = 0, travel = 1, distance = 0, vw = 0;
+    let carMid: number[] = [], vestMid: number[] = [];
+    let lastX = 0, lastT = performance.now();
 
-      const distance = Math.max(0, track.scrollWidth - innerWidth);
+    const measure = () => {
+      vw = innerWidth;
+      rideTop = ride.offsetTop;
+      travel = Math.max(1, ride.offsetHeight - innerHeight);
+      distance = Math.max(0, track.scrollWidth - vw);
+      carMid = cars.map((c) => c.offsetLeft + c.offsetWidth / 2);
+      vestMid = vests.map((v) => v.offsetLeft + v.offsetWidth / 2);
+    };
+
+    const apply = () => {
+      /* overflow:hidden does not mean unscrollable: focus, find-in-page and
+         anchor jumps can all scroll this container and fight the transform. */
+      if (sticky && sticky.scrollLeft !== 0) sticky.scrollLeft = 0;
+
+      const p = Math.min(1, Math.max(0, (scrollY - rideTop) / travel));
       const x = p * distance;
       track.style.transform = `translate3d(${-x}px,0,0)`;
 
-      // velocity, normalised, drives window blur and the speed readout
       const now = performance.now();
       const dt = Math.max(16, now - lastT);
       const v = Math.min(1, (Math.abs(x - lastX) / dt) * 7);
@@ -219,37 +238,95 @@ const cars = [
       ride.style.setProperty('--vel', v.toFixed(3));
       if (kmh) kmh.textContent = String(Math.round(v * 320));
 
-      // each vestibule opens as it crosses the middle of the viewport
-      for (const vest of vests) {
-        const r = vest.getBoundingClientRect();
-        const centre = r.left + r.width / 2;
-        const d = Math.abs(centre - innerWidth / 2) / (innerWidth * 0.55);
+      const half = vw / 2;
+      vests.forEach((vest, i) => {
+        const d = Math.abs((vestMid[i] - x) - half) / (vw * 0.55);
         vest.style.setProperty('--open', (1 - Math.min(1, d)).toFixed(3));
-      }
-
-      // which car is in front of you
-      let active = 0;
-      cars.forEach((car, i) => {
-        const r = car.getBoundingClientRect();
-        if (r.left < innerWidth * 0.55 && r.right > innerWidth * 0.45) active = i;
       });
+
+      let active = 0;
+      carMid.forEach((m, i) => { if (m - x < vw * 0.62) active = i; });
       dots.forEach((d, i) => {
         if (i <= active) d.setAttribute('data-on', ''); else d.removeAttribute('data-on');
       });
     };
 
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(paint); };
+    const onScroll = () => apply();
+    const onResize = () => { measure(); apply(); };
     addEventListener('scroll', onScroll, { passive: true });
-    addEventListener('resize', onScroll, { passive: true });
-    paint();
+    addEventListener('resize', onResize, { passive: true });
+    measure();
+    apply();
+    /* images settling can change offsets, so re-measure once they are in */
+    addEventListener('load', onResize, { once: true });
+
+    /* A car lives inside a transformed horizontal track, so a plain #hash
+       cannot reach it. Translate "car N" into the vertical scroll position
+       that parks that car in the middle of the window. */
+    /* Tween the scroll ourselves. Native smooth scrolling silently no-ops in
+       some conditions (an unfocused tab is one), and this navigation is not
+       allowed to quietly do nothing. Also lets the easing match the ride. */
+    let tween = 0;
+    const scrollToCar = (n: number) => {
+      const car = cars.find((c) => c.dataset.car === String(n));
+      if (!car) return;
+      const distance = Math.max(1, track.scrollWidth - innerWidth);
+      const centre = car.offsetLeft + car.offsetWidth / 2 - innerWidth / 2;
+      const p = Math.min(1, Math.max(0, centre / distance));
+      const to = Math.round(ride.offsetTop + p * (ride.offsetHeight - innerHeight));
+
+      if (tween) cancelAnimationFrame(tween);
+      /* No animation frames in a hidden tab, and reduced motion asks for none.
+         Either way, land on the car rather than stall halfway. */
+      if (reduced.matches || document.hidden) {
+        scrollTo({ top: to, behavior: 'instant' as ScrollBehavior });
+        apply();
+        return;
+      }
+
+      const from = scrollY;
+      const delta = to - from;
+      if (Math.abs(delta) < 2) return;
+      const dur = Math.min(1500, 420 + Math.abs(delta) * 0.28);
+      const t0 = performance.now();
+      const ease = (x: number) => 1 - Math.pow(1 - x, 4);
+
+      const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / dur);
+        scrollTo({ top: from + delta * ease(k), behavior: 'instant' as ScrollBehavior });
+        tween = k < 1 ? requestAnimationFrame(step) : 0;
+      };
+      tween = requestAnimationFrame(step);
+    };
+
+    const onClick = (e: MouseEvent) => {
+      const link = (e.target as HTMLElement)?.closest?.('a[href^="#car-"]');
+      if (!link) return;
+      const n = Number(link.getAttribute('href')!.replace('#car-', ''));
+      if (!Number.isFinite(n)) return;
+      e.preventDefault();
+      history.replaceState(null, '', `#car-${n}`);
+      scrollToCar(n);
+    };
+    document.addEventListener('click', onClick);
+
+    // honour a #car-N already in the URL on load
+    const initial = Number(location.hash.replace('#car-', ''));
+    if (Number.isFinite(initial) && initial > 0) requestAnimationFrame(() => scrollToCar(initial));
 
     dispose = () => {
       removeEventListener('scroll', onScroll);
-      removeEventListener('resize', onScroll);
-      if (frame) cancelAnimationFrame(frame);
+      removeEventListener('resize', onResize);
+      removeEventListener('load', onResize);
+      document.removeEventListener('click', onClick);
+      if (tween) cancelAnimationFrame(tween);
     };
   }
 
-  setup();
-  document.addEventListener('astro:after-swap', setup);
+  /* astro:page-load fires on the first load AND after every client-side
+     navigation, which astro:after-swap does not reliably do for a script
+     that only appears on this route. Guard for the no-router case. */
+  document.addEventListener('astro:page-load', setup);
+  if (document.readyState !== 'loading') setup();
+  else document.addEventListener('DOMContentLoaded', setup, { once: true });
 </script>
